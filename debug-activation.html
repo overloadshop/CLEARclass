@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>激活状态调试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .debug-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>激活状态调试工具</h1>
+    
+    <div class="debug-panel">
+        <h2>当前URL信息</h2>
+        <div id="urlInfo"></div>
+    </div>
+    
+    <div class="debug-panel">
+        <h2>localStorage数据检查</h2>
+        <div id="storageInfo"></div>
+    </div>
+    
+    <div class="debug-panel">
+        <h2>激活状态检查</h2>
+        <div id="activationStatus"></div>
+    </div>
+    
+    <div class="debug-panel">
+        <h2>操作</h2>
+        <button onclick="checkStatus()">重新检查状态</button>
+        <button onclick="clearAllData()">清空所有数据</button>
+        <button onclick="addTestData()">添加测试数据</button>
+        <button onclick="goToIndex()">跳转到主页</button>
+        <button onclick="goToActivate()">跳转到激活页</button>
+    </div>
+    
+    <script>
+        // 检查激活状态的函数（复制自index.html）
+        function checkActivationStatus() {
+            const classInfo = localStorage.getItem('classInfo');
+            const studentList = localStorage.getItem('studentList');
+            const scheduleData = localStorage.getItem('scheduleData');
+            
+            if (!classInfo || !studentList || !scheduleData) {
+                return false;
+            }
+            
+            try {
+                const classInfoData = JSON.parse(classInfo);
+                const studentListData = JSON.parse(studentList);
+                const scheduleDataObj = JSON.parse(scheduleData);
+                
+                if (!classInfoData.className || studentListData.length === 0 || Object.keys(scheduleDataObj).length === 0) {
+                    return false;
+                }
+                
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+        
+        function checkStatus() {
+            // URL信息
+            const urlParams = new URLSearchParams(window.location.search);
+            const fromParam = urlParams.get('from');
+            document.getElementById('urlInfo').innerHTML = `
+                <div class="status ${fromParam ? 'warning' : 'success'}">
+                    <strong>当前URL:</strong> ${window.location.href}<br>
+                    <strong>from参数:</strong> ${fromParam || '无'}
+                </div>
+            `;
+            
+            // localStorage数据
+            const classInfo = localStorage.getItem('classInfo');
+            const studentList = localStorage.getItem('studentList');
+            const scheduleData = localStorage.getItem('scheduleData');
+            
+            let storageHtml = '';
+            
+            storageHtml += `<div class="status ${classInfo ? 'success' : 'error'}">`;
+            storageHtml += `<strong>classInfo:</strong> ${classInfo ? '存在' : '不存在'}`;
+            if (classInfo) {
+                try {
+                    const data = JSON.parse(classInfo);
+                    storageHtml += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } catch (e) {
+                    storageHtml += ` (解析错误: ${e.message})`;
+                }
+            }
+            storageHtml += '</div>';
+            
+            storageHtml += `<div class="status ${studentList ? 'success' : 'error'}">`;
+            storageHtml += `<strong>studentList:</strong> ${studentList ? '存在' : '不存在'}`;
+            if (studentList) {
+                try {
+                    const data = JSON.parse(studentList);
+                    storageHtml += ` (${data.length} 个学生)`;
+                } catch (e) {
+                    storageHtml += ` (解析错误: ${e.message})`;
+                }
+            }
+            storageHtml += '</div>';
+            
+            storageHtml += `<div class="status ${scheduleData ? 'success' : 'error'}">`;
+            storageHtml += `<strong>scheduleData:</strong> ${scheduleData ? '存在' : '不存在'}`;
+            if (scheduleData) {
+                try {
+                    const data = JSON.parse(scheduleData);
+                    storageHtml += ` (${Object.keys(data).length} 个时间段)`;
+                } catch (e) {
+                    storageHtml += ` (解析错误: ${e.message})`;
+                }
+            }
+            storageHtml += '</div>';
+            
+            document.getElementById('storageInfo').innerHTML = storageHtml;
+            
+            // 激活状态
+            const isActivated = checkActivationStatus();
+            document.getElementById('activationStatus').innerHTML = `
+                <div class="status ${isActivated ? 'success' : 'error'}">
+                    <strong>系统激活状态:</strong> ${isActivated ? '已激活' : '未激活'}
+                </div>
+            `;
+        }
+        
+        function clearAllData() {
+            localStorage.clear();
+            alert('所有数据已清空');
+            checkStatus();
+        }
+        
+        function addTestData() {
+            localStorage.setItem('classInfo', JSON.stringify({
+                className: '测试班级',
+                teacher: '测试老师'
+            }));
+            localStorage.setItem('studentList', JSON.stringify([
+                { name: '张三', id: '001' },
+                { name: '李四', id: '002' }
+            ]));
+            localStorage.setItem('scheduleData', JSON.stringify({
+                '1-1': '语文',
+                '1-2': '数学'
+            }));
+            alert('测试数据已添加');
+            checkStatus();
+        }
+        
+        function goToIndex() {
+            window.location.href = 'index.html';
+        }
+        
+        function goToActivate() {
+            window.location.href = 'Activate/first.html';
+        }
+        
+        // 页面加载时检查状态
+        window.onload = checkStatus;
+    </script>
+</body>
+</html>

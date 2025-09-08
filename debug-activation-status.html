@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>激活状态调试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .activated {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .not-activated {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .data-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        pre {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 3px;
+            overflow-x: auto;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .clear-btn {
+            background: #dc3545;
+        }
+        .clear-btn:hover {
+            background: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>激活状态调试工具</h1>
+        
+        <div id="status-display"></div>
+        
+        <div class="data-section">
+            <h3>localStorage 数据</h3>
+            <div id="localStorage-data"></div>
+        </div>
+        
+        <div class="data-section">
+            <h3>缓存模块状态</h3>
+            <div id="cache-status"></div>
+        </div>
+        
+        <div>
+            <button onclick="refreshData()">刷新数据</button>
+            <button onclick="testActivation()">测试激活检查</button>
+            <button onclick="clearAllData()" class="clear-btn">清空所有数据</button>
+            <button onclick="goToActivation()">进入激活页面</button>
+            <button onclick="goToMain()">进入主页面</button>
+        </div>
+    </div>
+
+    <!-- 加载缓存模块 -->
+    <script src="Cache/ClassInfoCache.js"></script>
+    
+    <script>
+        function checkActivationStatus() {
+            try {
+                // 优先使用缓存模块检查激活状态
+                if (typeof classInfoCache !== 'undefined') {
+                    const classInfo = classInfoCache.getClassInfo();
+                    return classInfo && classInfo.className && classInfo.className.trim() !== '';
+                }
+                
+                // 如果缓存模块未加载，回退到直接检查localStorage
+                const classInfo = localStorage.getItem('classInfo');
+                if (!classInfo) {
+                    return false;
+                }
+                
+                const classInfoData = JSON.parse(classInfo);
+                return classInfoData && classInfoData.className && classInfoData.className.trim() !== '';
+            } catch (e) {
+                console.error('检查激活状态失败:', e);
+                return false;
+            }
+        }
+        
+        function refreshData() {
+            const statusDiv = document.getElementById('status-display');
+            const localStorageDiv = document.getElementById('localStorage-data');
+            const cacheDiv = document.getElementById('cache-status');
+            
+            // 检查激活状态
+            const isActivated = checkActivationStatus();
+            statusDiv.innerHTML = `
+                <div class="status ${isActivated ? 'activated' : 'not-activated'}">
+                    系统状态: ${isActivated ? '已激活' : '未激活'}
+                </div>
+            `;
+            
+            // 显示localStorage数据
+            const relevantKeys = ['classInfo', 'classSystemSettings', 'studentList', 'scheduleData'];
+            let localStorageHtml = '';
+            
+            relevantKeys.forEach(key => {
+                const data = localStorage.getItem(key);
+                localStorageHtml += `
+                    <h4>${key}</h4>
+                    <pre>${data ? JSON.stringify(JSON.parse(data), null, 2) : '无数据'}</pre>
+                `;
+            });
+            
+            localStorageDiv.innerHTML = localStorageHtml;
+            
+            // 显示缓存模块状态
+            let cacheHtml = '';
+            if (typeof classInfoCache !== 'undefined') {
+                try {
+                    const classInfo = classInfoCache.getClassInfo();
+                    const cacheInfo = classInfoCache.getCacheInfo();
+                    
+                    cacheHtml = `
+                        <h4>缓存模块已加载</h4>
+                        <h5>班级信息:</h5>
+                        <pre>${JSON.stringify(classInfo, null, 2)}</pre>
+                        <h5>缓存信息:</h5>
+                        <pre>${JSON.stringify(cacheInfo, null, 2)}</pre>
+                    `;
+                } catch (e) {
+                    cacheHtml = `<p style="color: red;">缓存模块错误: ${e.message}</p>`;
+                }
+            } else {
+                cacheHtml = '<p style="color: red;">缓存模块未加载</p>';
+            }
+            
+            cacheDiv.innerHTML = cacheHtml;
+        }
+        
+        function testActivation() {
+            const result = checkActivationStatus();
+            alert(`激活状态检查结果: ${result ? '已激活' : '未激活'}`);
+        }
+        
+        function clearAllData() {
+            if (confirm('确定要清空所有数据吗？这将删除所有激活状态和设置。')) {
+                const keys = Object.keys(localStorage);
+                keys.forEach(key => localStorage.removeItem(key));
+                alert('所有数据已清空');
+                refreshData();
+            }
+        }
+        
+        function goToActivation() {
+            window.location.href = 'Activate/first.html';
+        }
+        
+        function goToMain() {
+            window.location.href = 'index.html';
+        }
+        
+        // 页面加载时刷新数据
+        window.addEventListener('DOMContentLoaded', refreshData);
+    </script>
+</body>
+</html>

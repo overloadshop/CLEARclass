@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试Index到WhoLucky的调用</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f7;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e5e5e7;
+            border-radius: 8px;
+        }
+        .test-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #1d1d1f;
+        }
+        .test-button {
+            background: #007aff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .log-area {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            height: 150px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        .status {
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin: 5px 0;
+            font-weight: 500;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Index到WhoLucky调用测试</h1>
+        
+        <div class="test-section">
+            <div class="test-title">1. 直接加载WhoLucky.html</div>
+            <button class="test-button" onclick="loadDirectWhoLucky()">直接加载WhoLucky</button>
+            <button class="test-button" onclick="clearIframe()">清空iframe</button>
+            <div id="directStatus" class="status info">等待测试...</div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">2. 模拟Index的switchPage调用</div>
+            <button class="test-button" onclick="simulateIndexCall()">模拟Index调用</button>
+            <button class="test-button" onclick="testWithTimestamp()">带时间戳调用</button>
+            <div id="indexStatus" class="status info">等待测试...</div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">3. iframe显示区域</div>
+            <div class="iframe-container">
+                <iframe id="testIframe" src=""></iframe>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">4. 调试日志</div>
+            <button class="test-button" onclick="clearLog()">清空日志</button>
+            <div id="logArea" class="log-area"></div>
+        </div>
+    </div>
+    
+    <script>
+        const iframe = document.getElementById('testIframe');
+        const logArea = document.getElementById('logArea');
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}\n`;
+            logArea.textContent += logEntry;
+            logArea.scrollTop = logArea.scrollHeight;
+            console.log(logEntry);
+        }
+        
+        function updateStatus(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `status ${type}`;
+        }
+        
+        function clearLog() {
+            logArea.textContent = '';
+        }
+        
+        function clearIframe() {
+            iframe.src = '';
+            log('iframe已清空');
+            updateStatus('directStatus', 'iframe已清空', 'info');
+            updateStatus('indexStatus', 'iframe已清空', 'info');
+        }
+        
+        function loadDirectWhoLucky() {
+            log('开始直接加载WhoLucky.html');
+            updateStatus('directStatus', '正在加载...', 'info');
+            
+            iframe.onload = function() {
+                log('WhoLucky.html加载完成');
+                updateStatus('directStatus', 'WhoLucky.html加载成功', 'success');
+                
+                // 检查iframe内容
+                setTimeout(() => {
+                    try {
+                        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                        const cards = iframeDoc.querySelectorAll('.feature-card');
+                        log(`检测到 ${cards.length} 个卡片`);
+                        
+                        if (cards.length > 0) {
+                            const card = cards[0];
+                            const computedStyle = iframeDoc.defaultView.getComputedStyle(card);
+                            log(`卡片显示状态: display=${computedStyle.display}, visibility=${computedStyle.visibility}`);
+                            log(`卡片尺寸: width=${computedStyle.width}, height=${computedStyle.height}`);
+                        }
+                    } catch (e) {
+                        log(`无法访问iframe内容: ${e.message}`, 'error');
+                    }
+                }, 500);
+            };
+            
+            iframe.onerror = function() {
+                log('WhoLucky.html加载失败', 'error');
+                updateStatus('directStatus', 'WhoLucky.html加载失败', 'error');
+            };
+            
+            iframe.src = 'pages/WhoLucky.html';
+        }
+        
+        function simulateIndexCall() {
+            log('开始模拟Index的switchPage调用');
+            updateStatus('indexStatus', '正在模拟Index调用...', 'info');
+            
+            // 模拟index.html中的switchPage逻辑
+            iframe.classList.add('page-exit');
+            log('添加退出动画类');
+            
+            setTimeout(() => {
+                const timestamp = new Date().getTime();
+                const url = `pages/WhoLucky.html?t=${timestamp}`;
+                log(`设置iframe源地址: ${url}`);
+                
+                iframe.onload = function() {
+                    log('模拟Index调用 - WhoLucky.html加载完成');
+                    updateStatus('indexStatus', '模拟Index调用成功', 'success');
+                    
+                    iframe.classList.remove('page-exit');
+                    iframe.classList.add('page-enter');
+                    log('移除退出动画，添加进入动画');
+                    
+                    setTimeout(() => {
+                        iframe.classList.remove('page-enter');
+                        iframe.classList.add('page-enter-active');
+                        log('激活进入动画');
+                        
+                        setTimeout(() => {
+                            iframe.classList.remove('page-enter-active');
+                            log('清理动画类');
+                        }, 300);
+                    }, 50);
+                };
+                
+                iframe.src = url;
+            }, 300);
+        }
+        
+        function testWithTimestamp() {
+            log('测试带时间戳的调用');
+            const timestamp = new Date().getTime();
+            const url = `pages/WhoLucky.html?t=${timestamp}`;
+            log(`加载URL: ${url}`);
+            
+            iframe.onload = function() {
+                log('带时间戳调用成功');
+                updateStatus('indexStatus', '带时间戳调用成功', 'success');
+            };
+            
+            iframe.src = url;
+        }
+        
+        // 监听iframe消息
+        window.addEventListener('message', function(event) {
+            log(`收到iframe消息: ${JSON.stringify(event.data)}`);
+        });
+        
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            log('测试页面初始化完成');
+        });
+    </script>
+</body>
+</html>

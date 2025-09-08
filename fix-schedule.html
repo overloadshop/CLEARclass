@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程表修复工具</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f7;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1d1d1f;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .btn {
+            background: #007aff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+            display: block;
+            width: 100%;
+        }
+        .btn:hover {
+            background: #0056cc;
+        }
+        .btn-danger {
+            background: #ff3b30;
+        }
+        .btn-danger:hover {
+            background: #d70015;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>📚 课程表修复工具</h1>
+        
+        <div id="status" class="status info">
+            检测到课程表显示问题，这通常是因为没有课程数据。
+        </div>
+        
+        <button class="btn" onclick="loadSampleData()">🔄 加载示例课程表数据</button>
+        <button class="btn btn-danger" onclick="clearAllData()">🗑️ 清除所有课程表数据</button>
+        <button class="btn" onclick="goToSchedule()">📋 返回课程表页面</button>
+        
+        <div style="margin-top: 30px; font-size: 14px; color: #666; text-align: center;">
+            <p><strong>说明：</strong></p>
+            <p>• 如果课程表显示"点击编辑课程"，说明没有课程数据</p>
+            <p>• 点击"加载示例课程表数据"可以快速添加示例课程</p>
+            <p>• 也可以在课程表页面手动导入CSV文件</p>
+        </div>
+    </div>
+
+    <script>
+        function showStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+        }
+
+        function loadSampleData() {
+            // 示例时间段数据
+            const sampleTimeSlots = [
+                {"name": "第1节课", "start": "08:00", "end": "08:45", "type": "class"},
+                {"name": "课间操", "start": "08:45", "end": "08:55", "type": "break"},
+                {"name": "第2节课", "start": "08:55", "end": "09:40", "type": "class"},
+                {"name": "大课间", "start": "09:40", "end": "10:00", "type": "break"},
+                {"name": "第3节课", "start": "10:00", "end": "10:45", "type": "class"},
+                {"name": "第4节课", "start": "10:55", "end": "11:40", "type": "class"},
+                {"name": "午休", "start": "12:00", "end": "14:00", "type": "break"},
+                {"name": "第5节课", "start": "14:00", "end": "14:45", "type": "class"},
+                {"name": "第6节课", "start": "14:55", "end": "15:40", "type": "class"},
+                {"name": "第7节课", "start": "15:50", "end": "16:35", "type": "class"}
+            ];
+
+            // 示例星期数据
+            const sampleWeekDays = ["周一", "周二", "周三", "周四", "周五"];
+
+            // 示例课程数据
+            const sampleScheduleData = {
+                "0-0": "语文",
+                "0-1": "数学",
+                "0-2": "英语",
+                "0-3": "语文",
+                "0-4": "数学",
+                "2-0": "数学",
+                "2-1": "语文",
+                "2-2": "数学",
+                "2-3": "数学",
+                "2-4": "语文",
+                "4-0": "英语",
+                "4-1": "物理",
+                "4-2": "语文",
+                "4-3": "历史",
+                "4-4": "英语",
+                "5-0": "音乐",
+                "5-1": "化学",
+                "5-2": "生物",
+                "5-3": "地理",
+                "5-4": "政治",
+                "7-0": "体育",
+                "7-1": "美术",
+                "7-2": "体育",
+                "7-3": "信息技术",
+                "7-4": "美术",
+                "8-0": "信息技术",
+                "8-1": "英语",
+                "8-2": "音乐",
+                "8-3": "英语",
+                "8-4": "体育",
+                "9-0": "劳动",
+                "9-1": "班会",
+                "9-2": "自习",
+                "9-3": "劳动",
+                "9-4": "班会"
+            };
+
+            try {
+                localStorage.setItem('timeSlots', JSON.stringify(sampleTimeSlots));
+                localStorage.setItem('weekDays', JSON.stringify(sampleWeekDays));
+                localStorage.setItem('scheduleData', JSON.stringify(sampleScheduleData));
+                showStatus('✅ 示例课程表数据已加载成功！', 'success');
+            } catch (e) {
+                showStatus('❌ 数据加载失败：' + e.message, 'danger');
+            }
+        }
+
+        function clearAllData() {
+            if (confirm('确定要清除所有课程表数据吗？此操作不可撤销。')) {
+                try {
+                    localStorage.removeItem('scheduleData');
+                    localStorage.removeItem('timeSlots');
+                    localStorage.removeItem('weekDays');
+                    showStatus('✅ 所有课程表数据已清除！', 'success');
+                } catch (e) {
+                    showStatus('❌ 数据清除失败：' + e.message, 'danger');
+                }
+            }
+        }
+
+        function goToSchedule() {
+            window.location.href = 'pages/Schedule.html';
+        }
+
+        // 页面加载时检查当前数据状态
+        window.onload = function() {
+            const hasScheduleData = localStorage.getItem('scheduleData');
+            const hasTimeSlots = localStorage.getItem('timeSlots');
+            const hasWeekDays = localStorage.getItem('weekDays');
+            
+            if (hasScheduleData && hasTimeSlots && hasWeekDays) {
+                showStatus('✅ 检测到现有课程表数据', 'success');
+            } else {
+                showStatus('⚠️ 未检测到课程表数据，建议加载示例数据', 'info');
+            }
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程表缓存测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f7;
+        }
+        .test-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .test-item {
+            margin: 15px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .test-result {
+            font-weight: bold;
+            color: #007AFF;
+        }
+        button {
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>课程表缓存测试</h1>
+        
+        <div class="test-item">
+            <h3>当前时间</h3>
+            <div id="currentTime" class="test-result">--</div>
+        </div>
+        
+        <div class="test-item">
+            <h3>当前课程</h3>
+            <div id="currentCourse" class="test-result">--</div>
+        </div>
+        
+        <div class="test-item">
+            <h3>课程表数据状态</h3>
+            <div id="scheduleStatus" class="test-result">--</div>
+        </div>
+        
+        <div class="test-item">
+            <h3>时间段数据状态</h3>
+            <div id="timeSlotsStatus" class="test-result">--</div>
+        </div>
+        
+        <div class="test-item">
+            <button onclick="testScheduleCache()">测试课程表缓存</button>
+            <button onclick="addTestData()">添加测试数据</button>
+            <button onclick="clearTestData()">清空测试数据</button>
+        </div>
+        
+        <div class="test-item">
+            <h3>调试信息</h3>
+            <div id="debugInfo" style="font-family: monospace; font-size: 12px; background: #f0f0f0; padding: 10px; border-radius: 4px; white-space: pre-wrap;">--</div>
+        </div>
+    </div>
+    
+    <script src="Cache/ScheduleCache.js"></script>
+    <script>
+        function updateCurrentTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = now.toLocaleString('zh-CN');
+        }
+        
+        function testScheduleCache() {
+            try {
+                const debugInfo = [];
+                
+                // 检查ScheduleCache是否加载
+                if (typeof scheduleCache === 'undefined') {
+                    debugInfo.push('❌ ScheduleCache未加载');
+                    document.getElementById('debugInfo').textContent = debugInfo.join('\n');
+                    return;
+                }
+                
+                debugInfo.push('✅ ScheduleCache已加载');
+                
+                // 获取课程表数据
+                const scheduleData = scheduleCache.getScheduleData();
+                const scheduleKeys = Object.keys(scheduleData);
+                document.getElementById('scheduleStatus').textContent = 
+                    `${scheduleKeys.length}个星期数据: ${scheduleKeys.join(', ')}`;
+                debugInfo.push(`课程表数据: ${JSON.stringify(scheduleData, null, 2)}`);
+                
+                // 获取时间段数据
+                const timeSlots = scheduleCache.getTimeSlots();
+                document.getElementById('timeSlotsStatus').textContent = 
+                    `${timeSlots.length}个时间段`;
+                debugInfo.push(`时间段数据: ${JSON.stringify(timeSlots, null, 2)}`);
+                
+                // 获取当前课程
+                const currentCourse = scheduleCache.getCurrentCourse();
+                document.getElementById('currentCourse').textContent = currentCourse;
+                debugInfo.push(`当前课程: ${currentCourse}`);
+                
+                document.getElementById('debugInfo').textContent = debugInfo.join('\n');
+                
+            } catch (e) {
+                console.error('测试失败:', e);
+                document.getElementById('debugInfo').textContent = `❌ 测试失败: ${e.message}`;
+            }
+        }
+        
+        function addTestData() {
+            try {
+                // 添加测试时间段
+                const testTimeSlots = [
+                    { id: 'slot1', name: '第一节', startTime: '08:00', endTime: '08:45' },
+                    { id: 'slot2', name: '第二节', startTime: '08:55', endTime: '09:40' },
+                    { id: 'slot3', name: '第三节', startTime: '10:00', endTime: '10:45' },
+                    { id: 'slot4', name: '第四节', startTime: '10:55', endTime: '11:40' }
+                ];
+                
+                scheduleCache.setTimeSlots(testTimeSlots);
+                
+                // 添加测试课程表数据
+                const testScheduleData = {
+                    day1: { // 周一
+                        slot1: { subject: '语文', teacher: '张老师', classroom: '101' },
+                        slot2: { subject: '数学', teacher: '李老师', classroom: '102' },
+                        slot3: { subject: '英语', teacher: '王老师', classroom: '103' },
+                        slot4: { subject: '物理', teacher: '赵老师', classroom: '104' }
+                    },
+                    day2: { // 周二
+                        slot1: { subject: '化学', teacher: '钱老师', classroom: '201' },
+                        slot2: { subject: '生物', teacher: '孙老师', classroom: '202' },
+                        slot3: { subject: '历史', teacher: '周老师', classroom: '203' },
+                        slot4: { subject: '地理', teacher: '吴老师', classroom: '204' }
+                    }
+                };
+                
+                scheduleCache.setScheduleData(testScheduleData);
+                scheduleCache.save();
+                
+                alert('测试数据已添加！');
+                testScheduleCache();
+                
+            } catch (e) {
+                console.error('添加测试数据失败:', e);
+                alert('添加测试数据失败: ' + e.message);
+            }
+        }
+        
+        function clearTestData() {
+            try {
+                localStorage.removeItem('scheduleData');
+                localStorage.removeItem('timeSlots');
+                scheduleCache.load(); // 重新加载
+                alert('测试数据已清空！');
+                testScheduleCache();
+            } catch (e) {
+                console.error('清空测试数据失败:', e);
+                alert('清空测试数据失败: ' + e.message);
+            }
+        }
+        
+        // 页面加载时初始化
+        window.addEventListener('DOMContentLoaded', function() {
+            updateCurrentTime();
+            setInterval(updateCurrentTime, 1000); // 每秒更新时间
+            testScheduleCache();
+        });
+    </script>
+</body>
+</html>

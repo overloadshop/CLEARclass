@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试iframe加载</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            background: #007aff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>测试iframe加载RandomPicker.html</h1>
+    <button onclick="loadRandomPicker()">加载RandomPicker</button>
+    <button onclick="clearIframe()">清空iframe</button>
+    <br><br>
+    <iframe id="testIframe" src=""></iframe>
+    
+    <script>
+        function loadRandomPicker() {
+            const iframe = document.getElementById('testIframe');
+            iframe.src = 'pages/RandomPicker.html';
+            console.log('加载RandomPicker.html到iframe');
+        }
+        
+        function clearIframe() {
+            const iframe = document.getElementById('testIframe');
+            iframe.src = '';
+            console.log('清空iframe');
+        }
+        
+        // 监听来自iframe的消息
+        window.addEventListener('message', function(event) {
+            console.log('收到iframe消息:', event.data);
+            if (event.data === 'closeRollCall') {
+                clearIframe();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>激活测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            background: #f8f9fa;
+        }
+        pre {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 3px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>激活功能测试</h1>
+        
+        <div class="status" id="status">检查中...</div>
+        
+        <button onclick="saveTestActivationData()">保存测试激活数据</button>
+        <button onclick="clearAllData()">清空所有数据</button>
+        <button onclick="checkStatus()">检查状态</button>
+        <button onclick="goToMain()">进入主页</button>
+        
+        <h3>localStorage 数据:</h3>
+        <div id="data-display"></div>
+    </div>
+
+    <script>
+        function saveTestActivationData() {
+            try {
+                // 创建测试班级信息
+                const classInfo = {
+                    className: '测试班级',
+                    teacher: '测试老师',
+                    grade: '高一',
+                    createdAt: new Date().toISOString()
+                };
+                
+                // 创建测试学生列表
+                const studentList = [
+                    { name: '张三', id: '001' },
+                    { name: '李四', id: '002' },
+                    { name: '王五', id: '003' }
+                ];
+                
+                // 创建测试课程表数据
+                const scheduleData = {
+                    '1-1': '语文',
+                    '1-2': '数学',
+                    '2-1': '英语',
+                    '2-2': '物理'
+                };
+                
+                // 保存激活状态数据
+                localStorage.setItem('classInfo', JSON.stringify(classInfo));
+                localStorage.setItem('studentList', JSON.stringify(studentList));
+                localStorage.setItem('scheduleData', JSON.stringify(scheduleData));
+                
+                // 设置系统设置，默认开启Hello激活功能
+                const classSystemSettings = {
+                    helloActivation: true,
+                    theme: 'light',
+                    notifications: true
+                };
+                localStorage.setItem('classSystemSettings', JSON.stringify(classSystemSettings));
+                
+                console.log('测试激活状态数据已保存:', {
+                    classInfo,
+                    studentList: studentList.length + ' 个学生',
+                    scheduleData: Object.keys(scheduleData).length + ' 个时间段',
+                    helloActivation: '已开启'
+                });
+                
+                alert('测试激活数据已保存！');
+                checkStatus();
+            } catch (error) {
+                console.error('保存测试激活状态数据失败:', error);
+                alert('保存失败: ' + error.message);
+            }
+        }
+        
+        function clearAllData() {
+            if (confirm('确定要清空所有数据吗？')) {
+                localStorage.clear();
+                alert('所有数据已清空');
+                checkStatus();
+            }
+        }
+        
+        function checkStatus() {
+            const statusDiv = document.getElementById('status');
+            const dataDiv = document.getElementById('data-display');
+            
+            // 检查激活状态
+            const classInfo = localStorage.getItem('classInfo');
+            const classSystemSettings = localStorage.getItem('classSystemSettings');
+            
+            let isActivated = false;
+            if (classInfo) {
+                try {
+                    const classInfoData = JSON.parse(classInfo);
+                    isActivated = classInfoData && classInfoData.className && classInfoData.className.trim() !== '';
+                } catch (e) {
+                    console.error('解析classInfo失败:', e);
+                }
+            }
+            
+            statusDiv.innerHTML = `
+                <strong>激活状态:</strong> ${isActivated ? '已激活' : '未激活'}<br>
+                <strong>Hello功能:</strong> ${classSystemSettings ? '设置已保存' : '设置未保存'}
+            `;
+            
+            // 显示所有相关数据
+            const keys = ['classInfo', 'classSystemSettings', 'studentList', 'scheduleData'];
+            let html = '';
+            
+            keys.forEach(key => {
+                const data = localStorage.getItem(key);
+                html += `<h4>${key}:</h4>`;
+                if (data) {
+                    try {
+                        const parsed = JSON.parse(data);
+                        html += `<pre>${JSON.stringify(parsed, null, 2)}</pre>`;
+                    } catch (e) {
+                        html += `<pre>${data}</pre>`;
+                    }
+                } else {
+                    html += `<p style="color: #666;">无数据</p>`;
+                }
+            });
+            
+            dataDiv.innerHTML = html;
+        }
+        
+        function goToMain() {
+            window.location.href = 'index.html?from=activate';
+        }
+        
+        // 页面加载时检查状态
+        window.addEventListener('DOMContentLoaded', checkStatus);
+    </script>
+</body>
+</html>

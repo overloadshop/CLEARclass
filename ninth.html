@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>欢迎页面</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            overflow: hidden;
+            position: relative;
+            height: 100vh;
+        }
+        
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        
+        .container {
+            position: relative;
+            z-index: 2;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #text-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .text-svg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+            display: none;
+        }
+        
+        .text-svg path {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+        }
+        
+        @media (max-width: 768px) {
+            .text-svg {
+                width: 80%;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <div class="container">
+        <div id="text-container">
+            <!-- SVG for "你好" (真实手写风格) -->
+             <svg id="chinese-svg" class="text-svg" width="400" height="150" viewBox="0 0 400 150">
+                 <g stroke="white" stroke-linecap="round" stroke-linejoin="round">
+                     <!-- 你字 - 自然手写风格 -->
+                     <!-- 人字旁撇 (有弧度和粗细变化) -->
+                     <path data-duration="20" stroke-width="2.5" d="M52,48 Q58,52 62,58 Q66,65 70,72 Q73,78 76,83" opacity="0.95"/>
+                     <!-- 人字旁捺 (自然连接) -->
+                     <path data-duration="18" stroke-width="3" d="M76,83 Q80,81 84,82 Q88,84 92,86 Q96,88 100,89" opacity="0.95"/>
+                     
+                     <!-- 尔字部分 (手写不规整) -->
+                     <!-- 上横 (略有弧度) -->
+                     <path data-duration="15" stroke-width="2" d="M122,42 Q135,40 148,41 Q155,42 158,43" opacity="0.9"/>
+                     <!-- 左竖 (微微倾斜) -->
+                     <path data-duration="20" stroke-width="2.5" d="M131,47 Q130,55 129,63 Q128,72 129,80 Q130,84 131,86" opacity="0.9"/>
+                     <!-- 中横 (连笔效果) -->
+                     <path data-duration="15" stroke-width="2" d="M122,62 Q131,61 140,62 Q149,63 157,62" opacity="0.9"/>
+                     <!-- 右竖 (自然变化) -->
+                     <path data-duration="20" stroke-width="2.5" d="M151,47 Q150,55 151,63 Q152,72 151,80 Q150,84 151,86" opacity="0.9"/>
+                     <!-- 下横 (手写收尾) -->
+                     <path data-duration="15" stroke-width="2" d="M122,86 Q135,85 148,86 Q155,87 158,86" opacity="0.9"/>
+                     
+                     <!-- 好字 (更自然的笔画) -->
+                     <!-- 女字旁撇 (流畅弧线) -->
+                     <path data-duration="25" stroke-width="3" d="M202,42 Q206,48 210,55 Q214,62 218,69 Q222,76 225,81" opacity="0.95"/>
+                     <!-- 女字旁横折 (连笔) -->
+                     <path data-duration="20" stroke-width="2.5" d="M202,57 Q210,56 218,57 Q226,58 230,59 Q231,61 230,63 Q229,65 228,66" opacity="0.9"/>
+                     <!-- 女字旁下撇点 (自然收笔) -->
+                     <path data-duration="15" stroke-width="2" d="M212,72 Q216,76 219,80 Q221,83 222,85" opacity="0.9"/>
+                     
+                     <!-- 子字部分 (手写特征) -->
+                     <!-- 子字横 (微弧度) -->
+                     <path data-duration="18" stroke-width="2" d="M252,42 Q265,41 278,42 Q285,43 288,44" opacity="0.9"/>
+                     <!-- 子字竖钩 (自然钩形) -->
+                     <path data-duration="25" stroke-width="2.5" d="M271,47 Q270,55 271,63 Q272,72 271,79 Q270,82 272,84 Q274,85 276,83 Q278,81 277,79" opacity="0.95"/>
+                     <!-- 子字下横 (手写收尾) -->
+                     <path data-duration="18" stroke-width="2" d="M252,86 Q265,85 278,86 Q285,87 288,86" opacity="0.9"/>
+                 </g>
+             </svg>
+             
+             <!-- SVG for "Hello" (真实手写风格) -->
+             <svg id="english-svg" class="text-svg" width="450" height="120" viewBox="0 0 450 120">
+                 <g stroke="white" stroke-linecap="round" stroke-linejoin="round">
+                     <!-- h字母 (手写连笔风格) -->
+                     <path data-duration="20" stroke-width="2.5" d="M42,32 Q41,40 42,48 Q43,56 42,64 Q41,70 42,74" opacity="0.95"/>
+                     <path data-duration="15" stroke-width="2" d="M42,54 Q50,53 58,54 Q66,55 68,54" opacity="0.9"/>
+                     <path data-duration="20" stroke-width="2.5" d="M68,37 Q69,45 68,53 Q67,61 68,69 Q69,73 68,76" opacity="0.95"/>
+                     
+                     <!-- e字母 (自然圆弧) -->
+                     <path data-duration="25" stroke-width="2.5" d="M102,54 Q108,48 115,52 Q122,56 120,62 Q118,68 112,70 Q106,69 102,66 Q100,62 102,58" opacity="0.95"/>
+                     <path data-duration="10" stroke-width="2" d="M100,62 Q108,61 116,62 Q120,62 122,61" opacity="0.9"/>
+                     
+                     <!-- l字母 (微微倾斜) -->
+                     <path data-duration="18" stroke-width="2.5" d="M152,32 Q151,40 152,48 Q153,56 152,64 Q151,70 152,74" opacity="0.95"/>
+                     
+                     <!-- l字母 (自然变化) -->
+                     <path data-duration="18" stroke-width="2.5" d="M182,32 Q181,40 182,48 Q183,56 182,64 Q181,70 182,74" opacity="0.95"/>
+                     
+                     <!-- o字母 (手写圆形) -->
+                     <path data-duration="25" stroke-width="2.5" d="M212,54 Q218,48 225,52 Q232,56 230,62 Q228,68 222,70 Q216,69 212,66 Q210,62 212,58 Q213,54 216,52" opacity="0.95"/>
+                 </g>
+             </svg>
+        </div>
+    </div>
+    
+    <!-- 引入Vivus.js库 -->
+    <script src="vivus.min.js"></script>
+    
+    <script>
+        // 创建星空背景
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const numStars = 100;
+            
+            // 使用固定种子的伪随机数生成器
+            let seed = 12345;
+            function random() {
+                seed = (seed * 9301 + 49297) % 233280;
+                return seed / 233280;
+            }
+            
+            for (let i = 0; i < numStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                
+                const size = random() * 3 + 1;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.left = random() * 100 + '%';
+                star.style.top = random() * 100 + '%';
+                star.style.animationDelay = random() * 3 + 's';
+                
+                starsContainer.appendChild(star);
+            }
+        }
+        
+        function startAnimation() {
+             // 显示"你好" SVG并开始动画
+             const chineseSvg = document.getElementById('chinese-svg');
+             chineseSvg.style.display = 'block';
+             
+             // 创建"你好"流畅手写动画
+             const chineseVivus = new Vivus('chinese-svg', {
+                 type: 'delayed',
+                 duration: 180,
+                 start: 'manual',
+                 animTimingFunction: Vivus.EASE
+             }, function() {
+                 // "你好"动画完成后，等待2.5秒然后隐藏
+                 setTimeout(() => {
+                     chineseSvg.style.display = 'none';
+                     
+                     // 显示"Hello" SVG并开始动画
+                     const englishSvg = document.getElementById('english-svg');
+                     englishSvg.style.display = 'block';
+                     
+                     const englishVivus = new Vivus('english-svg', {
+                         type: 'delayed',
+                         duration: 160,
+                         start: 'manual',
+                         animTimingFunction: Vivus.EASE
+                     }, function() {
+                         // "Hello"动画完成后，等待2.5秒然后隐藏，开始下一轮循环
+                         setTimeout(() => {
+                             englishSvg.style.display = 'none';
+                             setTimeout(startAnimation, 1000); // 1秒后开始下一轮
+                         }, 2000);
+                     });
+                     
+                     englishVivus.play();
+                 }, 2500);
+             });
+             
+             chineseVivus.play();
+         }
+        
+        // 页面加载完成后开始动画
+        window.addEventListener('load', function() {
+            createStars();
+            setTimeout(startAnimation, 1000);
+        });
+    </script>
+</body>
+</html>
