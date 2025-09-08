@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>弹窗系统测试页面</title>
+    <link rel="stylesheet" href="../popup-system/popup-system.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 弹窗系统测试页面</h1>
+            <p>高自由度的Toast、Modal、Confirm弹窗组件测试</p>
+        </div>
+        
+        <div class="content">
+            <!-- Toast 测试 -->
+            <div class="section">
+                <h2>🍞 Toast 吐司提示</h2>
+                <div class="description">
+                    支持多种类型、位置、自定义图标和回调的Toast提示系统
+                </div>
+                
+                <div class="button-grid">
+                    <button class="test-btn success" onclick="testToastSuccess()">成功提示</button>
+                    <button class="test-btn danger" onclick="testToastError()">错误提示</button>
+                    <button class="test-btn warning" onclick="testToastWarning()">警告提示</button>
+                    <button class="test-btn" onclick="testToastInfo()">信息提示</button>
+                    <button class="test-btn" onclick="testToastCustom()">自定义Toast</button>
+                    <button class="test-btn" onclick="testToastPosition()">不同位置</button>
+                    <button class="test-btn" onclick="testToastPersistent()">持久显示</button>
+                    <button class="test-btn danger" onclick="toast.clear()">清除所有</button>
+                </div>
+                
+                <div class="code-example">
+// 基础用法
+toast.success('操作成功！');
+toast.error('操作失败！');
+toast.warning('请注意！');
+toast.info('提示信息');
+
+// 高级用法
+toast.show({
+    message: '自定义消息',
+    type: 'success',
+    duration: 5000,
+    position: 'top-center',
+    icon: '🎉',
+    onClick: () => console.log('点击了Toast')
+});
+                </div>
+            </div>
+            
+            <!-- Modal 测试 -->
+            <div class="section">
+                <h2>📱 Modal 模态框</h2>
+                <div class="description">
+                    灵活的模态框系统，支持自定义内容、大小和按钮配置
+                </div>
+                
+                <div class="button-grid">
+                    <button class="test-btn" onclick="testModalBasic()">基础模态框</button>
+                    <button class="test-btn" onclick="testModalLarge()">大尺寸模态框</button>
+                    <button class="test-btn" onclick="testModalForm()">表单模态框</button>
+                    <button class="test-btn" onclick="testModalCustom()">自定义按钮</button>
+                    <button class="test-btn" onclick="testModalAlert()">Alert 提示</button>
+                    <button class="test-btn" onclick="testModalPrompt()">Prompt 输入</button>
+                    <button class="test-btn" onclick="testModalConfirm()">Confirm 确认</button>
+                    <button class="test-btn danger" onclick="modal.closeAll()">关闭所有</button>
+                </div>
+                
+                <div class="code-example">
+// 基础用法
+modal.alert('这是一个提示');
+modal.confirm('确定要删除吗？').then(result => {
+    console.log('用户选择:', result);
+});
+
+// 高级用法
+modal.show({
+    title: '自定义模态框',
+    content: '这里是内容',
+    size: 'large',
+    buttons: [
+        { text: '取消' },
+        { text: '确定', type: 'primary', onClick: () => console.log('确定') }
+    ]
+});
+                </div>
+            </div>
+            
+            <!-- Confirm 测试 -->
+            <div class="section">
+                <h2>❓ Confirm 确认对话框</h2>
+                <div class="description">
+                    专业的确认对话框，支持多种场景和丰富的视觉反馈
+                </div>
+                
+                <div class="button-grid">
+                    <button class="test-btn warning" onclick="testConfirmWarning()">警告确认</button>
+                    <button class="test-btn danger" onclick="testConfirmError()">错误确认</button>
+                    <button class="test-btn" onclick="testConfirmInfo()">信息确认</button>
+                    <button class="test-btn success" onclick="testConfirmSuccess()">成功确认</button>
+                    <button class="test-btn" onclick="testConfirmQuestion()">问题确认</button>
+                    <button class="test-btn danger" onclick="testConfirmDelete()">删除确认</button>
+                    <button class="test-btn" onclick="testConfirmSave()">保存确认</button>
+                    <button class="test-btn warning" onclick="testConfirmExit()">退出确认</button>
+                </div>
+                
+                <div class="code-example">
+// 基础用法
+confirm.warning('这是一个警告').then(result => {
+    console.log('用户选择:', result);
+});
+
+// 便捷方法
+confirm.delete('确定要删除这个文件吗？').then(result => {
+    if (result) {
+        console.log('执行删除操作');
+    }
+});
+
+// 自定义确认
+confirm.show({
+    title: '自定义确认',
+    content: '这里是确认内容',
+    type: 'question',
+    buttons: [
+        { text: '取消' },
+        { text: '确定', type: 'primary' }
+    ]
+});
+                </div>
+            </div>
+            
+            <!-- 组合测试 -->
+            <div class="section">
+                <h2>🔗 组合测试</h2>
+                <div class="description">
+                    测试多个弹窗组件的组合使用和交互效果
+                </div>
+                
+                <div class="button-grid">
+                    <button class="test-btn" onclick="testCombination1()">确认+Toast</button>
+                    <button class="test-btn" onclick="testCombination2()">Modal+Confirm</button>
+                    <button class="test-btn" onclick="testCombination3()">多层Modal</button>
+                    <button class="test-btn" onclick="testCombination4()">完整流程</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 引入弹窗系统 -->
+    <script src="../popup-system/toast.js"></script>
+    <script src="../popup-system/modal.js"></script>
+    <script src="../popup-system/confirm.js"></script>
+    
+    <script>
+        // Toast 测试函数
+        function testToastSuccess() {
+            toast.success('操作成功！数据已保存');
+        }
+        
+        function testToastError() {
+            toast.error('操作失败！请检查网络连接');
+        }
+        
+        function testToastWarning() {
+            toast.warning('请注意！您有未保存的更改');
+        }
+        
+        function testToastInfo() {
+            toast.info('这是一条信息提示');
+        }
+        
+        function testToastCustom() {
+            toast.show({
+                message: '🎉 自定义Toast，点击我试试！',
+                type: 'custom',
+                duration: 5000,
+                icon: '🚀',
+                onClick: () => {
+                    toast.success('你点击了Toast！');
+                }
+            });
+        }
+        
+        function testToastPosition() {
+            const positions = ['top-left', 'top-center', 'top-right', 'bottom-left', 'bottom-center', 'bottom-right'];
+            positions.forEach((pos, index) => {
+                setTimeout(() => {
+                    toast.show({
+                        message: `位置: ${pos}`,
+                        position: pos,
+                        duration: 2000
+                    });
+                }, index * 300);
+            });
+        }
+        
+        function testToastPersistent() {
+            toast.show({
+                message: '这是一个持久显示的Toast，点击关闭按钮才会消失',
+                type: 'info',
+                duration: 0,
+                closable: true
+            });
+        }
+        
+        // Modal 测试函数
+        function testModalBasic() {
+            modal.show({
+                title: '基础模态框',
+                content: '这是一个基础的模态框示例，包含标题、内容和按钮。',
+                buttons: [
+                    { text: '取消' },
+                    { text: '确定', type: 'primary' }
+                ]
+            });
+        }
+        
+        function testModalLarge() {
+            modal.show({
+                title: '大尺寸模态框',
+                content: `
+                    <h3>这是一个大尺寸的模态框</h3>
+                    <p>可以容纳更多的内容，比如：</p>
+                    <ul>
+                        <li>详细的说明文字</li>
+                        <li>复杂的表单元素</li>
+                        <li>图片和媒体内容</li>
+                        <li>数据表格等</li>
+                    </ul>
+                    <p>模态框会自动适应内容的高度，并在超出屏幕时显示滚动条。</p>
+                `,
+                size: 'large',
+                buttons: [
+                    { text: '关闭', type: 'primary' }
+                ]
+            });
+        }
+        
+        function testModalForm() {
+            const formContent = document.createElement('div');
+            formContent.innerHTML = `
+                <form id="testForm">
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; margin-bottom: 4px; font-weight: 500;">姓名：</label>
+                        <input type="text" name="name" style="width: 100%; padding: 8px; border: 1px solid #d9d9d9; border-radius: 4px;" placeholder="请输入姓名">
+                    </div>
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; margin-bottom: 4px; font-weight: 500;">邮箱：</label>
+                        <input type="email" name="email" style="width: 100%; padding: 8px; border: 1px solid #d9d9d9; border-radius: 4px;" placeholder="请输入邮箱">
+                    </div>
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; margin-bottom: 4px; font-weight: 500;">备注：</label>
+                        <textarea name="note" rows="3" style="width: 100%; padding: 8px; border: 1px solid #d9d9d9; border-radius: 4px; resize: vertical;" placeholder="请输入备注"></textarea>
+                    </div>
+                </form>
+            `;
+            
+            modal.show({
+                title: '表单模态框',
+                content: formContent,
+                buttons: [
+                    { text: '取消' },
+                    { 
+                        text: '提交', 
+                        type: 'primary',
+                        onClick: () => {
+                            const form = document.getElementById('testForm');
+                            const formData = new FormData(form);
+                            const data = Object.fromEntries(formData);
+                            toast.success(`表单提交成功！数据：${JSON.stringify(data)}`);
+                            return true;
+                        }
+                    }
+                ]
+            });
+        }
+        
+        function testModalCustom() {
+            modal.show({
+                title: '自定义按钮模态框',
+                content: '这个模态框有多个自定义按钮，每个按钮都有不同的样式和行为。',
+                buttons: [
+                    { text: '取消' },
+                    { text: '保存草稿', onClick: () => { toast.info('已保存草稿'); return false; } },
+                    { text: '发布', type: 'success', onClick: () => { toast.success('发布成功！'); } },
+                    { text: '删除', type: 'danger', onClick: () => { toast.error('已删除'); } }
+                ]
+            });
+        }
+        
+        function testModalAlert() {
+            modal.alert('这是一个Alert提示框，只有一个确定按钮。', '提示');
+        }
+        
+        async function testModalConfirm() {
+            const result = await modal.confirm('确定要执行这个操作吗？', '确认');
+            toast.info(`用户选择了：${result ? '确定' : '取消'}`);
+        }
+        
+        async function testModalPrompt() {
+            const result = await modal.prompt('请输入您的姓名：', '张三', '输入');
+            if (result !== null) {
+                toast.success(`您输入的姓名是：${result}`);
+            } else {
+                toast.info('用户取消了输入');
+            }
+        }
+        
+        // Confirm 测试函数
+        async function testConfirmWarning() {
+            const result = await confirm.warning('这个操作可能会影响系统性能，确定要继续吗？');
+            toast.info(`用户选择：${result ? '继续' : '取消'}`);
+        }
+        
+        async function testConfirmError() {
+            const result = await confirm.error('检测到系统错误，是否要重置设置？');
+            toast.info(`用户选择：${result ? '重置' : '取消'}`);
+        }
+        
+        async function testConfirmInfo() {
+            const result = await confirm.info('新版本已发布，是否要立即更新？');
+            toast.info(`用户选择：${result ? '更新' : '取消'}`);
+        }
+        
+        async function testConfirmSuccess() {
+            const result = await confirm.success('操作已完成，是否要查看结果？');
+            toast.info(`用户选择：${result ? '查看' : '取消'}`);
+        }
+        
+        async function testConfirmQuestion() {
+            const result = await confirm.question('您是否满意我们的服务？');
+            toast.info(`用户选择：${result ? '满意' : '不满意'}`);
+        }
+        
+        async function testConfirmDelete() {
+            const result = await confirm.delete('确定要删除这个文件吗？此操作不可撤销。');
+            if (result) {
+                toast.success('文件已删除');
+            } else {
+                toast.info('取消删除');
+            }
+        }
+        
+        async function testConfirmSave() {
+            const result = await confirm.save('检测到未保存的更改，是否要保存？');
+            if (result) {
+                toast.success('已保存更改');
+            } else {
+                toast.info('未保存更改');
+            }
+        }
+        
+        async function testConfirmExit() {
+            const result = await confirm.exit('有未保存的更改，确定要退出吗？');
+            if (result) {
+                toast.warning('已退出，更改未保存');
+            } else {
+                toast.info('继续编辑');
+            }
+        }
+        
+        // 组合测试函数
+        async function testCombination1() {
+            const result = await confirm.question('是否要执行批量操作？');
+            if (result) {
+                toast.info('开始执行批量操作...');
+                setTimeout(() => {
+                    toast.success('批量操作完成！');
+                }, 2000);
+            }
+        }
+        
+        function testCombination2() {
+            modal.show({
+                title: '设置',
+                content: '请选择您要修改的设置项：',
+                buttons: [
+                    { text: '取消' },
+                    { 
+                        text: '重置设置', 
+                        type: 'danger',
+                        onClick: async () => {
+                            const confirmed = await confirm.warning('确定要重置所有设置吗？');
+                            if (confirmed) {
+                                toast.success('设置已重置');
+                            }
+                            return false;
+                        }
+                    },
+                    { text: '保存', type: 'primary' }
+                ]
+            });
+        }
+        
+        function testCombination3() {
+            modal.show({
+                title: '第一层模态框',
+                content: '这是第一层模态框，点击按钮打开第二层。',
+                buttons: [
+                    { text: '关闭' },
+                    { 
+                        text: '打开第二层', 
+                        type: 'primary',
+                        onClick: () => {
+                            modal.show({
+                                title: '第二层模态框',
+                                content: '这是第二层模态框，可以继续打开第三层。',
+                                buttons: [
+                                    { text: '关闭' },
+                                    { 
+                                        text: '打开第三层', 
+                                        type: 'primary',
+                                        onClick: () => {
+                                            modal.alert('这是第三层模态框！', '第三层');
+                                            return false;
+                                        }
+                                    }
+                                ]
+                            });
+                            return false;
+                        }
+                    }
+                ]
+            });
+        }
+        
+        async function testCombination4() {
+            toast.info('开始完整流程测试...');
+            
+            const step1 = await confirm.question('第一步：是否要开始数据处理？');
+            if (!step1) {
+                toast.warning('流程已取消');
+                return;
+            }
+            
+            toast.info('正在处理数据...');
+            
+            setTimeout(async () => {
+                const step2 = await modal.confirm('第二步：数据处理完成，是否要保存结果？');
+                if (!step2) {
+                    toast.warning('未保存结果');
+                    return;
+                }
+                
+                const filename = await modal.prompt('第三步：请输入文件名：', 'result.txt');
+                if (!filename) {
+                    toast.warning('未输入文件名');
+                    return;
+                }
+                
+                toast.success(`流程完成！文件已保存为：${filename}`);
+                
+                setTimeout(() => {
+                    modal.alert('完整流程测试结束，感谢您的测试！', '测试完成');
+                }, 1000);
+            }, 1500);
+        }
+        
+        // 页面加载完成提示
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                toast.success('🎉 弹窗系统测试页面加载完成！', {
+                    duration: 3000,
+                    position: 'top-center'
+                });
+            }, 500);
+        });
+    </script>
+</body>
+</html>
