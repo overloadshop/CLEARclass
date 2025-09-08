@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据持久化检查工具 - 班级管理系统</title>
+    <link rel="stylesheet" href="../styles/common.css">
+    <style>
+        .checker-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .status-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .status-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .status-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+        }
+        
+        .status-good {
+            color: #4CAF50;
+        }
+        
+        .status-warning {
+            color: #FF9800;
+        }
+        
+        .status-error {
+            color: #F44336;
+        }
+        
+        .cache-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .cache-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+        
+        .cache-item h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        
+        .cache-item .value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .log-container {
+            background: #1e1e1e;
+            color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 2px 0;
+        }
+        
+        .log-info {
+            color: #4CAF50;
+        }
+        
+        .log-warning {
+            color: #FF9800;
+        }
+        
+        .log-error {
+            color: #F44336;
+        }
+        
+        .storage-usage {
+            background: linear-gradient(90deg, #4CAF50 var(--usage-percent, 0%), #f0f0f0 var(--usage-percent, 0%));
+            height: 20px;
+            border-radius: 10px;
+            position: relative;
+            margin: 10px 0;
+        }
+        
+        .storage-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 12px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .backup-section {
+            border-top: 2px solid #eee;
+            padding-top: 20px;
+            margin-top: 20px;
+        }
+        
+        .file-input {
+            margin: 10px 0;
+        }
+        
+        .dark-theme {
+            background: #1a1a1a;
+            color: #fff;
+        }
+        
+        .dark-theme .status-card {
+            background: #2d2d2d;
+            color: #fff;
+        }
+        
+        .dark-theme .cache-item {
+            background: #3d3d3d;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="checker-container">
+        <h1>数据持久化检查工具</h1>
+        <p>检查和修复班级管理系统的数据存储问题</p>
+        
+        <!-- 系统状态 -->
+        <div class="status-card">
+            <div class="status-header">
+                <svg class="status-icon" id="systemStatusIcon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+                <h2 id="systemStatusText">系统状态检查中...</h2>
+            </div>
+            <div id="systemStatusDetails"></div>
+        </div>
+        
+        <!-- localStorage 状态 -->
+        <div class="status-card">
+            <h3>localStorage 存储状态</h3>
+            <div id="storageStatus"></div>
+            <div class="storage-usage" id="storageUsage">
+                <div class="storage-text" id="storageText">计算中...</div>
+            </div>
+        </div>
+        
+        <!-- 缓存模块状态 -->
+        <div class="status-card">
+            <h3>缓存模块状态</h3>
+            <div class="cache-info" id="cacheInfo"></div>
+        </div>
+        
+        <!-- 操作按钮 -->
+        <div class="status-card">
+            <h3>数据管理操作</h3>
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="checkDataIntegrity()">检查数据完整性</button>
+                <button class="btn btn-success" onclick="forceDataSave()">强制保存所有数据</button>
+                <button class="btn btn-warning" onclick="repairData()">修复损坏数据</button>
+                <button class="btn btn-primary" onclick="exportAllData()">导出备份</button>
+                <button class="btn btn-warning" onclick="clearAllData()">清空所有数据</button>
+            </div>
+            
+            <div class="backup-section">
+                <h4>数据备份与恢复</h4>
+                <input type="file" id="backupFile" class="file-input" accept=".json" onchange="importBackup(event)">
+                <button class="btn btn-success" onclick="document.getElementById('backupFile').click()">选择备份文件恢复</button>
+            </div>
+        </div>
+        
+        <!-- 操作日志 -->
+        <div class="status-card">
+            <h3>操作日志</h3>
+            <div class="log-container" id="logContainer"></div>
+            <button class="btn btn-primary" onclick="clearLog()">清空日志</button>
+        </div>
+    </div>
+    
+    <!-- 引入缓存模块 -->
+    <script src="../Cache/StudentListCache.js"></script>
+    <script src="../Cache/DutyDataCache.js"></script>
+    <script src="../Cache/ScheduleCache.js"></script>
+    <script src="../Cache/ClassInfoCache.js"></script>
+    <script src="../Cache/HomeworkCache.js"></script>
+    <script src="../Cache/DataCache.js"></script>
+    
+    <script>
+        let logEntries = [];
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTheme();
+            initializeChecker();
+        });
+        
+        function loadTheme() {
+            const isDark = localStorage.getItem('darkMode') === 'true';
+            if (isDark) {
+                document.body.classList.add('dark-theme');
+            }
+        }
+        
+        function initializeChecker() {
+            log('系统初始化开始', 'info');
+            checkSystemStatus();
+            checkStorageStatus();
+            checkCacheModules();
+            log('系统初始化完成', 'info');
+        }
+        
+        function checkSystemStatus() {
+            const statusIcon = document.getElementById('systemStatusIcon');
+            const statusText = document.getElementById('systemStatusText');
+            const statusDetails = document.getElementById('systemStatusDetails');
+            
+            let issues = [];
+            
+            // 检查 localStorage 支持
+            if (typeof(Storage) === "undefined") {
+                issues.push('浏览器不支持 localStorage');
+            }
+            
+            // 检查缓存模块加载
+            const requiredModules = ['studentListCache', 'dutyDataCache', 'scheduleCache', 'classInfoCache'];
+            requiredModules.forEach(module => {
+                if (typeof window[module] === 'undefined') {
+                    issues.push(`缓存模块 ${module} 未加载`);
+                }
+            });
+            
+            if (issues.length === 0) {
+                statusIcon.className = 'status-icon status-good';
+                statusText.textContent = '系统状态正常';
+                statusDetails.innerHTML = '<p style="color: #4CAF50;">✓ 所有系统组件运行正常</p>';
+                log('系统状态检查通过', 'info');
+            } else {
+                statusIcon.className = 'status-icon status-error';
+                statusText.textContent = '系统存在问题';
+                statusDetails.innerHTML = issues.map(issue => 
+                    `<p style="color: #F44336;">✗ ${issue}</p>`
+                ).join('');
+                log(`系统状态检查发现问题: ${issues.join(', ')}`, 'error');
+            }
+        }
+        
+        function checkStorageStatus() {
+            const storageStatus = document.getElementById('storageStatus');
+            const storageUsage = document.getElementById('storageUsage');
+            const storageText = document.getElementById('storageText');
+            
+            try {
+                // 计算 localStorage 使用情况
+                let totalSize = 0;
+                let itemCount = 0;
+                const items = [];
+                
+                for (let key in localStorage) {
+                    if (localStorage.hasOwnProperty(key)) {
+                        const value = localStorage[key];
+                        const size = new Blob([value]).size;
+                        totalSize += size;
+                        itemCount++;
+                        items.push({ key, size });
+                    }
+                }
+                
+                // 估算可用空间（通常为 5-10MB）
+                const estimatedLimit = 5 * 1024 * 1024; // 5MB
+                const usagePercent = (totalSize / estimatedLimit) * 100;
+                
+                storageUsage.style.setProperty('--usage-percent', `${Math.min(usagePercent, 100)}%`);
+                storageText.textContent = `${(totalSize / 1024).toFixed(1)} KB / ${(estimatedLimit / 1024 / 1024).toFixed(1)} MB (${usagePercent.toFixed(1)}%)`;
+                
+                const statusColor = usagePercent > 80 ? '#F44336' : usagePercent > 60 ? '#FF9800' : '#4CAF50';
+                
+                storageStatus.innerHTML = `
+                    <p style="color: ${statusColor};">存储项目数量: ${itemCount}</p>
+                    <p style="color: ${statusColor};">总使用空间: ${(totalSize / 1024).toFixed(1)} KB</p>
+                    <p style="color: ${statusColor};">使用率: ${usagePercent.toFixed(1)}%</p>
+                `;
+                
+                log(`localStorage 状态: ${itemCount} 项, ${(totalSize / 1024).toFixed(1)} KB`, 'info');
+                
+            } catch (error) {
+                storageStatus.innerHTML = `<p style="color: #F44336;">✗ 无法访问 localStorage: ${error.message}</p>`;
+                storageText.textContent = '无法计算';
+                log(`localStorage 检查失败: ${error.message}`, 'error');
+            }
+        }
+        
+        function checkCacheModules() {
+            const cacheInfo = document.getElementById('cacheInfo');
+            const modules = [
+                { name: '学生名单', cache: window.studentListCache, key: 'students' },
+                { name: '值日数据', cache: window.dutyDataCache, key: 'duty' },
+                { name: '课程表', cache: window.scheduleCache, key: 'schedule' },
+                { name: '班级信息', cache: window.classInfoCache, key: 'classInfo' },
+                { name: '作业数据', cache: window.homeworkCache, key: 'homework' }
+            ];
+            
+            let html = '';
+            
+            modules.forEach(module => {
+                if (module.cache) {
+                    try {
+                        const info = module.cache.getCacheInfo();
+                        const lastModified = info.lastModified ? new Date(info.lastModified).toLocaleString() : '未知';
+                        
+                        let dataCount = 0;
+                        if (module.key === 'students') {
+                            dataCount = info.count || 0;
+                        } else if (module.key === 'duty') {
+                            dataCount = info.data ? info.data.dutyDataCount || 0 : 0;
+                        } else if (module.key === 'schedule') {
+                            dataCount = info.data ? info.data.coursesCount || 0 : 0;
+                        } else {
+                            dataCount = info.data ? Object.keys(info.data).length : 0;
+                        }
+                        
+                        html += `
+                            <div class="cache-item">
+                                <h4>${module.name}</h4>
+                                <div class="value">${dataCount} 项</div>
+                                <p>最后修改: ${lastModified}</p>
+                                <p>自动保存: ${info.autoSave ? '✓' : '✗'}</p>
+                            </div>
+                        `;
+                        
+                        log(`${module.name}缓存: ${dataCount} 项, 最后修改 ${lastModified}`, 'info');
+                        
+                    } catch (error) {
+                        html += `
+                            <div class="cache-item" style="border-left-color: #F44336;">
+                                <h4>${module.name}</h4>
+                                <div class="value" style="color: #F44336;">错误</div>
+                                <p>错误: ${error.message}</p>
+                            </div>
+                        `;
+                        log(`${module.name}缓存检查失败: ${error.message}`, 'error');
+                    }
+                } else {
+                    html += `
+                        <div class="cache-item" style="border-left-color: #F44336;">
+                            <h4>${module.name}</h4>
+                            <div class="value" style="color: #F44336;">未加载</div>
+                            <p>模块未找到</p>
+                        </div>
+                    `;
+                    log(`${module.name}缓存模块未加载`, 'warning');
+                }
+            });
+            
+            cacheInfo.innerHTML = html;
+        }
+        
+        function checkDataIntegrity() {
+            log('开始数据完整性检查', 'info');
+            
+            const checks = [
+                {
+                    name: '学生名单数据',
+                    check: () => {
+                        const students = studentListCache.getAll();
+                        return {
+                            valid: Array.isArray(students),
+                            message: `学生数量: ${students.length}`
+                        };
+                    }
+                },
+                {
+                    name: '课程表数据',
+                    check: () => {
+                        const schedule = scheduleCache.getScheduleData();
+                        const timeSlots = scheduleCache.getTimeSlots();
+                        return {
+                            valid: typeof schedule === 'object' && Array.isArray(timeSlots),
+                            message: `课程数量: ${Object.keys(schedule).length}, 时间段: ${timeSlots.length}`
+                        };
+                    }
+                },
+                {
+                    name: '值日数据',
+                    check: () => {
+                        const duty = dutyDataCache.getDutyData();
+                        return {
+                            valid: typeof duty === 'object',
+                            message: `值日分配数量: ${Object.keys(duty).length}`
+                        };
+                    }
+                }
+            ];
+            
+            let allValid = true;
+            
+            checks.forEach(check => {
+                try {
+                    const result = check.check();
+                    if (result.valid) {
+                        log(`✓ ${check.name}: ${result.message}`, 'info');
+                    } else {
+                        log(`✗ ${check.name}: 数据无效`, 'error');
+                        allValid = false;
+                    }
+                } catch (error) {
+                    log(`✗ ${check.name}: 检查失败 - ${error.message}`, 'error');
+                    allValid = false;
+                }
+            });
+            
+            if (allValid) {
+                log('数据完整性检查通过', 'info');
+                alert('数据完整性检查通过！所有数据正常。');
+            } else {
+                log('数据完整性检查发现问题', 'warning');
+                alert('数据完整性检查发现问题，请查看日志详情。');
+            }
+        }
+        
+        function forceDataSave() {
+            log('开始强制保存所有数据', 'info');
+            
+            const caches = [
+                { name: '学生名单', cache: studentListCache },
+                { name: '值日数据', cache: dutyDataCache },
+                { name: '课程表', cache: scheduleCache },
+                { name: '班级信息', cache: classInfoCache }
+            ];
+            
+            let successCount = 0;
+            
+            caches.forEach(item => {
+                try {
+                    if (item.cache && typeof item.cache.save === 'function') {
+                        const result = item.cache.save();
+                        if (result) {
+                            log(`✓ ${item.name}数据保存成功`, 'info');
+                            successCount++;
+                        } else {
+                            log(`✗ ${item.name}数据保存失败`, 'error');
+                        }
+                    } else {
+                        log(`✗ ${item.name}缓存不可用`, 'warning');
+                    }
+                } catch (error) {
+                    log(`✗ ${item.name}保存异常: ${error.message}`, 'error');
+                }
+            });
+            
+            log(`强制保存完成，成功保存 ${successCount}/${caches.length} 个模块`, 'info');
+            alert(`强制保存完成！成功保存 ${successCount}/${caches.length} 个数据模块。`);
+            
+            // 刷新状态显示
+            checkStorageStatus();
+            checkCacheModules();
+        }
+        
+        function repairData() {
+            log('开始数据修复', 'info');
+            
+            // 检查并修复学生名单
+            try {
+                const students = studentListCache.getAll();
+                if (!Array.isArray(students)) {
+                    studentListCache.setAll([]);
+                    log('✓ 修复学生名单数据结构', 'info');
+                }
+            } catch (error) {
+                log(`✗ 学生名单修复失败: ${error.message}`, 'error');
+            }
+            
+            // 检查并修复课程表
+            try {
+                const schedule = scheduleCache.getScheduleData();
+                if (typeof schedule !== 'object') {
+                    scheduleCache.setScheduleData({});
+                    log('✓ 修复课程表数据结构', 'info');
+                }
+                
+                const timeSlots = scheduleCache.getTimeSlots();
+                if (!Array.isArray(timeSlots) || timeSlots.length === 0) {
+                    // 重新加载默认时间段
+                    scheduleCache.load();
+                    log('✓ 修复课程表时间段', 'info');
+                }
+            } catch (error) {
+                log(`✗ 课程表修复失败: ${error.message}`, 'error');
+            }
+            
+            // 检查并修复值日数据
+            try {
+                const duty = dutyDataCache.getDutyData();
+                if (typeof duty !== 'object') {
+                    dutyDataCache.setDutyData({});
+                    log('✓ 修复值日数据结构', 'info');
+                }
+            } catch (error) {
+                log(`✗ 值日数据修复失败: ${error.message}`, 'error');
+            }
+            
+            log('数据修复完成', 'info');
+            alert('数据修复完成！请检查各个功能是否正常。');
+            
+            // 刷新状态显示
+            initializeChecker();
+        }
+        
+        function exportAllData() {
+            log('开始导出所有数据', 'info');
+            
+            try {
+                const backup = {
+                    timestamp: new Date().toISOString(),
+                    version: '1.0.0',
+                    data: {
+                        students: studentListCache.getAll(),
+                        schedule: {
+                            scheduleData: scheduleCache.getScheduleData(),
+                            timeSlots: scheduleCache.getTimeSlots(),
+                            weekDays: scheduleCache.getWeekDays()
+                        },
+                        duty: {
+                            dutyData: dutyDataCache.getDutyData(),
+                            timeSlots: dutyDataCache.getTimeSlots(),
+                            availableTimeSlots: dutyDataCache.getAvailableTimeSlots(),
+                            dutyItems: dutyDataCache.getAvailableDutyItems(),
+                            dutyPositions: dutyDataCache.getDutyPositions()
+                        },
+                        classInfo: classInfoCache ? classInfoCache.getClassInfo() : {},
+                        homework: homeworkCache ? homeworkCache.getHomeworkData() : []
+                    }
+                };
+                
+                const dataStr = JSON.stringify(backup, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(dataBlob);
+                link.download = `班级管理系统备份_${new Date().toISOString().split('T')[0]}.json`;
+                link.click();
+                
+                log('数据导出成功', 'info');
+                alert('数据导出成功！备份文件已下载。');
+                
+            } catch (error) {
+                log(`数据导出失败: ${error.message}`, 'error');
+                alert('数据导出失败，请查看日志详情。');
+            }
+        }
+        
+        function importBackup(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            log(`开始导入备份文件: ${file.name}`, 'info');
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const backup = JSON.parse(e.target.result);
+                    
+                    if (!backup.data) {
+                        throw new Error('备份文件格式无效');
+                    }
+                    
+                    // 确认导入
+                    if (!confirm('确定要导入备份数据吗？这将覆盖当前所有数据！')) {
+                        return;
+                    }
+                    
+                    // 导入学生名单
+                    if (backup.data.students) {
+                        studentListCache.setAll(backup.data.students);
+                        log('✓ 学生名单导入成功', 'info');
+                    }
+                    
+                    // 导入课程表
+                    if (backup.data.schedule) {
+                        if (backup.data.schedule.scheduleData) {
+                            scheduleCache.setScheduleData(backup.data.schedule.scheduleData);
+                        }
+                        if (backup.data.schedule.timeSlots) {
+                            scheduleCache.setTimeSlots(backup.data.schedule.timeSlots);
+                        }
+                        if (backup.data.schedule.weekDays) {
+                            scheduleCache.setWeekDays(backup.data.schedule.weekDays);
+                        }
+                        log('✓ 课程表数据导入成功', 'info');
+                    }
+                    
+                    // 导入值日数据
+                    if (backup.data.duty) {
+                        if (backup.data.duty.dutyData) {
+                            dutyDataCache.setDutyData(backup.data.duty.dutyData);
+                        }
+                        if (backup.data.duty.timeSlots) {
+                            dutyDataCache.setTimeSlots(backup.data.duty.timeSlots);
+                        }
+                        if (backup.data.duty.availableTimeSlots) {
+                            dutyDataCache.setAvailableTimeSlots(backup.data.duty.availableTimeSlots);
+                        }
+                        if (backup.data.duty.dutyItems) {
+                            dutyDataCache.setAvailableDutyItems(backup.data.duty.dutyItems);
+                        }
+                        if (backup.data.duty.dutyPositions) {
+                            dutyDataCache.setDutyPositions(backup.data.duty.dutyPositions);
+                        }
+                        log('✓ 值日数据导入成功', 'info');
+                    }
+                    
+                    log('备份数据导入完成', 'info');
+                    alert('备份数据导入成功！');
+                    
+                    // 刷新状态显示
+                    initializeChecker();
+                    
+                } catch (error) {
+                    log(`备份导入失败: ${error.message}`, 'error');
+                    alert('备份导入失败，请检查文件格式。');
+                }
+            };
+            
+            reader.readAsText(file);
+        }
+        
+        function clearAllData() {
+            if (!confirm('确定要清空所有数据吗？此操作不可恢复！')) {
+                return;
+            }
+            
+            if (!confirm('再次确认：这将删除所有学生名单、课程表、值日安排等数据！')) {
+                return;
+            }
+            
+            log('开始清空所有数据', 'warning');
+            
+            try {
+                // 清空各个缓存
+                studentListCache.clear();
+                scheduleCache.clearAll();
+                dutyDataCache.clearAll();
+                
+                // 清空 localStorage 中的相关数据
+                const keysToRemove = [];
+                for (let key in localStorage) {
+                    if (key.includes('student') || key.includes('schedule') || key.includes('duty') || key.includes('class')) {
+                        keysToRemove.push(key);
+                    }
+                }
+                
+                keysToRemove.forEach(key => {
+                    localStorage.removeItem(key);
+                    log(`删除存储项: ${key}`, 'info');
+                });
+                
+                log('所有数据清空完成', 'warning');
+                alert('所有数据已清空！');
+                
+                // 刷新状态显示
+                initializeChecker();
+                
+            } catch (error) {
+                log(`清空数据失败: ${error.message}`, 'error');
+                alert('清空数据失败，请查看日志详情。');
+            }
+        }
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = {
+                timestamp,
+                message,
+                type
+            };
+            
+            logEntries.push(entry);
+            
+            // 限制日志条数
+            if (logEntries.length > 100) {
+                logEntries = logEntries.slice(-100);
+            }
+            
+            updateLogDisplay();
+        }
+        
+        function updateLogDisplay() {
+            const logContainer = document.getElementById('logContainer');
+            
+            logContainer.innerHTML = logEntries.map(entry => 
+                `<div class="log-entry log-${entry.type}">[${entry.timestamp}] ${entry.message}</div>`
+            ).join('');
+            
+            // 滚动到底部
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        function clearLog() {
+            logEntries = [];
+            updateLogDisplay();
+        }
+    </script>
+</body>
+</html>

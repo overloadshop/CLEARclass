@@ -1,0 +1,2340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>值日生表 - 班级管理系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../popup-system/popup-system.css">
+    <script src="../security/security-system.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f7;
+            color: #333;
+            line-height: 1.6;
+            padding: 5px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* 深色主题样式 */
+        body.dark-theme {
+            background-color: #1a1a1a;
+            color: #ffffff;
+        }
+        
+        body.dark-theme .page-title {
+            color: #ffffff;
+        }
+        
+        body.dark-theme .control-card,
+        body.dark-theme .settings-card,
+        body.dark-theme .table-card {
+            background: #2d2d2d;
+            border-color: #555;
+        }
+        
+        body.dark-theme .zhiri-table {
+            background: #2d2d2d;
+        }
+        
+        body.dark-theme .zhiri-table th,
+        body.dark-theme .zhiri-table td {
+            border-color: #555;
+            color: #ffffff;
+        }
+        
+        body.dark-theme .zhiri-table th {
+            background: #3d3d3d;
+        }
+        
+        body.dark-theme .time-slot {
+            background: #3d3d3d;
+            color: #ffffff;
+        }
+        
+        body.dark-theme .duty-cell {
+            background: #2d2d2d;
+        }
+        
+        body.dark-theme .duty-cell:hover {
+            background: #3d3d3d;
+        }
+        
+
+        
+        body.dark-theme .modal-content {
+            background: #2d2d2d;
+            color: #ffffff;
+        }
+        
+        body.dark-theme .modal-header {
+            background: #2d2d2d;
+            border-color: #555;
+        }
+        
+        body.dark-theme .modal-header h3 {
+            color: #ffffff;
+        }
+        
+        body.dark-theme .close {
+            color: #ccc;
+        }
+        
+        body.dark-theme .close:hover {
+            color: #ffffff;
+            background-color: #3d3d3d;
+        }
+        
+        body.dark-theme .modal-footer {
+            border-color: #555;
+        }
+        
+        body.dark-theme .stat-value {
+            color: #007aff;
+        }
+        
+        body.dark-theme .stat-label {
+            color: #ccc;
+        }
+        
+        /* 深色主题下的卡片组件 */
+        body.dark-theme .control-card,
+        body.dark-theme .settings-card,
+        body.dark-theme .table-card {
+            background: #2d2d2d;
+            border-color: #555;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        body.dark-theme .zhiri-table {
+            background: #2d2d2d;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        body.dark-theme .page-title {
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0;
+            padding: 0 5px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 600;
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* 控制卡片 */
+        .control-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+        
+        .control-card .btn {
+            white-space: nowrap;
+        }
+
+        /* 设置卡片 */
+        .settings-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e9ecef;
+        }
+
+        /* 表格卡片 */
+        .table-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e9ecef;
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+        }
+
+        /* 值日生表样式 */
+        .zhiri-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .zhiri-table th,
+        .zhiri-table td {
+            border: 1px solid #e5e5e7;
+            padding: 12px 8px;
+            text-align: center;
+            vertical-align: middle;
+            position: relative;
+            min-width: 100px;
+        }
+
+        .zhiri-table th:last-child,
+        .zhiri-table td:last-child {
+            border-right: none;
+        }
+
+        .zhiri-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .zhiri-table th {
+            background: #f6f6f6;
+            font-weight: 600;
+            color: #1d1d1f;
+            font-size: 14px;
+        }
+
+        .time-slot {
+            background: #f8f9fa;
+            font-weight: 500;
+            color: #495057;
+            font-size: 13px;
+        }
+
+        .duty-cell {
+            background: white;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            min-height: 60px;
+            position: relative;
+        }
+
+        .duty-cell:hover {
+            background: #f8f9fa;
+        }
+
+        .duty-content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: center;
+            justify-content: center;
+            min-height: 50px;
+        }
+
+        .duty-position {
+            font-weight: 600;
+            color: #007aff;
+            font-size: 12px;
+        }
+
+        .duty-person {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .duty-time {
+            font-size: 10px;
+            color: #666;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: #4a90e2;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #357abd;
+            box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #1e7e34;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #1d1d1f;
+        }
+
+        .form-control, input[type="text"], input[type="time"], select, textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d1d6;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-control:focus, input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #007aff;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: #fff;
+            border-radius: 12px 12px 0 0;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .close {
+            color: #999;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .close:hover {
+            color: #333;
+            background-color: #f0f0f0;
+        }
+        
+        .modal-body {
+            padding: 20px 24px;
+        }
+        
+        .modal-footer {
+            padding: 16px 24px 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* 职位列表样式 */
+        .position-list {
+            min-height: 100px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border: 1px solid #e5e5e7;
+            border-radius: 6px;
+            background: #fff;
+        }
+
+        .position-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid #e5e5e7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .position-item:last-child {
+            border-bottom: none;
+        }
+
+        .position-name {
+            font-weight: 500;
+        }
+
+        .position-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+
+
+
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 10px;
+            }
+            
+            .page-title {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+            
+            .control-card {
+                padding: 15px;
+                gap: 10px;
+            }
+            
+            .control-card .btn {
+                font-size: 14px;
+                padding: 8px 12px;
+            }
+            
+            .zhiri-table th,
+            .zhiri-table td {
+                min-width: 80px;
+                padding: 8px 4px;
+                font-size: 12px;
+            }
+            
+            .stats-info {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+                padding: 15px;
+            }
+            
+            .stat-item {
+                padding: 8px;
+            }
+            
+            .stat-value {
+                font-size: 24px;
+            }
+            
+            .stat-label {
+                font-size: 12px;
+            }
+            
+            .table-card {
+                padding: 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .control-card {
+                padding: 10px;
+            }
+            
+            .control-card .btn {
+                font-size: 13px;
+                padding: 6px 10px;
+            }
+        }
+        
+        /* 编辑模式样式 */
+        .edit-mode .duty-cell {
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .edit-mode .duty-cell:hover {
+            background-color: #f0f8ff !important;
+            border: 2px solid #007bff;
+        }
+        
+        .edit-controls {
+            display: flex;
+            gap: 10px;
+            margin-left: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .edit-controls {
+                margin-left: 0;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+
+    <div class="container">
+        <h1 class="page-title">值日生表管理</h1>
+        
+        <!-- 编辑控制按钮 -->
+        <div class="control-card">
+            <button id="editModeBtn" class="btn btn-primary" onclick="toggleEditMode()" title="进入编辑模式">编辑</button>
+            <div id="editControls" class="edit-controls" style="display: none;">
+                <button class="btn btn-success" onclick="saveDutyTable()" title="保存修改">保存</button>
+                <button class="btn btn-secondary" onclick="cancelEdit()" title="撤销修改">撤销</button>
+                <button class="btn btn-danger" onclick="exitEditMode()" title="退出编辑模式">退出编辑</button>
+            </div>
+        </div>
+        
+        <!-- 控制面板 -->
+        <div id="dutyToolbar" class="control-card" style="display: none;">
+                <button class="btn btn-info" onclick="showTimePeriodSettings()">时间管理</button>
+                <button class="btn btn-secondary" onclick="showDutyItemSettings()">值日项目设置</button>
+            <button class="btn btn-warning" onclick="exportDutyTable()">导出表格</button>
+            <button class="btn btn-secondary" onclick="importDutyTable()">导入表格</button>
+            <button class="btn btn-danger" onclick="resetAllData()">重置所有数据</button>
+            <button class="btn btn-danger" onclick="clearDutyTable()">清空表格</button>
+            <input type="file" id="fileInput" class="file-input" accept=".csv,.xlsx,.xls" onchange="importDutyData(event)" style="display: none;">
+        </div>
+
+
+
+        <!-- 值日生表 -->
+        <div class="table-card">
+            <div class="table-container">
+                <table class="zhiri-table" id="dutyTable">
+                    <thead>
+                        <tr>
+                            <th>值日项目</th>
+                            <!-- 星期列将通过JavaScript生成 -->
+                        </tr>
+                    </thead>
+                    <tbody id="dutyTableBody">
+                        <!-- 表格内容将通过JavaScript生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- 时间段设置模态框 -->
+    <div id="timePeriodModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>时间管理</h3>
+                <span class="close" onclick="closeTimePeriodModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="time-period-info" style="background: #f8f9fa; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+                    <p style="margin: 0; color: #666;"><i class="fas fa-info-circle"></i> 时间段配置将影响值日表的横向结构，建议与课程表保持一致</p>
+                </div>
+                
+                <!-- 时间段管理工具栏 -->
+                <div class="time-period-toolbar" style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn btn-info" onclick="syncFromSchedule()">同步课程表</button>
+                    <button class="btn btn-success" onclick="exportTimePeriods()">导出时间段</button>
+                    <button class="btn btn-secondary" onclick="importTimePeriods()">导入时间段</button>
+                    <button class="btn btn-danger" onclick="clearAllTimePeriods()">清空所有</button>
+                    <input type="file" id="timePeriodFileInput" accept=".json" onchange="importTimePeriodData(event)" style="display: none;">
+                </div>
+                
+                <div class="time-period-list" id="timePeriodList">
+                    <!-- 时间段列表 -->
+                </div>
+                
+                <div class="add-time-period">
+                    <h4>添加新时间段</h4>
+                    <div class="form-row" style="display: flex; gap: 15px; margin-bottom: 15px;">
+                        <div class="form-group" style="flex: 2;">
+                            <label>时间段名称:</label>
+                            <input type="text" id="timePeriodName" placeholder="如：第1节、课间操、午休等">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>开始时间:</label>
+                            <input type="time" id="timePeriodStart">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>结束时间:</label>
+                            <input type="time" id="timePeriodEnd">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>时间段类型:</label>
+                        <select id="timePeriodType">
+                            <option value="class">上课时间</option>
+                            <option value="break">课间休息</option>
+                            <option value="activity">活动时间</option>
+                            <option value="other">其他</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-primary" onclick="addNewTimePeriod()">添加时间段</button>
+                        <button class="btn btn-secondary" onclick="clearTimePeriodForm()">清空表单</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 值日项目设置模态框 -->
+    <div id="dutyItemModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>值日项目设置</h3>
+                <span class="close" onclick="closeDutyItemModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="duty-item-info" style="background: #f8f9fa; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+                    <h5 style="margin: 0 0 10px 0; color: #495057;">💡 值日项目说明</h5>
+                    <p style="margin: 0; color: #6c757d; font-size: 14px;">从候选项目中选择添加到时间段，或创建新的值日项目。</p>
+                </div>
+                
+                <div id="dutyItemList" style="max-height: 300px; overflow-y: auto; margin-bottom: 20px;">
+                    <!-- 值日项目列表 -->
+                </div>
+                
+                <div class="add-duty-item" style="border-top: 1px solid #dee2e6; padding-top: 20px;">
+                    <div style="display: flex; gap: 10px; align-items: end;">
+                        <div style="flex: 1;">
+                            <label>项目名称</label>
+                            <input type="text" id="dutyItemName" class="form-control" placeholder="如：扫地、擦黑板、倒垃圾等" list="dutyItemSuggestions">
+                            <datalist id="dutyItemSuggestions">
+                                <option value="扫地">
+                                <option value="擦黑板">
+                                <option value="倒垃圾">
+                                <option value="整理讲台">
+                                <option value="关窗锁门">
+                                <option value="开关灯">
+                                <option value="擦窗户">
+                                <option value="拖地">
+                                <option value="整理桌椅">
+                                <option value="收发作业">
+                                <option value="维护纪律">
+                                <option value="检查卫生">
+                                <option value="清理垃圾桶">
+                                <option value="整理书架">
+                                <option value="擦拭门窗">
+                                <option value="清洁饮水机">
+                                <option value="整理教具">
+                                <option value="检查电器">
+                            </datalist>
+                        </div>
+                        <button class="btn btn-primary" onclick="addDutyItem()" style="height: 38px;">+</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 时间段列表模态框 -->
+    <div id="timeSlotListModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>选择时间段</h3>
+                <span class="close" onclick="closeTimeSlotListModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="time-slot-info" style="background: #f8f9fa; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+                    <h5 style="margin: 0 0 10px 0; color: #495057;">💡 时间段说明</h5>
+                    <p style="margin: 0; color: #6c757d; font-size: 14px;">从候选时间段中选择添加到表格，或创建新的时间段。</p>
+                </div>
+                
+                <div id="timeSlotList" style="max-height: 300px; overflow-y: auto; margin-bottom: 20px;">
+                    <!-- 时间段列表 -->
+                </div>
+                
+                <div class="add-time-slot" style="border-top: 1px solid #dee2e6; padding-top: 20px;">
+                    <div style="display: flex; gap: 10px; align-items: end;">
+                        <div style="flex: 1;">
+                            <label>时间段名称</label>
+                            <input type="text" id="timeSlotName" class="form-control" placeholder="如：早读、午休、课间、放学等" list="timeSlotSuggestions">
+                            <datalist id="timeSlotSuggestions">
+                                <option value="早读">
+                                <option value="午休">
+                                <option value="课间">
+                                <option value="放学">
+                                <option value="晚自习">
+                                <option value="大课间">
+                                <option value="眼保健操">
+                                <option value="升旗仪式">
+                                <option value="集会时间">
+                                <option value="课前准备">
+                                <option value="课后整理">
+                                <option value="体育课">
+                                <option value="实验课">
+                                <option value="音乐课">
+                                <option value="美术课">
+                                <option value="班会课">
+                                <option value="自习课">
+                            </datalist>
+                        </div>
+                        <div style="flex: 1;">
+                            <label>开始时间</label>
+                            <input type="time" id="timeSlotStart" class="form-control">
+                        </div>
+                        <div style="flex: 1;">
+                            <label>结束时间</label>
+                            <input type="time" id="timeSlotEnd" class="form-control">
+                        </div>
+                        <button class="btn btn-primary" onclick="addTimeSlotFromList()" style="height: 38px;">+</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 值日分配模态框 -->
+    <div id="assignModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>分配值日</h3>
+                <span class="close" onclick="closeAssignModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>选择职位:</label>
+                    <select id="assignPosition" class="form-control">
+                        <option value="组长">组长</option>
+                        <option value="普通成员" selected>普通成员</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>选择学生:</label>
+                    <input type="text" id="assignStudent" class="form-control" placeholder="请输入或选择学生姓名" list="studentSuggestions">
+                    <datalist id="studentSuggestions">
+                        <!-- 动态生成学生列表 -->
+                    </datalist>
+                </div>
+                <div class="form-group">
+                    <label>负责时间:</label>
+                    <input type="text" id="assignTime" placeholder="例如：08:00-12:00">
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary" onclick="confirmAssign()">确认分配</button>
+                    <button class="btn btn-secondary" onclick="closeAssignModal()">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../popup-system/toast.js"></script>
+    <script src="../popup-system/confirm.js"></script>
+    <script src="../popup-system/modal.js"></script>
+    <script src="../Cache/StudentListCache.js"></script>
+    <script src="../Cache/DutyDataCache.js"></script>
+    <script>
+        // 全局变量
+        let weekDays = [];
+        let currentCell = null;
+        let customTimePeriods = []; // 自定义时间段
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadScheduleStructure();
+            loadTimePeriods();
+            renderTimePeriodList();
+            renderDutyTable();
+        });
+        
+        // 监听缓存数据变更
+        dutyDataCache.onChange(function(event) {
+            console.log('值日数据变更:', event.detail);
+            renderDutyTable();
+        });
+        
+        studentListCache.onChange(function(event) {
+            console.log('学生名单变更:', event.detail);
+            // 重新填充学生选项
+            const studentInput = document.getElementById('assignStudent');
+            if (studentInput) {
+                updateStudentSuggestions();
+            }
+        });
+        
+        // 更新学生建议列表
+        function updateStudentSuggestions() {
+            const datalist = document.getElementById('studentSuggestions');
+            if (!datalist) return;
+            
+            const students = studentListCache.getAll();
+            datalist.innerHTML = '';
+            
+            students.forEach(student => {
+                const option = document.createElement('option');
+                option.value = student;
+                datalist.appendChild(option);
+            });
+        }
+        
+        // 加载候选时间段
+        function loadAvailableTimeSlots() {
+            try {
+                const saved = localStorage.getItem('availableTimeSlots');
+                if (saved) {
+                    availableTimeSlots = JSON.parse(saved);
+                } else {
+                    // 默认为空，用户自行添加
+                    availableTimeSlots = [];
+                    localStorage.setItem('availableTimeSlots', JSON.stringify(availableTimeSlots));
+                }
+            } catch (e) {
+                console.error('加载候选时间段失败:', e);
+                availableTimeSlots = [];
+            }
+        }
+        
+        // 加载候选值日项目
+        function loadAvailableDutyItems() {
+            try {
+                const saved = localStorage.getItem('availableDutyItems');
+                if (saved) {
+                    availableDutyItems = JSON.parse(saved);
+                } else {
+                    // 默认为空，用户自行添加
+                    availableDutyItems = [];
+                    localStorage.setItem('availableDutyItems', JSON.stringify(availableDutyItems));
+                }
+            } catch (e) {
+                console.error('加载候选值日项目失败:', e);
+                availableDutyItems = [];
+            }
+        }
+
+        // 加载值日生表结构（独立于课程表）
+        function loadScheduleStructure() {
+            try {
+                // 值日生表使用独立的星期配置
+                const savedWeekDays = localStorage.getItem('dutyWeekDays');
+                if (savedWeekDays) {
+                    weekDays = JSON.parse(savedWeekDays);
+                } else {
+                    // 值日生表默认工作日
+                    weekDays = ['周一', '周二', '周三', '周四', '周五'];
+                    localStorage.setItem('dutyWeekDays', JSON.stringify(weekDays));
+                }
+            } catch (e) {
+                console.error('加载值日生表结构失败:', e);
+                // 使用默认值
+                weekDays = ['周一', '周二', '周三', '周四', '周五'];
+                localStorage.setItem('dutyWeekDays', JSON.stringify(weekDays));
+            }
+        }
+
+        // 加载值日数据（使用缓存系统）
+        function loadDutyData() {
+            // 缓存系统自动加载，这里只是兼容性函数
+            return dutyDataCache.getDutyData();
+        }
+
+        // 保存值日数据（使用缓存系统）
+        function saveDutyData() {
+            // 缓存系统自动保存，这里只是兼容性函数
+            return dutyDataCache.save();
+        }
+
+        // 加载职位数据（使用缓存系统）
+        function loadPositions() {
+            return dutyDataCache.getDutyPositions();
+        }
+
+        // 保存职位数据（使用缓存系统）
+        function savePositions() {
+            return dutyDataCache.save();
+        }
+
+        // 加载学生数据（使用缓存系统）
+        function loadStudents() {
+            return studentListCache.getAll();
+        }
+
+        // 渲染值日生表
+        function renderDutyTable() {
+            const table = document.getElementById('dutyTable');
+            if (!table) return;
+            
+            // 从缓存获取数据
+            const timeSlots = dutyDataCache.getTimeSlots();
+            const dutyData = dutyDataCache.getDutyData();
+            
+            // 重新生成表头 - 按时间段分组
+            const thead = table.querySelector('thead');
+            if (thead) {
+                const headerRow = thead.querySelector('tr');
+                headerRow.innerHTML = '<th style="width: 120px;">时间段/项目</th>';
+                weekDays.forEach(day => {
+                    const th = document.createElement('th');
+                    th.textContent = day;
+                    th.style.width = '100px';
+                    headerRow.appendChild(th);
+                });
+            }
+            
+            // 生成表格内容 - 按时间段分组显示
+            const tbody = document.getElementById('dutyTableBody');
+            tbody.innerHTML = '';
+            
+            // 按时间段分组
+            timeSlots.forEach((timeSlot, timeIndex) => {
+                // 时间段标题行
+                const timeRow = document.createElement('tr');
+                timeRow.className = 'time-group-header';
+                
+                const timeCell = document.createElement('td');
+                timeCell.style.cssText = 'font-weight: bold; background: #007aff; color: white; padding: 8px; position: relative;';
+                
+                if (isEditMode) {
+                    timeCell.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>${timeSlot.name} (${timeSlot.start}-${timeSlot.end})</span>
+                            <button class="btn btn-danger" onclick="removeTimeSlotFromTable(${timeIndex})" 
+                                    style="padding: 2px 6px; font-size: 11px; margin-left: 10px;" 
+                                    title="删除时间段">
+                                ✕
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    timeCell.textContent = `${timeSlot.name} (${timeSlot.start}-${timeSlot.end})`;
+                }
+                
+                timeRow.appendChild(timeCell);
+                
+                // 时间段标题的星期列
+                weekDays.forEach(() => {
+                    const cell = document.createElement('td');
+                    cell.style.cssText = 'background: #007aff; border-left: 1px solid #0056b3;';
+                    timeRow.appendChild(cell);
+                });
+                
+                tbody.appendChild(timeRow);
+                
+                // 获取该时间段的值日项目
+                const timeSlotItems = getItemsForTimeSlot(timeIndex);
+                
+                if (timeSlotItems.length === 0) {
+                    // 空时间段，显示添加项目按钮
+                    const emptyRow = document.createElement('tr');
+                    const emptyCell = document.createElement('td');
+                    emptyCell.colSpan = weekDays.length + 1;
+                    emptyCell.style.cssText = 'text-align: center; padding: 20px; background: #f8f9fa; border: 2px dashed #ddd;';
+                    
+                    if (isEditMode) {
+                        emptyCell.innerHTML = `
+                            <button class="btn btn-primary" onclick="addItemToTimeSlot(${timeIndex})" style="border-radius: 20px;">
+                                <i class="fas fa-plus"></i> 添加值日项目
+                            </button>
+                        `;
+                    } else {
+                        emptyCell.innerHTML = '<span style="color: #999;">该时间段暂无值日项目</span>';
+                    }
+                    
+                    emptyRow.appendChild(emptyCell);
+                    tbody.appendChild(emptyRow);
+                } else {
+                    // 显示该时间段的值日项目
+                    timeSlotItems.forEach((itemName, itemIndex) => {
+                        const row = document.createElement('tr');
+                        row.className = 'duty-item-row';
+                        
+                        // 值日项目列
+                        const itemCell = document.createElement('td');
+                        itemCell.style.cssText = 'padding-left: 20px; font-weight: 500; background: #f8f9fa;';
+                        itemCell.innerHTML = `<span style="color: #666;">├ ${itemName}</span>`;
+                        row.appendChild(itemCell);
+                        
+                        // 星期列
+                        weekDays.forEach((day, dayIndex) => {
+                            const cell = document.createElement('td');
+                            cell.className = 'duty-cell';
+                            cell.setAttribute('data-time', timeIndex);
+                            cell.setAttribute('data-item', itemName);
+                            cell.setAttribute('data-day', dayIndex);
+                            
+                            // 查找分配情况
+                            const key = `${timeIndex}-${dayIndex}`;
+                            const dutyInfo = dutyData[key];
+                            let assignedPerson = '';
+                            let assignedPosition = '';
+                            
+                            if (dutyInfo && dutyInfo.item === itemName) {
+                                assignedPerson = dutyInfo.person || '';
+                                assignedPosition = dutyInfo.position || '';
+                            }
+                            
+                            if (assignedPerson) {
+                                const displayText = assignedPosition ? `${assignedPosition}: ${assignedPerson}` : assignedPerson;
+                                cell.innerHTML = `
+                                    <div class="duty-content">
+                                        <div class="duty-person" style="font-weight: 500;">${displayText}</div>
+                                    </div>
+                                `;
+                                cell.style.backgroundColor = '#e8f5e8';
+                            } else {
+                                if (isEditMode) {
+                                    cell.innerHTML = `
+                                        <div class="duty-content">
+                                            <div style="color: #999; font-size: 12px;">点击分配</div>
+                                        </div>
+                                    `;
+                                } else {
+                                    cell.innerHTML = `
+                                        <div class="duty-content">
+                                            <div style="color: #ccc; font-size: 12px;">未分配</div>
+                                        </div>
+                                    `;
+                                 }
+                             }
+                             
+                             // 添加点击事件
+                             if (isEditMode) {
+                                 cell.style.cursor = 'pointer';
+                                 cell.onclick = () => openAssignModal(timeIndex, dayIndex, itemName);
+                             }
+                             
+                             row.appendChild(cell);
+                         });
+                         
+                         tbody.appendChild(row);
+                     });
+                     
+                     // 在已有项目的时间段末尾添加"添加更多项目"按钮（只在编辑模式显示）
+                     if (isEditMode) {
+                         const addMoreRow = document.createElement('tr');
+                         const addMoreCell = document.createElement('td');
+                         addMoreCell.colSpan = weekDays.length + 1;
+                         addMoreCell.style.cssText = 'text-align: center; padding: 10px; background: #f8f9fa; border: 1px dashed #ccc;';
+                         addMoreCell.innerHTML = `
+                             <button class="btn btn-outline-primary btn-sm" onclick="addItemToTimeSlot(${timeIndex})" style="border-radius: 15px; font-size: 12px;">
+                                 <i class="fas fa-plus"></i> 添加更多项目
+                             </button>
+                         `;
+                         addMoreRow.appendChild(addMoreCell);
+                         tbody.appendChild(addMoreRow);
+                     }
+                 }
+             });
+             
+             // 添加新时间段按钮（只在编辑模式显示）
+             if (isEditMode) {
+                 const addTimeRow = document.createElement('tr');
+                 const addTimeCell = document.createElement('td');
+                 addTimeCell.colSpan = weekDays.length + 1;
+                 addTimeCell.style.cssText = 'text-align: center; padding: 15px; background: #f0f8ff; border: 2px dashed #007aff;';
+                 addTimeCell.innerHTML = `
+                     <button class="btn btn-outline-primary" onclick="addNewTimeSlot()" style="border-radius: 20px;">
+                         <i class="fas fa-plus"></i> 添加时间段
+                     </button>
+                 `;
+                 addTimeRow.appendChild(addTimeCell);
+                 tbody.appendChild(addTimeRow);
+             }
+        }
+        
+        // 获取指定时间段的值日项目
+        function getItemsForTimeSlot(timeIndex) {
+            const dutyData = dutyDataCache.getDutyData();
+            const items = new Set();
+            weekDays.forEach((day, dayIndex) => {
+                const key = `${timeIndex}-${dayIndex}`;
+                const dutyInfo = dutyData[key];
+                if (dutyInfo && dutyInfo.item) {
+                    items.add(dutyInfo.item);
+                }
+            });
+            return Array.from(items);
+        }
+        
+        // 为时间段添加项目
+        function addItemToTimeSlot(timeIndex) {
+            const availableDutyItems = dutyDataCache.getAvailableDutyItems();
+            const existingItems = getItemsForTimeSlot(timeIndex);
+            
+            // 过滤掉已存在的项目
+            const filteredItems = availableDutyItems.filter(item => !existingItems.includes(item));
+            
+            if (availableDutyItems.length === 0) {
+                toast.error('请先在值日项目设置中添加候选项目', '无可选项目');
+                return;
+            }
+            
+            if (filteredItems.length === 0) {
+                toast.error('该时间段已包含所有可用的值日项目', '无可添加项目');
+                return;
+            }
+            
+            // 创建选择列表
+            let options = '';
+            filteredItems.forEach(item => {
+                options += `<option value="${item}">${item}</option>`;
+            });
+            
+            // 创建选择模态框
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'flex';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 400px;">
+                    <div class="modal-header">
+                        <h3>选择值日项目</h3>
+                        <span class="close" onclick="this.closest('.modal').remove()">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>选择要添加的值日项目：</label>
+                            <select id="selectDutyItem" class="form-control">
+                                <option value="">请选择项目</option>
+                                ${options}
+                            </select>
+                        </div>
+                        <div class="form-actions" style="margin-top: 20px; text-align: right;">
+                            <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">取消</button>
+                            <button class="btn btn-primary" onclick="confirmAddItemToTimeSlot(${timeIndex}, this.closest('.modal'))">确认添加</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+        
+        function confirmAddItemToTimeSlot(timeIndex, modal) {
+            const select = modal.querySelector('#selectDutyItem');
+            const itemName = select.value;
+            
+            if (!itemName) {
+                toast.error('请选择一个项目', '选择错误');
+                return;
+            }
+            
+            // 找到该时间段的第一个空闲天来添加项目
+            const timeSlots = dutyDataCache.getTimeSlots();
+            let targetDayIndex = -1;
+            
+            // 遍历一周的每一天，找到第一个空闲的天
+            for (let dayIndex = 0; dayIndex < weekDays.length; dayIndex++) {
+                const key = `${timeIndex}-${dayIndex}`;
+                const existingData = dutyDataCache.getDutyData()[key];
+                if (!existingData) {
+                    targetDayIndex = dayIndex;
+                    break;
+                }
+            }
+            
+            if (targetDayIndex === -1) {
+                toast.error('该时间段所有天都已有安排，无法添加更多项目', '添加失败');
+                modal.remove();
+                return;
+            }
+            
+            const key = `${timeIndex}-${targetDayIndex}`;
+            const dutyInfo = {
+                item: itemName,
+                person: '',
+                time: `${timeSlots[timeIndex].start}-${timeSlots[timeIndex].end}`
+            };
+            
+            dutyDataCache.setDutyAssignment(key, dutyInfo);
+            renderDutyTable();
+            modal.remove();
+            toast.success('项目添加成功！', '添加成功');
+        }
+        
+        // 添加新时间段
+        function addNewTimeSlot() {
+            renderTimeSlotList();
+            const modalElement = document.getElementById('timeSlotListModal');
+            modalElement.style.display = 'flex';
+        }
+        
+        // 关闭时间段列表模态框
+        function closeTimeSlotListModal() {
+            const modalElement = document.getElementById('timeSlotListModal');
+            modalElement.style.display = 'none';
+        }
+        
+        // 渲染时间段列表（显示时间管理中的时间段）
+        function renderTimeSlotList() {
+            const list = document.getElementById('timeSlotList');
+            list.innerHTML = '';
+            
+            // 显示时间管理中添加的时间段
+            const timeSlots = dutyDataCache.getTimeSlots();
+            
+            if (timeSlots.length === 0) {
+                list.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">暂无时间段，请先在时间管理中添加</div>';
+                return;
+            }
+            
+            timeSlots.forEach((slot, index) => {
+                const item = document.createElement('div');
+                item.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid #e5e5e7; border-radius: 6px; margin-bottom: 8px; background: #e8f5e8;';
+                item.innerHTML = `
+                    <div style="flex: 1;">
+                        <div style="font-weight: 500; margin-bottom: 4px;">${slot.name}</div>
+                        <div style="font-size: 12px; color: #666;">${slot.start} - ${slot.end}</div>
+                    </div>
+                    <div style="display: flex; gap: 5px;">
+                        <button class="btn btn-success" style="padding: 4px 8px; font-size: 12px;" onclick="selectExistingTimeSlot(${index})">使用此时间段</button>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+        
+        // 从列表添加时间段到候选池
+        function addTimeSlotFromList() {
+            const name = document.getElementById('timeSlotName').value.trim();
+            const start = document.getElementById('timeSlotStart').value;
+            const end = document.getElementById('timeSlotEnd').value;
+            
+            if (!name) {
+                toast.error('请输入时间段名称', '输入错误');
+                return;
+            }
+            
+            if (!start || !end) {
+                toast.error('请选择开始和结束时间', '输入错误');
+                return;
+            }
+            
+            const availableTimeSlots = dutyDataCache.getAvailableTimeSlots();
+            
+            if (availableTimeSlots.some(slot => slot.name === name)) {
+                toast.error('该时间段已存在', '添加失败');
+                return;
+            }
+            
+            const newTimeSlot = {
+                name: name,
+                start: start,
+                end: end,
+                type: 'custom'
+            };
+            
+            dutyDataCache.addAvailableTimeSlot(newTimeSlot);
+            renderTimeSlotList();
+            
+            // 清空表单
+            document.getElementById('timeSlotName').value = '';
+            document.getElementById('timeSlotStart').value = '';
+            document.getElementById('timeSlotEnd').value = '';
+            
+            toast.success('时间段添加到候选池成功！', '添加成功');
+        }
+        
+        // 选择现有时间段
+        function selectExistingTimeSlot(timeIndex) {
+            // 关闭时间段选择模态框
+            closeTimeSlotListModal();
+            
+            // 直接打开项目选择模态框
+            addItemToTimeSlot(timeIndex);
+        }
+        
+        // 选择时间段到表格（保留原功能）
+        function selectTimeSlot(index) {
+            const availableTimeSlots = dutyDataCache.getAvailableTimeSlots();
+            const timeSlots = dutyDataCache.getTimeSlots();
+            
+            const slot = availableTimeSlots[index];
+            if (!timeSlots.some(activeSlot => activeSlot.name === slot.name)) {
+                timeSlots.push(slot);
+                dutyDataCache.setTimeSlots(timeSlots);
+                renderTimeSlotList();
+                renderDutyTable();
+                toast.success(`时间段"${slot.name}"已添加到表格！`, '添加成功');
+            }
+        }
+        
+        // 取消选择时间段
+        function unselectTimeSlot(slotName) {
+            const timeSlots = dutyDataCache.getTimeSlots();
+            const index = timeSlots.findIndex(slot => slot.name === slotName);
+            if (index >= 0) {
+                timeSlots.splice(index, 1);
+                dutyDataCache.setTimeSlots(timeSlots);
+                renderTimeSlotList();
+                renderDutyTable();
+                toast.success(`时间段"${slotName}"已从表格中移除！`, '移除成功');
+            }
+        }
+        
+        // 删除候选时间段
+        function removeAvailableTimeSlot(index) {
+            const slot = availableTimeSlots[index];
+            // 如果时间段正在使用，先从表格中移除
+            const activeIndex = timeSlots.findIndex(activeSlot => activeSlot.name === slot.name);
+            if (activeIndex >= 0) {
+                timeSlots.splice(activeIndex, 1);
+                localStorage.setItem('timeSlots', JSON.stringify(timeSlots));
+            }
+            
+            availableTimeSlots.splice(index, 1);
+            localStorage.setItem('availableTimeSlots', JSON.stringify(availableTimeSlots));
+            renderTimeSlotList();
+            renderDutyTable();
+            toast.success(`时间段"${slot.name}"已删除！`, '删除成功');
+        }
+        
+        // 删除时间段
+        async function removeTimeSlot(index) {
+            const confirmed = await confirm.delete(`确定要删除"${timeSlots[index].name}"时间段吗？`);
+            if (confirmed) {
+                timeSlots.splice(index, 1);
+                localStorage.setItem('timeSlots', JSON.stringify(timeSlots));
+                renderTimeSlotList();
+                renderDutyTable();
+                toast.success('时间段删除成功！', '删除成功');
+            }
+        }
+        
+        // 打开分配模态框
+        function openAssignModal(timeIndex, dayIndex, itemName) {
+            currentCell = { timeIndex, dayIndex, itemName };
+            
+            // 重置职位选择
+            const positionSelect = document.getElementById('assignPosition');
+            if (positionSelect) {
+                positionSelect.value = '';
+            }
+            
+            // 填充学生选项
+            const studentInput = document.getElementById('assignStudent');
+            const studentDatalist = document.getElementById('studentSuggestions');
+            if (studentInput && studentDatalist) {
+                studentDatalist.innerHTML = '';
+                students.forEach(student => {
+                    const option = document.createElement('option');
+                    option.value = student;
+                    studentDatalist.appendChild(option);
+                });
+            }
+            
+            // 如果已有分配，填充现有数据
+            const key = `${timeIndex}-${dayIndex}`;
+            const dutyData = dutyDataCache.getDutyData();
+            const existingDuty = dutyData[key];
+            if (existingDuty) {
+                if (positionSelect) positionSelect.value = existingDuty.position || '';
+                if (studentInput) studentInput.value = existingDuty.person || '';
+                const timeInput = document.getElementById('assignTime');
+                if (timeInput) timeInput.value = existingDuty.time || '';
+            } else {
+                if (positionSelect) positionSelect.value = '';
+                if (studentInput) studentInput.value = '';
+                const timeInput = document.getElementById('assignTime');
+                if (timeInput) timeInput.value = `${timeSlots[timeIndex].start}-${timeSlots[timeIndex].end}`;
+            }
+            
+            const modalElement = document.getElementById('assignModal');
+            if (modalElement) {
+                modalElement.style.display = 'flex';
+            }
+        }
+
+
+
+
+        
+        // 点击模态框背景关闭
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal')) {
+                e.target.style.display = 'none';
+            }
+        });
+
+        // 显示时间段设置
+        function showTimePeriodSettings() {
+            renderTimePeriodList();
+            const modalElement = document.getElementById('timePeriodModal');
+            modalElement.style.display = 'flex';
+        }
+
+        // 关闭时间段设置
+        function closeTimePeriodModal() {
+            const modalElement = document.getElementById('timePeriodModal');
+            modalElement.style.display = 'none';
+        }
+
+        // 显示负责人设置模态框
+        // 显示值日项目设置模态框
+        function showDutyItemSettings() {
+            renderDutyItemList();
+            const modalElement = document.getElementById('dutyItemModal');
+            modalElement.style.display = 'flex';
+        }
+
+        // 关闭值日项目设置模态框
+        function closeDutyItemModal() {
+            const modalElement = document.getElementById('dutyItemModal');
+            modalElement.style.display = 'none';
+        }
+
+        // 加载值日项目数据
+        function loadDutyItems() {
+            try {
+                const saved = localStorage.getItem('dutyItems');
+                if (saved) {
+                    dutyItems = JSON.parse(saved);
+                } else {
+                    dutyItems = ['扫地', '擦黑板', '倒垃圾', '整理讲台', '关窗锁门'];
+                    saveDutyItems();
+                }
+            } catch (e) {
+                console.error('加载值日项目数据失败:', e);
+                dutyItems = ['扫地', '擦黑板', '倒垃圾'];
+            }
+        }
+
+        // 保存值日项目数据
+        function saveDutyItems() {
+            try {
+                localStorage.setItem('dutyItems', JSON.stringify(dutyItems));
+            } catch (e) {
+                console.error('保存值日项目数据失败:', e);
+            }
+        }
+
+        // 渲染值日项目列表
+        function renderDutyItemList() {
+            const list = document.getElementById('dutyItemList');
+            list.innerHTML = '';
+            
+            const availableDutyItems = dutyDataCache.getAvailableDutyItems();
+            
+            if (availableDutyItems.length === 0) {
+                list.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">暂无候选值日项目</div>';
+                return;
+            }
+            
+            availableDutyItems.forEach((item, index) => {
+                const isUsed = isItemUsedInTable(item);
+                const itemDiv = document.createElement('div');
+                itemDiv.style.cssText = `display: flex; justify-content: space-between; align-items: center; padding: 10px; border: 1px solid #e5e5e7; border-radius: 6px; margin-bottom: 8px; background: ${isUsed ? '#e8f5e8' : '#fff'};`;
+                itemDiv.innerHTML = `
+                    <span style="flex: 1; font-size: 14px;">${item} ${isUsed ? '(已使用)' : ''}</span>
+                    <div style="display: flex; gap: 5px;">
+                        <button class="btn btn-primary" style="padding: 4px 8px; font-size: 12px;" onclick="selectDutyItemForTimeSlot('${item}')">选择</button>
+                        <button class="btn btn-danger" style="padding: 4px 8px; font-size: 12px;" onclick="removeAvailableDutyItem(${index})">删除</button>
+                    </div>
+                `;
+                list.appendChild(itemDiv);
+            });
+        }
+        
+        // 检查项目是否在表格中使用
+        function isItemUsedInTable(itemName) {
+            const dutyData = dutyDataCache.getDutyData();
+            for (const key in dutyData) {
+                if (dutyData[key].item === itemName) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // 添加值日项目到候选池
+        function addDutyItem() {
+            const name = document.getElementById('dutyItemName').value.trim();
+            
+            if (!name) {
+                toast.error('请输入项目名称', '输入错误');
+                return;
+            }
+            
+            const availableDutyItems = dutyDataCache.getAvailableDutyItems();
+            
+            if (availableDutyItems.includes(name)) {
+                toast.error('该项目已存在', '添加失败');
+                return;
+            }
+            
+            dutyDataCache.addAvailableDutyItem(name);
+            renderDutyItemList();
+            
+            // 清空输入框
+            document.getElementById('dutyItemName').value = '';
+            
+            toast.success('项目添加到候选池成功！', '添加成功');
+        }
+
+        // 选择值日项目到时间段
+        function selectDutyItemForTimeSlot(itemName) {
+            // 从缓存系统获取时间段数据
+            const timeSlots = dutyDataCache.getTimeSlots();
+            
+            // 检查是否有时间段
+            if (timeSlots.length === 0) {
+                toast.error('请先添加时间段', '操作失败');
+                return;
+            }
+            
+            // 关闭值日项目模态框
+            closeDutyItemModal();
+            
+            // 创建时间段和日期选择界面
+            let optionsHtml = '<div style="margin-bottom: 15px;"><strong>选择要添加到的位置：</strong></div>';
+            
+            timeSlots.forEach((timeSlot, timeIndex) => {
+                optionsHtml += `<div style="margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">`;
+                optionsHtml += `<div style="font-weight: bold; margin-bottom: 8px;">${timeSlot.name} (${timeSlot.start}-${timeSlot.end})</div>`;
+                
+                const weekdays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+                weekdays.forEach((day, dayIndex) => {
+                    const key = `${timeIndex}-${dayIndex}`;
+                    const existingDuty = dutyDataCache.getDutyAssignment(key);
+                    const isOccupied = existingDuty && existingDuty.item;
+                    
+                    optionsHtml += `<button class="btn ${isOccupied ? 'btn-secondary' : 'btn-outline-primary'}" 
+                        style="margin: 2px; padding: 5px 10px; font-size: 12px;" 
+                        ${isOccupied ? 'disabled' : `onclick="confirmSelectDutyItem('${itemName}', '${key}', '${timeSlot.name}', '${day}')"`}>
+                        ${day}${isOccupied ? ' (已占用)' : ''}
+                    </button>`;
+                });
+                
+                optionsHtml += '</div>';
+            });
+            
+            // 显示选择对话框
+            modal.show({
+                title: '选择添加位置',
+                content: optionsHtml,
+                showCancel: true,
+                cancelText: '取消',
+                confirmText: '关闭',
+                onConfirm: () => {
+                    // 重新打开值日项目模态框
+                    openDutyItemModal();
+                }
+            });
+        }
+        
+        // 确认选择值日项目位置
+        function confirmSelectDutyItem(itemName, key, timeSlotName, dayName) {
+            const timeSlots = dutyDataCache.getTimeSlots();
+            const [timeIndex] = key.split('-').map(Number);
+            const timeSlot = timeSlots[timeIndex];
+            
+            const dutyInfo = {
+                item: itemName,
+                person: '',
+                time: timeSlot ? `${timeSlot.start}-${timeSlot.end}` : ''
+            };
+            
+            // 使用缓存系统保存值日分配
+            dutyDataCache.setDutyAssignment(key, dutyInfo);
+            renderDutyTable();
+            
+            // 关闭模态框
+            modal.hide();
+            
+            toast.success(`项目"${itemName}"已添加到${timeSlotName} ${dayName}！`, '添加成功');
+            
+            // 重新打开值日项目模态框以便继续操作
+            setTimeout(() => {
+                openDutyItemModal();
+            }, 500);
+        }
+
+        // 删除候选值日项目
+        async function removeAvailableDutyItem(index) {
+            const availableDutyItems = dutyDataCache.getAvailableDutyItems();
+            const itemName = availableDutyItems[index];
+            const confirmed = await confirm.delete(`确定要删除"${itemName}"吗？`);
+            if (confirmed) {
+                // 如果项目正在使用，先从表格中移除
+                const dutyData = dutyDataCache.getDutyData();
+                for (const key in dutyData) {
+                    if (dutyData[key].item === itemName) {
+                        dutyDataCache.removeDutyAssignment(key);
+                    }
+                }
+                
+                // 使用缓存系统删除候选项目
+                dutyDataCache.removeAvailableDutyItem(itemName);
+                renderDutyItemList();
+                renderDutyTable();
+                toast.success('项目删除成功！', '删除成功');
+            }
+        }
+
+
+
+
+
+        // 打开分配模态框
+        // 新的职位分配模态框函数 - 适应传统值日生表格式
+        function openPositionAssignModal(positionName, dayIndex) {
+            currentCell = { positionName, dayIndex };
+            
+            // 设置职位（固定不可更改）
+            const positionSelect = document.getElementById('assignPosition');
+            positionSelect.innerHTML = `<option value="${positionName}">${positionName}</option>`;
+            positionSelect.value = positionName;
+            positionSelect.disabled = true;
+            
+            // 填充学生选项
+            const studentSelect = document.getElementById('assignStudent');
+            studentSelect.innerHTML = '<option value="">请选择学生</option>';
+            students.forEach(student => {
+                const option = document.createElement('option');
+                option.value = student;
+                option.textContent = student;
+                studentSelect.appendChild(option);
+            });
+            
+            // 查找该职位在该天是否已有分配
+            let existingPerson = '';
+            let existingTime = '';
+            let existingTimeIndex = -1;
+            
+            for (let timeIndex = 0; timeIndex < timeSlots.length; timeIndex++) {
+                const key = `${timeIndex}-${dayIndex}`;
+                const dutyInfo = dutyData[key];
+                if (dutyInfo && dutyInfo.position === positionName) {
+                    existingPerson = dutyInfo.person || '';
+                    existingTime = dutyInfo.time || '';
+                    existingTimeIndex = timeIndex;
+                    break;
+                }
+            }
+            
+            // 填充现有数据
+            document.getElementById('assignStudent').value = existingPerson;
+            document.getElementById('assignTime').value = existingTime;
+            
+            // 存储当前编辑的时间段索引
+            currentCell.existingTimeIndex = existingTimeIndex;
+            
+            const modalElement = document.getElementById('assignModal');
+            modalElement.style.display = 'flex';
+        }
+        
+        // 保留原有函数以兼容其他功能
+        function openAssignModal(timeIndex, dayIndex, itemName) {
+            currentCell = { timeIndex, dayIndex, itemName };
+            
+            // 重置职位选择
+            const positionSelect = document.getElementById('assignPosition');
+            if (positionSelect) {
+                positionSelect.value = '';
+            }
+            
+            // 更新学生建议列表
+            updateStudentSuggestions();
+            
+            // 如果已有分配，填充现有数据
+            const key = `${timeIndex}-${dayIndex}`;
+            const dutyData = dutyDataCache.getDutyData();
+            const existingDuty = dutyData[key];
+            if (existingDuty) {
+                document.getElementById('assignPosition').value = existingDuty.position || '';
+                document.getElementById('assignStudent').value = existingDuty.person || '';
+                document.getElementById('assignTime').value = existingDuty.time || '';
+            } else {
+                document.getElementById('assignPosition').value = '';
+                document.getElementById('assignStudent').value = '';
+                document.getElementById('assignTime').value = '';
+            }
+            
+            const modalElement = document.getElementById('assignModal');
+            modalElement.style.display = 'flex';
+        }
+
+        // 关闭分配模态框
+        function closeAssignModal() {
+            const modalElement = document.getElementById('assignModal');
+            modalElement.style.display = 'none';
+            currentCell = null;
+        }
+
+        // 确认分配
+        function confirmAssign() {
+            if (!currentCell) return;
+            
+            const position = document.getElementById('assignPosition').value;
+            const person = document.getElementById('assignStudent').value;
+            const time = document.getElementById('assignTime').value;
+            const key = `${currentCell.timeIndex}-${currentCell.dayIndex}`;
+            
+            if (!person) {
+                // 删除分配
+                dutyDataCache.removeDutyAssignment(key);
+            } else {
+                // 保存新分配
+                const timeSlots = dutyDataCache.getTimeSlots();
+                
+                // 获取item信息：优先使用currentCell.itemName，如果没有则从现有数据获取
+                let itemName = currentCell.itemName;
+                if (!itemName) {
+                    const existingDuty = dutyDataCache.getDutyAssignment(key);
+                    itemName = existingDuty ? existingDuty.item : '';
+                }
+                
+                const assignment = {
+                    item: itemName,
+                    position: position,
+                    person: person,
+                    time: time || `${timeSlots[currentCell.timeIndex].start}-${timeSlots[currentCell.timeIndex].end}`
+                };
+                dutyDataCache.setDutyAssignment(key, assignment);
+            }
+            
+            renderDutyTable();
+            closeAssignModal();
+            
+            toast.success('分配成功！', '操作成功');
+        }
+
+        // 检查人员冲突
+        function checkPersonConflict(person, timeIndex, dayIndex) {
+            const currentKey = `${timeIndex}-${dayIndex}`;
+            const dutyData = dutyDataCache.getDutyData();
+            
+            for (const key in dutyData) {
+                if (key !== currentKey && dutyData[key].person === person) {
+                    const [checkTimeIndex] = key.split('-').map(Number);
+                    if (checkTimeIndex === timeIndex) {
+                        return key;
+                    }
+                }
+            }
+            return null;
+        }
+        
+        // 检查学生在同一天是否已有其他职位分配
+        function checkPersonDayConflict(person, dayIndex, currentPosition) {
+            const dutyData = dutyDataCache.getDutyData();
+            
+            for (const key in dutyData) {
+                const [timeIndex, checkDayIndex] = key.split('-').map(Number);
+                if (checkDayIndex === dayIndex && dutyData[key].person === person) {
+                    const existingPosition = dutyData[key].position;
+                    if (existingPosition !== currentPosition) {
+                        return existingPosition;
+                    }
+                }
+            }
+            return null;
+        }
+
+        // 验证单元总数
+        function validateCellCount() {
+            const timeSlots = dutyDataCache.getTimeSlots();
+            const students = studentListCache.getAll();
+            const totalCells = timeSlots.length * weekDays.length;
+            const studentCount = students.length;
+            
+            if (totalCells > studentCount && studentCount > 0) {
+                return {
+                    valid: false,
+                    message: `总单元数(${totalCells})超过班级人数(${studentCount})，无法完成分配`
+                };
+            }
+            
+            return { valid: true };
+        }
+
+
+
+        // 导出值日生表
+        function exportDutyTable() {
+            const timeSlots = dutyDataCache.getTimeSlots();
+            const dutyData = dutyDataCache.getDutyData();
+            
+            let csv = '时间段,' + weekDays.join(',') + '\n';
+            
+            timeSlots.forEach((timeSlot, timeIndex) => {
+                const timeStr = `${timeSlot.name}(${timeSlot.start}-${timeSlot.end})`;
+                let row = `"${timeStr}"`;
+                
+                weekDays.forEach((day, dayIndex) => {
+                    const key = `${timeIndex}-${dayIndex}`;
+                    const dutyInfo = dutyData[key];
+                    let content = '';
+                    
+                    if (dutyInfo) {
+                        content = `${dutyInfo.position || ''}\n${dutyInfo.person || ''}\n${dutyInfo.time || ''}`;
+                    }
+                    
+                    row += ',"' + content.replace(/"/g, '""') + '"';
+                });
+                
+                csv += row + '\n';
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', '值日生表.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            toast.success('值日生表导出成功！', '导出成功');
+        }
+
+        // 导入值日生表
+        function importDutyTable() {
+            document.getElementById('fileInput').click();
+        }
+
+        // 导入值日数据
+        function importDutyData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const csv = e.target.result;
+                    const lines = csv.split('\n').filter(line => line.trim());
+                    
+                    if (lines.length < 2) {
+                        toast.error('CSV文件格式不正确', '导入失败');
+                        return;
+                    }
+                    
+                    // 解析数据
+                    const newDutyData = {};
+                    
+                    for (let i = 1; i < lines.length; i++) {
+                        const cells = parseCSVLine(lines[i]);
+                        if (cells.length < 2) continue;
+                        
+                        const timeIndex = i - 1;
+                        
+                        for (let j = 1; j < cells.length && j - 1 < weekDays.length; j++) {
+                            const dayIndex = j - 1;
+                            const content = cells[j].trim();
+                            
+                            if (content) {
+                                const parts = content.split('\n');
+                                const key = `${timeIndex}-${dayIndex}`;
+                                newDutyData[key] = {
+                                    position: parts[0] || '',
+                                    person: parts[1] || '',
+                                    time: parts[2] || ''
+                                };
+                            }
+                        }
+                    }
+                    
+                    dutyData = newDutyData;
+                    saveDutyData();
+                    renderDutyTable();
+    
+                    
+                    toast.success('值日生表导入成功！', '导入成功');
+                } catch (e) {
+                    console.error('导入失败:', e);
+                    toast.error('文件解析失败，请检查文件格式', '导入失败');
+                }
+            };
+            
+            reader.readAsText(file, 'UTF-8');
+            event.target.value = ''; // 清空文件输入
+        }
+
+        // 解析CSV行
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"') {
+                    if (inQuotes && line[i + 1] === '"') {
+                        current += '"';
+                        i++;
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            
+            result.push(current);
+            return result;
+        }
+
+        // 重置所有数据
+        async function resetAllData() {
+            const confirmed = await confirm.delete('确定要重置所有数据吗？这将清空时间段、值日项目、分配数据等所有内容，此操作不可撤销。');
+            if (confirmed) {
+                // 清空所有localStorage数据
+                localStorage.removeItem('timeSlots');
+                localStorage.removeItem('availableTimeSlots');
+                localStorage.removeItem('dutyData');
+                localStorage.removeItem('dutyItems');
+                localStorage.removeItem('availableDutyItems');
+                localStorage.removeItem('studentList');
+                localStorage.removeItem('dutyPositions');
+                localStorage.removeItem('customTimePeriods');
+                
+                // 重置所有变量
+                timeSlots = [];
+                availableTimeSlots = [];
+                dutyData = {};
+                dutyItems = [];
+                availableDutyItems = [];
+                students = [];
+                positions = [];
+                customTimePeriods = [];
+                
+                // 重新渲染
+                renderDutyTable();
+                
+                toast.success('所有数据已重置！', '重置成功');
+            }
+        }
+        
+        // 清空值日生表
+        async function clearDutyTable() {
+            const confirmed = await confirm.delete('确定要清空所有值日生表数据和时间段吗？此操作不可撤销。');
+            if (confirmed) {
+                // 使用缓存系统清空值日数据和时间段
+                dutyDataCache.clearDutyData();
+                dutyDataCache.setTimeSlots([]);
+                renderDutyTable();
+                toast.success('值日生表和时间段已清空', '清空成功');
+            }
+        }
+        
+        // 从表格中删除时间段
+         async function removeTimeSlotFromTable(timeIndex) {
+             const timeSlots = dutyDataCache.getTimeSlots();
+             const timeSlot = timeSlots[timeIndex];
+             
+             const confirmed = await confirm.delete(`确定要删除时间段"${timeSlot.name}"吗？此操作不可撤销。`);
+             if (confirmed) {
+                 // 获取所有值日分配数据
+                 const dutyData = dutyDataCache.getDutyData();
+                 const newDutyData = {};
+                 
+                 // 重新构建值日分配数据，调整索引
+                 for (const key in dutyData) {
+                     const [keyTimeIndex, dayIndex] = key.split('-').map(Number);
+                     
+                     if (keyTimeIndex < timeIndex) {
+                         // 在删除的时间段之前，索引不变
+                         newDutyData[key] = dutyData[key];
+                     } else if (keyTimeIndex > timeIndex) {
+                         // 在删除的时间段之后，索引减1
+                         const newKey = `${keyTimeIndex - 1}-${dayIndex}`;
+                         newDutyData[newKey] = dutyData[key];
+                     }
+                     // keyTimeIndex === timeIndex 的数据被删除（不复制）
+                 }
+                 
+                 // 删除时间段
+                 timeSlots.splice(timeIndex, 1);
+                 dutyDataCache.setTimeSlots(timeSlots);
+                 
+                 // 更新值日分配数据
+                 dutyDataCache.setDutyData(newDutyData);
+                 
+                 renderDutyTable();
+                 toast.success(`时间段"${timeSlot.name}"已删除`, '删除成功');
+             }
+         }
+
+        // 重置为默认值日项目
+        // 返回上一页
+        function goBack() {
+            window.history.back();
+        }
+
+
+
+        // 时间段管理函数
+        function loadTimePeriods() {
+            const saved = localStorage.getItem('customTimePeriods');
+            if (saved) {
+                try {
+                    customTimePeriods = JSON.parse(saved);
+                } catch (e) {
+                    console.error('加载时间段数据失败:', e);
+                    customTimePeriods = [];
+                }
+            }
+        }
+
+        function saveTimePeriods() {
+            localStorage.setItem('customTimePeriods', JSON.stringify(customTimePeriods));
+        }
+
+        function renderTimePeriodList() {
+            const container = document.getElementById('timePeriodList');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            // 从缓存系统获取时间段数据
+            const timeSlots = dutyDataCache.getTimeSlots();
+            timeSlots.forEach((slot, index) => {
+                const item = document.createElement('div');
+                item.className = 'list-item';
+                item.innerHTML = `
+                    <div class="item-info">
+                        <div class="item-name">${slot.name}</div>
+                        <div class="item-detail">${slot.start} - ${slot.end}</div>
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn btn-sm btn-secondary" onclick="editTimePeriod(${index})">
+                            <i class="fas fa-edit"></i> 编辑
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="removeTimePeriod(${index})">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function addNewTimePeriod() {
+            const name = document.getElementById('timePeriodName').value.trim();
+            const start = document.getElementById('timePeriodStart').value;
+            const end = document.getElementById('timePeriodEnd').value;
+            
+            if (!name || !start || !end) {
+                toast.error('请填写完整的时间段信息', '添加失败');
+                return;
+            }
+            
+            if (start >= end) {
+                toast.error('结束时间必须晚于开始时间', '时间错误');
+                return;
+            }
+            
+            // 从缓存系统获取现有时间段
+            const timeSlots = dutyDataCache.getTimeSlots();
+            
+            // 检查是否重复
+            const exists = timeSlots.some(slot => 
+                slot.name === name || 
+                (slot.start === start && slot.end === end)
+            );
+            
+            if (exists) {
+                toast.error('时间段名称或时间范围已存在', '添加失败');
+                return;
+            }
+            
+            const newTimeSlot = {
+                name: name,
+                start: start,
+                end: end,
+                type: 'custom'
+            };
+            
+            // 使用缓存系统添加时间段到正在使用的时间段列表
+            const currentTimeSlots = dutyDataCache.getTimeSlots();
+            currentTimeSlots.push(newTimeSlot);
+            dutyDataCache.setTimeSlots(currentTimeSlots);
+            renderTimePeriodList();
+            renderDutyTable();
+            clearTimePeriodForm();
+            renderDutyTable();
+            toast.success('时间段添加成功', '添加成功');
+        }
+
+        function clearTimePeriodForm() {
+            document.getElementById('timePeriodName').value = '';
+            document.getElementById('timePeriodStart').value = '';
+            document.getElementById('timePeriodEnd').value = '';
+        }
+
+        function editTimePeriod(index) {
+            const slot = timeSlots[index];
+            document.getElementById('timePeriodName').value = slot.name;
+            document.getElementById('timePeriodStart').value = slot.start;
+            document.getElementById('timePeriodEnd').value = slot.end;
+            
+            // 删除原时间段
+            timeSlots.splice(index, 1);
+            localStorage.setItem('timeSlots', JSON.stringify(timeSlots));
+            renderTimePeriodList();
+            renderDutyTable();
+
+        }
+
+        async function removeTimePeriod(index) {
+            const slot = timeSlots[index];
+            const confirmed = await confirm.delete(`确定要删除时间段"${slot.name}"吗？`);
+            if (confirmed) {
+                timeSlots.splice(index, 1);
+                localStorage.setItem('timeSlots', JSON.stringify(timeSlots));
+                renderTimePeriodList();
+                renderDutyTable();
+                toast.success('时间段删除成功', '删除成功');
+            }
+        }
+
+
+
+
+        // 时间段导入导出功能
+        function exportTimePeriods() {
+            if (customTimePeriods.length === 0) {
+                toast.warning('没有时间段数据可导出', '导出失败');
+                return;
+            }
+            
+            const data = JSON.stringify(customTimePeriods, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `时间段配置_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            toast.success('时间段配置导出成功', '导出成功');
+        }
+
+        function importTimePeriods() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = importTimePeriodData;
+            input.click();
+        }
+
+        function importTimePeriodData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (Array.isArray(data) && data.every(item => 
+                        item.name && item.start && item.end
+                    )) {
+                        customTimePeriods = data;
+                        saveTimePeriods();
+                        renderTimePeriodList();
+                        updateDutyTable();
+
+                        toast.success(`成功导入${data.length}个时间段`, '导入成功');
+                    } else {
+                        toast.error('文件格式不正确', '导入失败');
+                    }
+                } catch (error) {
+                    toast.error('文件解析失败，请检查文件格式', '导入失败');
+                }
+            };
+            
+            reader.readAsText(file, 'UTF-8');
+            event.target.value = '';
+        }
+
+        async function clearAllTimePeriods() {
+            if (customTimePeriods.length === 0) {
+                toast.warning('没有时间段需要清空', '提示');
+                return;
+            }
+            
+            const confirmed = await confirm.delete(`确定要清空所有${customTimePeriods.length}个时间段吗？此操作不可撤销。`);
+            if (confirmed) {
+                customTimePeriods = [];
+                saveTimePeriods();
+                renderTimePeriodList();
+                updateDutyTable();
+                toast.success('所有时间段已清空', '清空成功');
+            }
+        }
+
+
+
+        // 自定义提示框
+        async function customPrompt(title, message, defaultValue = '') {
+            return new Promise((resolve) => {
+                const modal = document.createElement('div');
+                modal.className = 'modal';
+                modal.style.display = 'block';
+                modal.innerHTML = `
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>${title}</h3>
+                        </div>
+                        <div class="modal-body">
+                            <p>${message}</p>
+                            <input type="text" id="promptInput" value="${defaultValue}" style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px;">
+                            <div style="text-align: right; margin-top: 20px;">
+                                <button class="btn btn-secondary" onclick="closePrompt(null)">取消</button>
+                                <button class="btn btn-primary" onclick="closePrompt(document.getElementById('promptInput').value)" style="margin-left: 10px;">确定</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+                document.getElementById('promptInput').focus();
+                
+                window.closePrompt = function(value) {
+                    document.body.removeChild(modal);
+                    delete window.closePrompt;
+                    resolve(value);
+                };
+                
+                // 回车确认
+                document.getElementById('promptInput').addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        closePrompt(this.value);
+                    }
+                });
+            });
+        }
+        
+        // 编辑模式相关变量和函数
+        let isEditMode = false;
+        let dutyDataBackup = {};
+        
+        // 编辑模式切换
+        async function toggleEditMode() {
+            if (isEditMode) {
+                exitEditMode();
+            } else {
+                // 进入编辑模式前需要安全验证
+                const verified = await securitySystem.verifySensitiveOperation('修改值日生表');
+                if (!verified) {
+                    return;
+                }
+                enterEditMode();
+            }
+        }
+        
+        function enterEditMode() {
+            isEditMode = true;
+            dutyDataBackup = JSON.parse(JSON.stringify(dutyDataCache.getDutyData()));
+            
+            document.body.classList.add('edit-mode');
+            document.getElementById('editModeBtn').style.display = 'none';
+            document.getElementById('editControls').style.display = 'flex';
+            document.getElementById('dutyToolbar').style.display = 'block';
+            
+            renderDutyTable();
+            toast.info('已进入编辑模式，可以修改值日生表内容', '编辑模式');
+        }
+        
+        function exitEditMode() {
+            isEditMode = false;
+            
+            document.body.classList.remove('edit-mode');
+            document.getElementById('editModeBtn').style.display = 'inline-flex';
+            document.getElementById('editControls').style.display = 'none';
+            document.getElementById('dutyToolbar').style.display = 'none';
+            
+            renderDutyTable();
+            toast.info('已退出编辑模式', '退出编辑');
+        }
+        
+        function saveDutyTable() {
+            saveDataToLocalStorage();
+            dutyDataBackup = {};
+            toast.success('值日生表已保存', '保存成功');
+        }
+        
+        function cancelEdit() {
+            if (Object.keys(dutyDataBackup).length > 0) {
+                dutyData = JSON.parse(JSON.stringify(dutyDataBackup));
+                renderDutyTable();
+                toast.info('已撤销所有修改', '撤销成功');
+            }
+        }
+    </script>
+</body>
+</html>

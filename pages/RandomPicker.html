@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>随机点名 - 班级管理系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../popup-system/popup-system.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* 深色主题样式 */
+        body.dark-theme {
+            background: #1c1c1e;
+            color: #ffffff;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 10;
+            flex: 1;
+            justify-content: center;
+        }
+        
+        .main-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: #007aff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            margin-bottom: 50px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 122, 255, 0.3);
+        }
+        
+        .main-circle:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 40px rgba(0, 122, 255, 0.4);
+        }
+        
+        .circle-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-align: center;
+            user-select: none;
+            color: #ffffff;
+        }
+        
+        .random-input-container {
+            background: #007aff !important;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 20px;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+            position: fixed !important;
+            bottom: 20px !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            z-index: 10000 !important;
+            min-width: 200px;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        
+        .input-label {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #ffffff !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        
+        .number-input {
+            background: #ffffff !important;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: #1d1d1f !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            font-size: 1rem;
+            width: 60px;
+            text-align: center;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        .number-input:focus {
+            background: #ffffff;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+        }
+        
+        /* 隐藏输入框的动画 */
+        .random-input-container.hidden {
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+        }
+        
+        /* 动画状态 */
+        .main-circle.animating {
+            animation: circleAnimation 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        
+        @keyframes circleAnimation {
+            0% {
+                width: 200px;
+                height: 200px;
+                border-radius: 50%;
+                transform: scale(1);
+            }
+            30% {
+                width: 240px;
+                height: 240px;
+                border-radius: 50%;
+                transform: scale(1.2);
+            }
+            60% {
+                width: 160px;
+                height: 160px;
+                border-radius: 50%;
+                transform: scale(0.8);
+            }
+            100% {
+                width: 500px;
+                height: 350px;
+                border-radius: 16px;
+                transform: scale(1);
+            }
+        }
+        
+        /* 结果容器样式 */
+        .result-container {
+            display: none;
+            flex-direction: row;
+            height: 100%;
+            padding: 20px;
+            gap: 20px;
+        }
+        
+        /* 结果列表样式 */
+        .result-list {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        
+        .result-item {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #1d1d1f;
+            text-align: left;
+            border: none;
+        }
+        
+        .result-item:nth-child(odd) {
+            background: rgba(255, 255, 255, 0.7);
+        }
+        
+        /* 分隔线 */
+        .result-divider {
+            width: 2px;
+            background: rgba(255, 255, 255, 0.3);
+            margin: 0 10px;
+        }
+        
+        /* 右侧区域 */
+        .result-right {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 200px;
+        }
+        
+        .result-title {
+            color: #ffffff;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .result-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: #ffffff;
+            color: #1d1d1f;
+            border: 1px solid #e5e5e7;
+        }
+        
+        .btn-secondary {
+            background: #dc3545;
+            color: #ffffff;
+            border: none;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-primary:hover {
+            background: #f6f6f6;
+        }
+        
+        .btn-secondary:hover {
+            background: #c82333;
+        }
+        
+
+        
+        /* 返回按钮样式 */
+        .btn-back {
+            position: fixed !important;
+            top: 20px !important;
+            left: 20px !important;
+            background: rgba(255, 255, 255, 0.9) !important;
+            color: #333 !important;
+            border: 1px solid rgba(0, 0, 0, 0.1) !important;
+            width: 40px !important;
+            height: 40px !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border-radius: 50% !important;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-back i {
+            font-size: 16px;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .main-circle {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .circle-text {
+                font-size: 1rem;
+            }
+            
+            .random-input-container {
+                padding: 10px 16px;
+            }
+            
+            @keyframes circleAnimation {
+                0% {
+                    width: 150px;
+                    height: 150px;
+                    border-radius: 50%;
+                    transform: scale(1);
+                }
+                30% {
+                    width: 180px;
+                    height: 180px;
+                    border-radius: 50%;
+                    transform: scale(1.2);
+                }
+                60% {
+                    width: 120px;
+                    height: 120px;
+                    border-radius: 50%;
+                    transform: scale(0.8);
+                }
+                100% {
+                    width: 320px;
+                    height: 250px;
+                    border-radius: 16px;
+                    transform: scale(1);
+                }
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="btn-back" onclick="goBack()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5"/>
+            <path d="M12 19l-7-7 7-7"/>
+        </svg>
+    </button>
+    
+    <div class="container">
+        <div class="main-circle" id="mainCircle" onclick="startPicking()">
+            <div class="circle-text" id="circleText">开始抽取</div>
+            
+            <!-- 结果容器（隐藏状态） -->
+            <div class="result-container" id="resultContainer">
+                <!-- 结果列表 -->
+                <div class="result-list" id="resultList">
+                    <!-- 动态生成选中的学生 -->
+                </div>
+                
+                <!-- 分隔线 -->
+                <div class="result-divider"></div>
+                
+                <!-- 右侧区域 -->
+                <div class="result-right">
+                    <div class="result-title">以上同学被抽取到</div>
+                    <div class="result-actions" id="resultActions">
+                        <button class="btn btn-primary" onclick="restartPicking()">再抽一次</button>
+                        <button class="btn btn-secondary" onclick="closeWithAnimation()">关闭</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="random-input-container" id="inputContainer">
+            <span class="input-label">随机数：</span>
+            <input type="number" class="number-input" id="pickCount" value="1" min="1" max="50">
+        </div>
+    </div>
+    
+    <script src="../popup-system/toast.js"></script>
+    <script src="../Cache/StudentListCache.js"></script>
+    <script>
+        let isAnimating = false;
+        let isResultMode = false;
+        
+        // 页面加载时获取学生数据
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('学生数据已加载:', studentListCache.getCount(), '人');
+            updatePickCountMax();
+        });
+        
+        // 更新随机数输入框的最大值
+        function updatePickCountMax() {
+            const pickCountInput = document.getElementById('pickCount');
+            const totalStudents = studentListCache.getCount();
+            pickCountInput.max = totalStudents;
+            
+            // 如果当前值超过最大值，重置为最大值
+            if (parseInt(pickCountInput.value) > totalStudents) {
+                pickCountInput.value = totalStudents;
+            }
+        }
+        
+        // 监听学生名单变更
+        studentListCache.onChange(function(event) {
+            console.log('学生名单变更:', event.detail);
+            updatePickCountMax();
+        });
+        
+        // 开始抽取
+        function startPicking() {
+            if (isAnimating) return;
+            
+            // 检查学生数据
+            const students = studentListCache.getAll();
+            if (students.length === 0) {
+                toast.error('请先在人员配置中添加学生名单', '无学生数据');
+                return;
+            }
+            
+            const pickCount = parseInt(document.getElementById('pickCount').value) || 1;
+            const totalStudents = studentListCache.getCount();
+            
+            if (pickCount > totalStudents) {
+                toast.error(`抽取数量不能超过学生总数(${totalStudents})`, '数量错误');
+                return;
+            }
+            
+            if (pickCount < 1) {
+                toast.error('抽取数量必须大于等于1', '数量错误');
+                return;
+            }
+            
+            if (totalStudents === 0) {
+                toast.error('请先添加学生名单', '无学生数据');
+                return;
+            }
+            
+            isAnimating = true;
+            
+            // 如果已经在结果模式，先重置
+            if (isResultMode) {
+                resetPicker();
+                setTimeout(() => {
+                    performPicking(pickCount);
+                }, 300);
+            } else {
+                performPicking(pickCount);
+            }
+        }
+        
+        // 执行抽取动画和逻辑
+        function performPicking(pickCount) {
+            const circle = document.getElementById('mainCircle');
+            const circleText = document.getElementById('circleText');
+            
+            // 改变文字
+            circleText.textContent = '抽取中...';
+            
+            // 开始圆形动画
+            circle.classList.add('animating');
+            
+            // 1.2秒后显示结果
+            setTimeout(() => {
+                showResult(pickCount);
+                isAnimating = false;
+                isResultMode = true;
+            }, 1200);
+        }
+        
+        // 显示结果
+        function showResult(pickCount) {
+            const circle = document.getElementById('mainCircle');
+            const circleText = document.getElementById('circleText');
+            const resultContainer = document.getElementById('resultContainer');
+            
+            // 移除动画类
+            circle.classList.remove('animating');
+            
+            // 移除圆形的点击事件，防止误触
+            circle.onclick = null;
+            circle.style.cursor = 'default';
+            
+            // 手动设置最终的圆角矩形样式，保持动画结果
+            circle.style.width = '500px';
+            circle.style.height = '350px';
+            circle.style.borderRadius = '16px';
+            circle.style.transform = 'scale(1)';
+            circle.style.position = 'relative';
+            circle.style.top = 'auto';
+            circle.style.left = 'auto';
+            circle.style.margin = '0 0 50px 0';
+            circle.style.padding = '0';
+            circle.style.boxSizing = 'border-box';
+            circle.style.overflow = 'hidden';
+            
+            // 隐藏圆形文字
+            circleText.style.display = 'none';
+            
+            // 随机选择学生
+            const selectedStudents = getRandomStudents(pickCount);
+            
+            // 显示结果列表
+            displayResultList(selectedStudents);
+            
+            // 显示结果容器
+            resultContainer.style.display = 'flex';
+        }
+        
+        // 随机选择学生
+        function getRandomStudents(count) {
+            return studentListCache.getRandom(count);
+        }
+        
+        // 显示结果列表
+        function displayResultList(selectedStudents) {
+            const list = document.getElementById('resultList');
+            
+            // 清空列表
+            list.innerHTML = '';
+            
+            // 添加选中的学生
+            selectedStudents.forEach((student, index) => {
+                const item = document.createElement('div');
+                item.className = 'result-item';
+                item.textContent = `${index + 1}. ${student}`;
+                list.appendChild(item);
+            });
+        }
+        
+        // 重置选择器
+        function resetPicker() {
+            const circle = document.getElementById('mainCircle');
+            const circleText = document.getElementById('circleText');
+            const inputContainer = document.getElementById('inputContainer');
+            const resultContainer = document.getElementById('resultContainer');
+            
+            // 重置动画状态和样式
+            circle.classList.remove('animating');
+            circle.style.width = '200px';
+            circle.style.height = '200px';
+            circle.style.borderRadius = '50%';
+            circle.style.transform = 'scale(1)';
+            circle.style.position = 'relative';
+            circle.style.top = 'auto';
+            circle.style.left = 'auto';
+            circle.style.margin = '0 0 50px 0';
+            circle.style.padding = '0';
+            circle.style.overflow = 'hidden';
+            circle.style.opacity = '1';
+            circle.style.transition = '';
+            
+            // 恢复圆形的点击事件
+            circle.onclick = startPicking;
+            circle.style.cursor = 'pointer';
+            
+            // 显示圆形文字
+            circleText.style.display = 'block';
+            circleText.textContent = '开始抽取';
+            
+            // 隐藏结果容器
+            resultContainer.style.display = 'none';
+            resultContainer.style.opacity = '1';
+            resultContainer.style.transition = '';
+            
+            isResultMode = false;
+            isAnimating = false;
+        }
+        
+        // 重新抽取（带过渡动画）
+        function restartPicking() {
+            if (isAnimating) return;
+            
+            const pickCount = parseInt(document.getElementById('pickCount').value) || 1;
+            const totalStudents = studentListCache.getCount();
+            
+            // 验证抽取数量
+            if (pickCount > totalStudents) {
+                toast.error(`抽取数量不能超过学生总数 ${totalStudents}`);
+                return;
+            }
+            
+            if (pickCount < 1) {
+                toast.error('抽取数量必须大于等于1');
+                return;
+            }
+            
+            isAnimating = true;
+            
+            // 添加淡出动画
+            const resultContainer = document.getElementById('resultContainer');
+            resultContainer.style.transition = 'opacity 0.3s ease';
+            resultContainer.style.opacity = '0';
+            
+            setTimeout(() => {
+                // 重置到初始状态
+                resetPicker();
+                
+                // 短暂延迟后开始新的抽取
+                setTimeout(() => {
+                    performPicking(pickCount);
+                }, 200);
+            }, 300);
+        }
+        
+        // 关闭（带动画）
+        function closeWithAnimation() {
+            if (isAnimating) return;
+            
+            isAnimating = true;
+            
+            // 添加淡出和缩小动画
+            const circle = document.getElementById('mainCircle');
+            const resultContainer = document.getElementById('resultContainer');
+            
+            // 结果容器淡出
+            resultContainer.style.transition = 'opacity 0.4s ease';
+            resultContainer.style.opacity = '0';
+            
+            // 矩形缩小动画
+            circle.style.transition = 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            circle.style.transform = 'scale(0.8)';
+            circle.style.opacity = '0.8';
+            
+            setTimeout(() => {
+                // 重置到初始状态
+                resetPicker();
+                
+                // 圆形淡入动画
+                circle.style.transition = 'all 0.4s ease';
+                circle.style.transform = 'scale(1)';
+                circle.style.opacity = '1';
+                
+                setTimeout(() => {
+                    isAnimating = false;
+                }, 400);
+            }, 600);
+        }
+        
+        // 返回函数
+        function goBack() {
+            // 如果在iframe中，通知父页面关闭
+            if (window.parent !== window) {
+                window.parent.postMessage('closeRollCall', '*');
+            } else {
+                window.history.back();
+            }
+        }
+        
+        // 响应式处理
+        window.addEventListener('resize', function() {
+            if (isResultMode) {
+                // 在移动设备上调整圆角矩形大小
+                const circle = document.getElementById('mainCircle');
+                if (window.innerWidth <= 768) {
+                    circle.style.width = '350px';
+                    circle.style.height = '280px';
+                } else {
+                    circle.style.width = '500px';
+                    circle.style.height = '350px';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

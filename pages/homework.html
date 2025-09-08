@@ -1,0 +1,2588 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>作业管理</title>
+    <link rel="stylesheet" href="../popup-system/popup-system.css">
+    <script src="../security/security-system.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* 深色主题样式 */
+        body.dark-theme {
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+        
+        body.dark-theme .homework-header h2 {
+            color: #ffffff;
+        }
+        
+        body.dark-theme .add-homework-btn {
+            background: #4a90e2;
+        }
+        
+        body.dark-theme .add-homework-btn:hover {
+            background: #357abd;
+        }
+        
+        body.dark-theme .homework-content,
+        body.dark-theme .subject-group {
+            background: #2d2d2d;
+            border-color: #555;
+        }
+        
+        body.dark-theme .subject-header h3 {
+            color: #ffffff;
+        }
+        
+        body.dark-theme .homework-item {
+            background: #3d3d3d;
+            border-color: #555;
+        }
+        
+        body.dark-theme .homework-item:hover {
+            background: #4d4d4d;
+        }
+        
+        body.dark-theme .homework-title {
+            color: #ffffff;
+        }
+        
+        body.dark-theme .homework-desc {
+            color: #aaa;
+        }
+        
+        body.dark-theme .homework-meta {
+            color: #888;
+        }
+        
+        body.dark-theme .status-pending {
+            background: #3d3d3d;
+            color: #ffa500;
+        }
+        
+        body.dark-theme .status-completed {
+            background: #3d3d3d;
+            color: #4caf50;
+        }
+        
+        body.dark-theme .status-overdue {
+            background: #3d3d3d;
+            color: #f44336;
+        }
+        
+        /* 深色主题下的卡片组件 */
+        body.dark-theme .homework-content,
+        body.dark-theme .subject-group {
+            background: #2d2d2d;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        body.dark-theme .homework-header h2 {
+            color: #ffffff;
+        }
+
+        /* 作业管理样式 */
+        .homework-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .homework-header h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .add-homework-btn {
+            background: #4a90e2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        
+        .add-homework-btn:hover {
+            background: #357abd;
+            box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+        }
+        
+        .homework-content {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .homework-list {
+            min-height: 200px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 20px;
+            align-items: flex-start;
+        }
+        
+        .subject-group {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #ddd;
+            position: relative;
+            min-width: 280px;
+            max-width: 400px;
+            flex: 1 1 auto;
+            transition: all 0.3s ease;
+        }
+        
+        .subject-group.语文 { border-left-color: #e74c3c; }
+        .subject-group.数学 { border-left-color: #3498db; }
+        .subject-group.英语 { border-left-color: #2ecc71; }
+        .subject-group.物理 { border-left-color: #9b59b6; }
+        .subject-group.化学 { border-left-color: #f39c12; }
+        .subject-group.生物 { border-left-color: #1abc9c; }
+        .subject-group.历史 { border-left-color: #34495e; }
+        .subject-group.地理 { border-left-color: #16a085; }
+        .subject-group.政治 { border-left-color: #e67e22; }
+        
+        .subject-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .subject-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .subject-count {
+            background: #f8f9fa;
+            color: #666;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        
+        .edit-subject-btn {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .edit-subject-btn:hover {
+            background: #f5f5f5;
+            color: #333;
+        }
+        
+        .subject-homework-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .subject-edit-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 8px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .subject-edit-btn:hover {
+            background: #5a6268;
+        }
+        
+        .subject-edit-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 8px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .subject-edit-btn:hover {
+            background: #5a6268;
+        }
+        
+        .empty-homework {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            color: #999;
+        }
+        
+        .empty-homework-text {
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        /* 作业弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .homework-modal {
+            width: 800px !important;
+            max-width: 800px !important;
+            margin: 5% auto;
+            display: block;
+        }
+        
+        .modal-header {
+            padding: 20px 20px 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            color: #333;
+        }
+        
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+        
+        .close:hover {
+            color: #000;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .homework-items {
+            margin-bottom: 10px;
+        }
+        
+        .homework-item-input {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            gap: 8px;
+        }
+        
+        .homework-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .homework-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+        
+        .remove-item-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .remove-item-btn:hover {
+            background: #ff3742;
+            transform: scale(1.1);
+        }
+        
+        .add-item-btn {
+            background: #2ed573;
+            color: white;
+            border: none;
+            width: 80%;
+            height: 40px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-align: center;
+            line-height: 40px;
+            padding: 0;
+            margin: 0 auto;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .add-item-btn:hover {
+            background: #26d467;
+            transform: translateY(-1px);
+        }
+        
+        select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+        }
+        
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+        
+        input[type="datetime-local"] {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        input[type="datetime-local"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+        
+        .modal-footer {
+            padding: 0 20px 20px 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-cancel:hover {
+            background: #5a6268;
+        }
+        
+        .btn-confirm {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-confirm:hover {
+            background: #0056b3;
+        }
+        
+        /* 作业列表样式 */
+        .homework-item {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+            position: relative;
+            border: 1px solid #e9ecef;
+        }
+
+        .homework-item:hover {
+            z-index: 30;
+        }
+
+        .homework-item .homework-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            padding-right: 50px;
+            min-height: 24px;
+        }
+
+        .homework-task {
+            font-size: 15px;
+            font-weight: 500;
+            color: #333;
+            line-height: 1.4;
+            flex: 1;
+            word-wrap: break-word;
+            word-break: break-word;
+        }
+
+        .homework-deadline {
+            font-size: 12px;
+            color: #6c757d;
+            background: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        .homework-deadline.overdue {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .homework-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        /* 设置按钮和菜单样式 */
+        .homework-settings-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #f8f9fa;
+            border: none;
+            color: #6c757d;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+            z-index: 99999999998;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.8;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .homework-item:hover .homework-settings-btn {
+            opacity: 1;
+        }
+
+        .homework-settings-btn:hover {
+            background: #e9ecef;
+            color: #495057;
+            transform: scale(1.05);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .homework-settings-btn::before {
+            content: '⋯';
+            font-weight: bold;
+            transform: rotate(90deg);
+        }
+
+        .homework-settings-menu {
+            position: absolute;
+            top: 100%; /* 显示在按钮下方 */
+            right: 0; /* 右侧对齐 */
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            padding: 4px 0;
+            width: 360px; /* 固定宽度 */
+            z-index: 1000; /* 设置合理的层级，低于弹窗 */
+            display: none;
+            opacity: 0;
+            transform: translateY(-4px);
+            transition: all 0.15s ease;
+            margin-top: 4px; /* 与按钮的间距 */
+        }
+
+        .homework-settings-menu.show {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* 学科菜单样式 */
+        .subject-menu {
+            width: 160px !important;
+            top: 100%;
+            right: 0;
+        }
+        
+        .subject-menu .settings-option {
+            padding: 12px 16px;
+            justify-content: flex-start;
+        }
+        
+        .subject-menu .settings-option:hover {
+            background: #f0f8ff;
+        }
+
+        .settings-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border-radius: 4px;
+            margin: 2px 4px;
+        }
+
+        .settings-option:hover {
+            background: #f8f9fa;
+        }
+
+        .settings-option span {
+            font-size: 13px;
+            color: #495057;
+            font-weight: 500;
+        }
+
+        .settings-toggle {
+            width: 36px;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            position: relative;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .settings-toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .settings-toggle.active {
+            background: #4CAF50;
+        }
+
+        .settings-toggle.active {
+            background: #4CAF50;
+        }
+
+        .settings-toggle.active::after {
+            transform: translateX(16px);
+        }
+
+        /* 时间选择器容器 */
+        .datetime-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .quick-time-buttons {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .quick-time-btn {
+            padding: 4px 8px;
+            font-size: 12px;
+            border: 1px solid #ddd;
+            background: #f8f9fa;
+            color: #666;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .quick-time-btn:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+            color: #495057;
+        }
+
+        .quick-time-btn:active {
+            background: #007bff;
+            border-color: #007bff;
+            color: white;
+            transform: scale(0.98);
+        }
+
+        .custom-deadline {
+            padding: 12px 16px;
+        }
+
+        .deadline-input-group {
+            margin-top: 8px;
+        }
+
+        .custom-deadline-input {
+            width: 100%;
+            padding: 4px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .custom-deadline .quick-time-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 8px;
+        }
+
+        .custom-deadline .quick-time-btn {
+            padding: 4px 8px;
+            font-size: 11px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #495057;
+        }
+
+        .custom-deadline .quick-time-btn:hover {
+             background: #e9ecef;
+             border-color: #adb5bd;
+         }
+
+         .custom-days-input {
+             display: flex;
+             gap: 8px;
+             margin-top: 8px;
+             align-items: center;
+         }
+
+         .days-input {
+             width: 60px;
+             padding: 4px 8px;
+             border: 1px solid #dee2e6;
+             border-radius: 4px;
+             font-size: 12px;
+             text-align: center;
+         }
+
+         .time-period-select {
+             padding: 4px 8px;
+             border: 1px solid #dee2e6;
+             border-radius: 4px;
+             font-size: 12px;
+             background: white;
+         }
+
+         .set-custom-time-btn {
+             padding: 4px 12px;
+             font-size: 12px;
+             background: #007bff;
+             color: white;
+             border: none;
+             border-radius: 4px;
+             cursor: pointer;
+             transition: background 0.2s;
+         }
+
+         .set-custom-time-btn:hover {
+             background: #0056b3;
+         }
+
+        /* 徽章样式 */
+        .homework-badges {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .homework-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .homework-badge.classroom {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .homework-badge.no-submit {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        /* 新增：置顶通知栏样式 */
+        .pinned-notification {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            background-color: #fffbe6;
+            border-bottom: 1px solid #ffe58f;
+            color: #d46b08;
+            font-size: 14px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .pinned-notification.hidden {
+            transform: translateY(-100%);
+        }
+
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notification-icon {
+            font-size: 18px;
+        }
+
+        .close-notification-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #d46b08;
+        }
+        
+        /* 科目颜色 */
+        .homework-item[data-subject="语文"] {
+            border-left-color: #ff6b6b;
+        }
+        
+        .homework-item[data-subject="数学"] {
+            border-left-color: #4ecdc4;
+        }
+        
+        .homework-item[data-subject="英语"] {
+            border-left-color: #45b7d1;
+        }
+        
+        .homework-item[data-subject="物理"] {
+            border-left-color: #96ceb4;
+        }
+        
+        .homework-item[data-subject="化学"] {
+            border-left-color: #feca57;
+        }
+        
+        .homework-item[data-subject="生物"] {
+            border-left-color: #ff9ff3;
+        }
+        
+        .homework-item[data-subject="历史"] {
+            border-left-color: #54a0ff;
+        }
+        
+        .homework-item[data-subject="地理"] {
+            border-left-color: #5f27cd;
+        }
+        
+        .homework-item[data-subject="政治"] {
+            border-left-color: #00d2d3;
+        }
+        
+        /* 作业设置样式 */
+        .homework-settings-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            z-index: 9999;
+        }
+        
+        .homework-item:hover .homework-settings-btn {
+            opacity: 1;
+        }
+        
+        .homework-settings-btn:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+        
+        /* 重复的设置菜单样式已删除，使用上方统一定义 */
+        
+        .settings-toggle {
+            position: relative;
+            width: 40px;
+            height: 20px;
+            background: #ccc;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .settings-toggle.active {
+            background: #667eea;
+        }
+        
+        .settings-toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+        
+        .settings-toggle.active::after {
+            transform: translateX(20px);
+        }
+        
+        .settings-divider {
+            height: 1px;
+            background: #eee;
+            margin: 8px 0;
+        }
+        
+        .settings-edit-btn {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            color: #6c757d;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .settings-edit-btn:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+        
+        .settings-input-group {
+            margin-left: 20px;
+            margin-top: 12px;
+        }
+        
+        .settings-input-group label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        
+        .custom-deadline {
+            width: 100%;
+            padding: 4px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .homework-badges {
+            margin-top: 8px;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        
+        .homework-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .homework-badge.classroom {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .homework-badge.no-submit {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+        
+        /* SVG图标 */
+        .btn-icon {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;  }
+        
+
+        
+        @media (max-width: 768px) {
+            .homework-list {
+                padding: 8px;
+                gap: 12px;
+            }
+            
+            .subject-group {
+                min-width: 100%;
+                max-width: 100%;
+            }
+            
+            .homework-header {
+                flex-direction: column;
+                gap: 12px;
+                align-items: stretch;
+                padding: 15px;
+                margin-bottom: 10px;
+            }
+            
+            .homework-header h2 {
+                font-size: 1.5rem;
+                text-align: center;
+                margin: 0;
+            }
+            
+            .add-homework-btn {
+                width: 100%;
+                padding: 12px;
+                font-size: 16px;
+            }
+            
+            .homework-item {
+                margin-bottom: 12px;
+                padding: 15px;
+            }
+            
+            .homework-subject {
+                font-size: 1.1rem;
+                margin-bottom: 8px;
+            }
+            
+            .homework-task {
+                font-size: 14px;
+                line-height: 1.4;
+                margin-bottom: 8px;
+            }
+            
+            .homework-deadline {
+                font-size: 11px;
+                padding: 3px 6px;
+            }
+            
+            .homework-actions {
+                flex-direction: column;
+                gap: 6px;
+                margin-top: 10px;
+            }
+            
+            .homework-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .homework-settings-btn {
+                top: 8px;
+                right: 8px;
+                width: 32px;
+                height: 32px;
+            }
+            
+            .homework-settings-menu {
+                width: 280px;
+                right: -10px;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 5% auto;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+            
+            .modal-header {
+                padding: 15px;
+            }
+            
+            .modal-body {
+                padding: 15px;
+            }
+            
+            .modal-footer {
+                padding: 15px;
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .modal-footer .btn {
+                width: 100%;
+            }
+            
+            .quick-time-buttons {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 6px;
+                margin-bottom: 10px;
+            }
+            
+            .quick-time-btn {
+                padding: 8px;
+                font-size: 12px;
+            }
+            
+            .custom-days-input {
+                flex-direction: column;
+                gap: 6px;
+                align-items: stretch;
+            }
+            
+            .days-input, .time-period-select {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .homework-list {
+                padding: 5px;
+            }
+            
+            .homework-header {
+                padding: 10px;
+            }
+            
+            .homework-header h2 {
+                font-size: 1.3rem;
+            }
+            
+            .homework-item {
+                padding: 12px;
+            }
+            
+            .homework-settings-menu {
+                width: 250px;
+                right: -20px;
+            }
+            
+            .modal-content {
+                width: 98%;
+                margin: 2% auto;
+            }
+            
+            .quick-time-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+
+    <!-- SVG图标定义 -->
+    <svg style="display: none;">
+        <defs>
+            <symbol id="settings" viewBox="0 0 24 24">
+                <path d="M12 15.5A3.5 3.5 0 0 1 8.5 12A3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5m7.43-2.53c.04-.32.07-.64.07-.97 0-.33-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1 0 .33.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.66Z"/>
+            </symbol>
+            <symbol id="edit" viewBox="0 0 24 24">
+                <path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" />
+            </symbol>
+            <symbol id="delete" viewBox="0 0 24 24">
+                <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" />
+            </symbol>
+        </defs>
+    </svg>
+
+    <div class="homework-header">
+        <h2>作业管理</h2>
+        <button class="add-homework-btn" onclick="showAddHomeworkModal()">+ 添加作业</button>
+    </div>
+    <div class="homework-content">
+        <div id="homeworkList" class="homework-list">
+            <div class="empty-homework">
+                <div class="empty-homework-text">暂无作业ヾ(≧▽≦*)o</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加作业弹窗 -->
+    <div id="addHomeworkModal" class="modal">
+        <div class="modal-content homework-modal">
+            <div class="modal-header">
+                <h3>添加作业</h3>
+                <span class="close" onclick="closeAddHomeworkModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="homeworkSubject">科目：</label>
+                    <select id="homeworkSubject">
+                        <option value="">请选择科目</option>
+                        <option value="语文">语文</option>
+                        <option value="数学">数学</option>
+                        <option value="英语">英语</option>
+                        <option value="物理">物理</option>
+                        <option value="化学">化学</option>
+                        <option value="生物">生物</option>
+                        <option value="历史">历史</option>
+                        <option value="地理">地理</option>
+                        <option value="政治">政治</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="homeworkDeadline">结束时间：</label>
+                    <div class="datetime-container">
+                        <div class="quick-time-buttons">
+                            <button type="button" class="quick-time-btn" onclick="setQuickTime('tomorrow-morning')">明天上午</button>
+                            <button type="button" class="quick-time-btn" onclick="setQuickTime('tomorrow-afternoon')">明天下午</button>
+                            <button type="button" class="quick-time-btn" onclick="setQuickTime('day-after-morning')">后天上午</button>
+                            <button type="button" class="quick-time-btn" onclick="setQuickTime('day-after-afternoon')">后天下午</button>
+                        </div>
+                        <div class="custom-days-input">
+                            <input type="number" min="1" max="30" placeholder="天数" class="days-input" id="addCustomDaysInput">
+                            <select class="time-period-select" id="addTimePeriodSelect">
+                                <option value="上午">上午</option>
+                                <option value="中午">中午</option>
+                                <option value="下午">下午</option>
+                            </select>
+                            <button type="button" class="set-custom-time-btn" onclick="setCustomDaysTimeForForm('add')">✓</button>
+                        </div>
+                        <input type="datetime-local" id="homeworkDeadline">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>作业内容：</label>
+                    <div id="homeworkItems" class="homework-items">
+                        <div class="homework-item-input">
+                            <input type="text" placeholder="请输入作业内容..." class="homework-input">
+                            <button type="button" class="remove-item-btn" onclick="removeHomeworkItem(this)" style="display: none;">-</button>
+                        </div>
+                    </div>
+                    <button type="button" class="add-item-btn" onclick="addHomeworkItem()">添加作业</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-cancel" onclick="closeAddHomeworkModal()">取消</button>
+                <button class="btn btn-confirm" onclick="confirmAddHomework()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑作业弹窗 -->
+    <div id="editHomeworkModal" class="modal">
+        <div class="modal-content homework-modal">
+            <div class="modal-header">
+                <h3>编辑作业</h3>
+                <span class="close" onclick="closeEditHomeworkModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="editHomeworkSubject">科目：</label>
+                    <select id="editHomeworkSubject">
+                        <option value="">请选择科目</option>
+                        <option value="语文">语文</option>
+                        <option value="数学">数学</option>
+                        <option value="英语">英语</option>
+                        <option value="物理">物理</option>
+                        <option value="化学">化学</option>
+                        <option value="生物">生物</option>
+                        <option value="历史">历史</option>
+                        <option value="地理">地理</option>
+                        <option value="政治">政治</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editHomeworkDeadline">结束时间：</label>
+                    <div class="datetime-container">
+                        <div class="quick-time-buttons">
+                            <button type="button" class="quick-time-btn" onclick="setQuickTime('tomorrow-morning', 'edit')">明天上午</button>
+                            <button type="button" class="quick-time-btn" onclick="setQuickTime('tomorrow-afternoon', 'edit')">明天下午</button>
+                            <button type="button" class="quick-time-btn" onclick="setQuickTime('day-after-morning', 'edit')">后天上午</button>
+                            <button type="button" class="quick-time-btn" onclick="setQuickTime('day-after-afternoon', 'edit')">后天下午</button>
+                        </div>
+                        <div class="custom-days-input">
+                            <input type="number" min="1" max="30" placeholder="天数" class="days-input" id="editCustomDaysInput">
+                            <select class="time-period-select" id="editTimePeriodSelect">
+                                <option value="上午">上午</option>
+                                <option value="中午">中午</option>
+                                <option value="下午">下午</option>
+                            </select>
+                            <button type="button" class="set-custom-time-btn" onclick="setCustomDaysTimeForForm('edit')">✓</button>
+                        </div>
+                        <input type="datetime-local" id="editHomeworkDeadline">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>作业内容：</label>
+                    <div id="editHomeworkItems" class="homework-items">
+                        <!-- 动态生成的作业项 -->
+                    </div>
+                    <button type="button" class="add-item-btn" onclick="addEditHomeworkItem()">添加作业</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-cancel" onclick="closeEditHomeworkModal()">取消</button>
+                <button class="btn btn-confirm" onclick="confirmEditHomework()">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../popup-system/toast.js"></script>
+    <script src="../popup-system/confirm.js"></script>
+    <script src="../popup-system/modal.js"></script>
+    <script src="../Cache/HomeworkCache.js"></script>
+    <script src="../Cache/NoticeCache.js"></script>
+    <script>
+        // 全局变量
+        let homeworkData = [];
+        let currentEditingId = null;
+
+        // 瀑布流布局函数
+        function layoutMasonry() {
+            const container = document.getElementById('homeworkList');
+            const items = Array.from(container.querySelectorAll('.subject-group'));
+            
+            if (items.length === 0) {
+                container.style.height = '200px';
+                return;
+            }
+            
+            // 重置所有元素为相对定位，使用flexbox布局
+            container.style.display = 'flex';
+            container.style.flexWrap = 'wrap';
+            container.style.gap = '12px';
+            container.style.padding = '20px';
+            container.style.alignItems = 'flex-start';
+            
+            items.forEach(item => {
+                item.style.position = 'relative';
+                item.style.left = 'auto';
+                item.style.top = 'auto';
+                item.style.width = 'auto';
+                item.style.minWidth = '280px';
+                item.style.maxWidth = '400px';
+                item.style.flex = '1 1 auto';
+            });
+            
+            // 移除固定高度，让容器自适应
+            container.style.height = 'auto';
+            container.style.minHeight = '200px';
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDataFromLocalStorage();
+            renderHomeworkList();
+            // 延迟执行瀑布流布局
+            setTimeout(layoutMasonry, 100);
+        });
+
+        // 显示添加作业弹窗
+        function showAddHomeworkModal() {
+            // 重置表单
+            document.getElementById('homeworkSubject').value = '';
+            document.getElementById('homeworkDeadline').value = '';
+            const homeworkItems = document.getElementById('homeworkItems');
+            homeworkItems.innerHTML = `
+                <div class="homework-item-input">
+                    <input type="text" placeholder="请输入作业内容..." class="homework-input">
+                    <button type="button" class="remove-item-btn" onclick="removeHomeworkItem(this)" style="display: none;">-</button>
+                </div>
+            `;
+            
+            document.getElementById('addHomeworkModal').style.display = 'block';
+        }
+
+        // 关闭添加作业弹窗
+        function closeAddHomeworkModal() {
+            document.getElementById('addHomeworkModal').style.display = 'none';
+        }
+
+        // 添加作业项
+        function addHomeworkItem() {
+            const homeworkItems = document.getElementById('homeworkItems');
+            const newItem = document.createElement('div');
+            newItem.className = 'homework-item-input';
+            newItem.innerHTML = `
+                <input type="text" placeholder="请输入作业内容..." class="homework-input">
+                <button type="button" class="remove-item-btn" onclick="removeHomeworkItem(this)">-</button>
+            `;
+            homeworkItems.appendChild(newItem);
+            updateRemoveButtons();
+        }
+
+        // 删除作业项
+        function removeHomeworkItem(button) {
+            button.parentElement.remove();
+            updateRemoveButtons();
+        }
+
+        // 更新删除按钮显示状态
+        function updateRemoveButtons() {
+            const items = document.querySelectorAll('#homeworkItems .homework-item-input');
+            items.forEach((item, index) => {
+                const removeBtn = item.querySelector('.remove-item-btn');
+                if (items.length > 1) {
+                    removeBtn.style.display = 'flex';
+                } else {
+                    removeBtn.style.display = 'none';
+                }
+            });
+        }
+
+        // 确认添加作业
+        function confirmAddHomework() {
+            const subject = document.getElementById('homeworkSubject').value;
+            const deadline = document.getElementById('homeworkDeadline').value;
+            const items = document.querySelectorAll('#homeworkItems .homework-input');
+            
+            if (!subject) {
+                toast.warning('请选择科目');
+                return;
+            }
+            
+            if (!deadline) {
+                toast.warning('请选择截止时间');
+                return;
+            }
+            
+            const tasks = [];
+            items.forEach(item => {
+                if (item.value.trim()) {
+                    tasks.push({
+                        content: item.value.trim(),
+                        settings: { isClassroomHomework: false, noHandIn: false }
+                    });
+                }
+            });
+            
+            if (tasks.length === 0) {
+                toast.warning('请至少添加一项作业内容');
+                return;
+            }
+            
+            const homework = {
+                id: Date.now(),
+                subject: subject,
+                deadline: deadline,
+                tasks: tasks,
+                settings: { isClassroomHomework: false, noHandIn: false },
+                createdAt: new Date().toISOString()
+            };
+            
+            addHomeworkToList(homework);
+            closeAddHomeworkModal();
+            toast.success('作业添加成功');
+        }
+
+        // 添加作业到列表
+        function addHomeworkToList(homework) {
+            // 使用缓存系统添加作业
+            if (homeworkCache.addHomework(homework)) {
+                // 重新加载数据
+                homeworkData = homeworkCache.getAllHomework();
+                renderHomeworkList();
+                // 重新布局瀑布流
+                setTimeout(layoutMasonry, 100);
+            }
+        }
+
+        // 渲染作业列表
+        function renderHomeworkList() {
+            const homeworkList = document.getElementById('homeworkList');
+            
+            if (homeworkData.length === 0) {
+                homeworkList.innerHTML = `
+                    <div class="empty-homework">
+                        <div class="empty-homework-text">暂无作业ヾ(≧▽≦*)o</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // 按科目分组
+            const groupedHomework = {};
+            homeworkData.forEach(homework => {
+                if (!groupedHomework[homework.subject]) {
+                    groupedHomework[homework.subject] = [];
+                }
+                groupedHomework[homework.subject].push(homework);
+            });
+            
+            let html = '';
+            Object.keys(groupedHomework).forEach(subject => {
+                const homeworks = groupedHomework[subject];
+                html += `
+                    <div class="subject-group ${subject}">
+                        <div class="subject-header">
+                            <div>
+                                <span class="subject-title">${subject}</span>
+                                <span class="subject-count">${homeworks.length}项</span>
+                            </div>
+                            <button class="edit-subject-btn" onclick="editSubject('${subject.replace(/'/g, "\\'").replace(/"/g, '\\"')}', this)" title="编辑学科">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="subject-homework-list">
+                            ${homeworks.map(homework => createHomeworkItemHTML(homework)).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            homeworkList.innerHTML = html;
+            
+            // 新增：渲染完成后更新所有徽章
+            document.querySelectorAll('.homework-item').forEach(item => {
+                updateHomeworkBadges(item);
+            });
+
+            // 渲染完成后执行瀑布流布局
+            setTimeout(layoutMasonry, 50);
+        }
+
+        // 创建作业项HTML
+        function createHomeworkItemHTML(homework) {
+            const deadline = new Date(homework.deadline);
+            const now = new Date();
+            const isOverdue = deadline < now;
+            
+            // 为每个任务创建单独的作业项
+            return homework.tasks.map((task, taskIndex) => `
+                <div class="homework-item" data-subject="${homework.subject}" data-id="${homework.id}" data-task-index="${taskIndex}">
+                    <button class="homework-settings-btn" onclick="toggleHomeworkSettings(this, event)" title="设置">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="5" cy="12" r="2"/>
+                            <circle cx="12" cy="12" r="2"/>
+                            <circle cx="19" cy="12" r="2"/>
+                        </svg>
+                    </button>
+                    <div class="homework-settings-menu">
+                         <div class="settings-option" data-setting="classroom" onclick="toggleSetting(this, 'classroom')">
+                             <span>课堂作业</span>
+                             <div class="settings-toggle"></div>
+                         </div>
+                         <div class="settings-option" data-setting="no-submit" onclick="toggleSetting(this, 'no-submit')">
+                             <span>无需交上</span>
+                             <div class="settings-toggle"></div>
+                         </div>
+                         <div class="settings-option" onclick="editSingleHomework(this.closest('.homework-item').querySelector('.homework-settings-btn'))">
+                             <span>编辑</span>
+                         </div>
+                         <div class="settings-option custom-deadline">
+                             <span>独立上交时间</span>
+                             <div class="deadline-input-group">
+                                 <input type="datetime-local" class="custom-deadline-input" onchange="updateCustomDeadline(this)">
+                                 <div class="quick-time-buttons">
+                                     <button type="button" class="quick-time-btn" onclick="setQuickTime('明天上午', 'individual', this)">明天上午</button>
+                                     <button type="button" class="quick-time-btn" onclick="setQuickTime('明天中午', 'individual', this)">明天中午</button>
+                                     <button type="button" class="quick-time-btn" onclick="setQuickTime('明天下午', 'individual', this)">明天下午</button>
+                                     <button type="button" class="quick-time-btn" onclick="setQuickTime('后天上午', 'individual', this)">后天上午</button>
+                                     <button type="button" class="quick-time-btn" onclick="setQuickTime('后天下午', 'individual', this)">后天下午</button>
+                                 </div>
+                                 <div class="custom-days-input">
+                                     <input type="number" min="1" max="30" placeholder="天数" class="days-input" id="customDaysInput">
+                                     <select class="time-period-select" id="timePeriodSelect">
+                                         <option value="上午">上午</option>
+                                         <option value="中午">中午</option>
+                                         <option value="下午">下午</option>
+                                     </select>
+                                     <button type="button" class="set-custom-time-btn" onclick="setCustomDaysTime('individual', this)">✓</button>
+                                 </div>
+                             </div>
+                         </div>
+                         <div class="settings-option" onclick="deleteSingleHomework(this.closest('.homework-item').querySelector('.homework-settings-btn'))">
+                             <span style="color: #dc3545;">删除</span>
+                         </div>
+                     </div>
+                    <div class="homework-header">
+                        <div class="homework-task">${task.content || task}</div>
+                        <div class="homework-deadline ${isOverdue ? 'overdue' : ''}">
+                            截止：${formatDateTime(homework.deadline)}
+                        </div>
+                    </div>
+                    <div class="homework-badges"></div>
+                    <div class="homework-actions">
+                         <!-- 删除按钮已移至设置菜单 -->
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 编辑作业
+        function editHomework(id) {
+            const homework = homeworkData.find(h => h.id === id);
+            if (!homework) return;
+            
+            currentEditingId = id;
+            
+            // 填充编辑表单
+            document.getElementById('editHomeworkSubject').value = homework.subject;
+            document.getElementById('editHomeworkDeadline').value = homework.deadline;
+            
+            const editHomeworkItems = document.getElementById('editHomeworkItems');
+            editHomeworkItems.innerHTML = '';
+            const tasks = homework.tasks || [];
+            tasks.forEach(task => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'homework-item-input';
+                
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = task.content || task; // 兼容新旧格式
+                input.className = 'homework-input';
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'remove-item-btn';
+                removeBtn.textContent = '-';
+                removeBtn.onclick = function() { removeEditHomeworkItem(this); };
+                if (tasks.length === 1) {
+                    removeBtn.style.display = 'none';
+                }
+                
+                itemDiv.appendChild(input);
+                itemDiv.appendChild(removeBtn);
+                editHomeworkItems.appendChild(itemDiv);
+            });
+            
+            document.getElementById('editHomeworkModal').style.display = 'block';
+        }
+
+        // 切换作业设置菜单
+        function toggleHomeworkSettings(button, event) {
+            event.stopPropagation();
+            const menu = button.nextElementSibling;
+            const isVisible = menu.classList.contains('show');
+            
+            // 关闭所有其他设置菜单
+            document.querySelectorAll('.homework-settings-menu.show').forEach(m => {
+                if (m !== menu) m.classList.remove('show');
+            });
+            
+            // 切换当前菜单，使用CSS定位
+            menu.classList.toggle('show', !isVisible);
+        }
+        
+        // 编辑学科功能
+        function editSubject(subject, button) {
+            // 创建学科菜单
+            const existingMenu = document.querySelector('.subject-menu');
+            if (existingMenu) {
+                existingMenu.remove();
+            }
+            
+            const menu = document.createElement('div');
+            menu.className = 'subject-menu homework-settings-menu show';
+            menu.innerHTML = `
+                <div class="settings-option" onclick="editSubjectContent('${subject.replace(/'/g, "\\'").replace(/"/g, '\\"')}')">
+                    <span>编辑学科作业</span>
+                </div>
+                <div class="settings-option" onclick="deleteSubject('${subject.replace(/'/g, "\\'").replace(/"/g, '\\"')}')">
+                    <span>删除学科</span>
+                </div>
+            `;
+            
+            // 定位菜单
+            button.parentNode.style.position = 'relative';
+            button.parentNode.appendChild(menu);
+            
+            // 点击其他地方关闭菜单
+            setTimeout(() => {
+                document.addEventListener('click', function closeSubjectMenu(e) {
+                    if (!e.target.closest('.subject-menu') && !e.target.closest('.edit-subject-btn')) {
+                        menu.remove();
+                        document.removeEventListener('click', closeSubjectMenu);
+                    }
+                });
+            }, 0);
+        }
+        
+        function editSubjectContent(subject) {
+            // 编辑学科的所有作业内容（除了科目）
+            const subjectHomeworks = homeworkData.filter(hw => hw.subject === subject);
+            if (subjectHomeworks.length === 0) {
+                toast.warning(`「${subject}」学科暂无作业`);
+                return;
+            }
+            
+            // 创建编辑对话框
+            const editContent = subjectHomeworks.map((hw, index) => `
+                <div class="homework-edit-item" style="margin-bottom: 15px; padding: 12px; border: 1px solid #e0e0e0; border-radius: 6px;">
+                    <div style="margin-bottom: 8px;">
+                        <label style="display: block; font-weight: 500; margin-bottom: 4px;">作业内容：</label>
+                        <textarea id="task_${index}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; resize: vertical; min-height: 60px;">${hw.task}</textarea>
+                    </div>
+                    <div style="margin-bottom: 8px;">
+                        <label style="display: block; font-weight: 500; margin-bottom: 4px;">截止时间：</label>
+                        <input type="datetime-local" id="deadline_${index}" value="${hw.deadline}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                </div>
+            `).join('');
+            
+            confirm.info(
+                `<div style="max-height: 400px; overflow-y: auto;">${editContent}</div>`,
+                `编辑「${subject}」学科作业`,
+                '保存修改',
+                '取消'
+            ).then(result => {
+                if (result) {
+                    // 保存修改
+                    subjectHomeworks.forEach((hw, index) => {
+                        const newTask = document.getElementById(`task_${index}`).value.trim();
+                        const newDeadline = document.getElementById(`deadline_${index}`).value;
+                        
+                        if (newTask) {
+                            hw.task = newTask;
+                            hw.deadline = newDeadline;
+                        }
+                    });
+                    
+                    // 使用缓存系统保存数据
+                    subjectHomeworks.forEach(hw => {
+                        homeworkCache.updateHomework(hw.id, hw);
+                    });
+                    
+                    // 重新渲染页面
+                    renderHomeworkList();
+                    
+                    // 显示成功提示
+                    toast.success(`已成功保存「${subject}」学科作业的修改`);
+                }
+            });
+            
+            // 关闭菜单
+            document.querySelector('.subject-menu')?.remove();
+        }
+        
+        function deleteSubject(subject) {
+            confirm.delete(
+                `确定要删除「${subject}」学科的所有作业吗？此操作不可撤销。`,
+                '删除学科'
+            ).then(result => {
+                if (result) {
+                    // 使用缓存系统删除该学科的所有作业
+                    const subjectHomeworks = homeworkData.filter(homework => homework.subject === subject);
+                    subjectHomeworks.forEach(homework => {
+                        homeworkCache.removeHomework(homework.id);
+                    });
+                    
+                    // 重新加载数据
+                    homeworkData = homeworkCache.getAllHomework();
+                    
+                    // 重新渲染页面
+                    renderHomeworkList();
+                    
+                    // 显示成功提示
+                    toast.success(`已成功删除「${subject}」学科的所有作业`);
+                }
+            });
+            
+            // 关闭菜单
+            document.querySelector('.subject-menu')?.remove();
+        }
+
+        // 点击空白区域关闭所有设置菜单
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.homework-settings-menu') && !event.target.closest('.homework-settings-btn')) {
+                document.querySelectorAll('.homework-settings-menu.show').forEach(menu => {
+                    menu.classList.remove('show');
+                });
+            }
+        });
+
+        // 阻止设置菜单内部点击事件冒泡
+        document.addEventListener('click', function(event) {
+            if (event.target.closest('.homework-settings-menu')) {
+                // 只有点击菜单项才允许事件继续，点击空白区域不做任何处理
+                if (!event.target.closest('.settings-option') && !event.target.closest('.delete-option')) {
+                    event.stopPropagation();
+                    return;
+                }
+                event.stopPropagation();
+            }
+        });
+
+        // 切换设置项
+        function toggleSetting(option, settingType) {
+            const homeworkItem = option.closest('.homework-item');
+            const homeworkId = parseInt(homeworkItem.getAttribute('data-id'));
+            
+            // 从缓存系统获取最新数据
+            const homework = homeworkCache.getHomeworkById(homeworkId);
+
+            if (!homework) {
+                toast.error('未找到作业数据');
+                return;
+            }
+
+            const taskIndex = parseInt(homeworkItem.dataset.taskIndex);
+
+            if (isNaN(taskIndex) || !homework.tasks || !homework.tasks[taskIndex]) {
+                 toast.error('未找到作业任务');
+                 return;
+            }
+            
+            let task = homework.tasks[taskIndex];
+
+            // 兼容旧的字符串格式，转换为对象格式
+            if (typeof task === 'string') {
+                task = {
+                    content: task,
+                    settings: { isClassroomHomework: false, noHandIn: false }
+                };
+                homework.tasks[taskIndex] = task; // 更新数组中的数据
+            }
+
+            // 确保task对象存在且有效
+            if (!task || typeof task !== 'object') {
+                toast.error('作业任务数据无效');
+                return;
+            }
+
+            // Ensure settings object exists with comprehensive check
+            if (!task.settings || typeof task.settings !== 'object') {
+                task.settings = { isClassroomHomework: false, noHandIn: false };
+            }
+            
+            // Ensure all required properties exist
+            if (task.settings.isClassroomHomework === undefined) {
+                task.settings.isClassroomHomework = false;
+            }
+            if (task.settings.noHandIn === undefined) {
+                task.settings.noHandIn = false;
+            }
+
+            if (settingType === 'classroom') {
+                task.settings.isClassroomHomework = !task.settings.isClassroomHomework;
+                if (task.settings.isClassroomHomework) {
+                    toast.info(`已设置 "${task.content}" 为课堂作业`);
+                } else {
+                    toast.info(`已取消 "${task.content}" 的课堂作业设置`);
+                }
+            } else if (settingType === 'no-submit') {
+                task.settings.noHandIn = !task.settings.noHandIn;
+            }
+            
+            // 使用缓存系统更新数据
+            homeworkCache.updateHomework(homeworkId, homework);
+            
+            // 重新加载本地数据
+            homeworkData = homeworkCache.getAllHomework();
+            
+            updateHomeworkBadges(homeworkItem);
+        }
+
+
+        // 更新作业徽章
+        function updateHomeworkBadges(homeworkItem) {
+            const badgesContainer = homeworkItem.querySelector('.homework-badges');
+            const homeworkId = parseInt(homeworkItem.getAttribute('data-id'));
+            const homework = homeworkData.find(h => h.id === homeworkId);
+
+            if (!homework) return;
+
+            const taskIndex = parseInt(homeworkItem.dataset.taskIndex);
+            
+            if (isNaN(taskIndex) || !homework.tasks || !homework.tasks[taskIndex]) return;
+
+            const task = homework.tasks[taskIndex];
+            const taskSettings = task.settings || { isClassroomHomework: false, noHandIn: false };
+
+            let badges = [];
+            
+            const noticeId = `homework-notice-${homework.id}-${taskIndex}`;
+
+            if (taskSettings.isClassroomHomework) {
+                badges.push('<span class="homework-badge classroom">课堂作业</span>');
+                // 使用通知缓存系统添加置顶通知
+                if (typeof noticeCache !== 'undefined') {
+                    const existingNotice = noticeCache.getNoticeById(noticeId);
+                    if (!existingNotice) {
+                        const notice = {
+                            id: noticeId,
+                            title: '课堂作业提醒',
+                            content: `【课堂作业】${homework.subject} - ${task.content || task}`,
+                            type: 'info',
+                            priority: 'high',
+                            author: '作业系统',
+                            isPinned: true,
+                            tags: ['课堂作业', homework.subject],
+                            createdAt: new Date().toISOString()
+                        };
+                        noticeCache.addNotice(notice);
+                    }
+                }
+            } else {
+                // 使用通知缓存系统移除通知
+                if (typeof noticeCache !== 'undefined') {
+                    noticeCache.removeNotice(noticeId, true); // 永久删除
+                }
+            }
+            
+            if (taskSettings.noHandIn) {
+                badges.push('<span class="homework-badge no-submit">无需交上</span>');
+            }
+            
+            badgesContainer.innerHTML = badges.join('');
+
+            // 更新开关视觉状态
+            const classroomToggle = homeworkItem.querySelector('[data-setting="classroom"] .settings-toggle');
+            const noSubmitToggle = homeworkItem.querySelector('[data-setting="no-submit"] .settings-toggle');
+            if(classroomToggle) classroomToggle.classList.toggle('active', taskSettings.isClassroomHomework);
+            if(noSubmitToggle) noSubmitToggle.classList.toggle('active', taskSettings.noHandIn);
+        }
+
+        // 添加课堂作业通知
+        function addClassroomHomeworkNotice(homeworkItem) {
+            const subject = homeworkItem.getAttribute('data-subject');
+            const task = homeworkItem.querySelector('.homework-task').textContent;
+            const deadline = homeworkItem.querySelector('.homework-deadline').textContent.replace('截止：', '');
+            
+            const noticeList = document.querySelector('.notice-list');
+            const emptyState = document.querySelector('.notice-empty');
+            
+            // 检查是否已存在相同通知
+            const existingNotice = Array.from(noticeList.children).find(notice => {
+                return notice.querySelector('.notice-content')?.textContent.includes(task);
+            });
+            
+            if (!existingNotice) {
+                const noticeItem = document.createElement('div');
+                noticeItem.className = 'notice-item';
+                noticeItem.innerHTML = `
+                    <div class="notice-icon">📝</div>
+                    <div class="notice-content">
+                        <div class="notice-title">${subject} - 课堂作业</div>
+                        <div class="notice-text">${task}</div>
+                        <div class="notice-time">${deadline}</div>
+                    </div>
+                    <button class="notice-close" onclick="removeClassroomHomeworkNotice(this.closest('.homework-item'))">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                
+                noticeList.appendChild(noticeItem);
+                
+                // 隐藏空状态
+                if (emptyState) {
+                    emptyState.style.display = 'none';
+                }
+            }
+        }
+
+        // 移除课堂作业通知
+        function removeClassroomHomeworkNotice(homeworkItem) {
+            const task = homeworkItem.querySelector('.homework-task').textContent;
+            const noticeList = document.querySelector('.notice-list');
+            const emptyState = document.querySelector('.notice-empty');
+            
+            // 查找并移除对应的通知
+            const noticeToRemove = Array.from(noticeList.children).find(notice => {
+                return notice.querySelector('.notice-content')?.textContent.includes(task);
+            });
+            
+            if (noticeToRemove) {
+                noticeToRemove.remove();
+                
+                // 如果没有通知了，显示空状态
+                if (noticeList.children.length === 0 && emptyState) {
+                    emptyState.style.display = 'block';
+                }
+            }
+        }
+
+        // 删除作业
+        async function deleteHomework(id) {
+            // 首先进行安全验证
+            const verified = await securitySystem.verifySensitiveOperation('删除作业');
+            if (!verified) {
+                return;
+            }
+            
+            showConfirm({
+                title: '确认删除',
+                message: '确定要删除这项作业吗？',
+                confirmText: '删除',
+                cancelText: '取消'
+            }).then(confirmed => {
+                if (confirmed) {
+                    // 获取要删除的作业信息，检查是否有课堂作业
+                    const homework = homeworkCache.getHomeworkById(id);
+                    let hasClassroomHomework = false;
+                    if (homework && homework.tasks) {
+                        hasClassroomHomework = homework.tasks.some(task => 
+                            task.settings && task.settings.isClassroomHomework
+                        );
+                    }
+                    
+                    // 使用缓存系统删除作业
+                    if (homeworkCache.removeHomework(id)) {
+                        // 重新加载数据
+                        homeworkData = homeworkCache.getAllHomework();
+                        renderHomeworkList();
+                        // 重新布局瀑布流
+                        setTimeout(layoutMasonry, 100);
+                    }
+                    
+                    // 关闭所有打开的菜单和弹窗
+                    document.querySelectorAll('.homework-settings-menu.show').forEach(menu => {
+                        menu.classList.remove('show');
+                    });
+                    document.querySelectorAll('.subject-menu').forEach(menu => {
+                        menu.remove();
+                    });
+                    
+                    toast.success('作业删除成功');
+                }
+            });
+        }
+
+        // 关闭编辑作业弹窗
+        function closeEditHomeworkModal() {
+            document.getElementById('editHomeworkModal').style.display = 'none';
+            currentEditingId = null;
+            currentEditingItem = null;
+            
+            // 重置表单显示状态
+            document.getElementById('editHomeworkSubject').closest('.form-group').style.display = 'block';
+            document.getElementById('editHomeworkDeadline').closest('.form-group').style.display = 'block';
+            document.querySelector('.add-item-btn[onclick="addEditHomeworkItem()"]').style.display = 'block';
+        }
+
+        // 添加编辑作业项
+        function addEditHomeworkItem() {
+            const editHomeworkItems = document.getElementById('editHomeworkItems');
+            const newItem = document.createElement('div');
+            newItem.className = 'homework-item-input';
+            newItem.innerHTML = `
+                <input type="text" placeholder="请输入作业内容..." class="homework-input">
+                <button type="button" class="remove-item-btn" onclick="removeEditHomeworkItem(this)">-</button>
+            `;
+            editHomeworkItems.appendChild(newItem);
+            updateEditRemoveButtons();
+        }
+
+        // 删除编辑作业项
+        function removeEditHomeworkItem(button) {
+            button.parentElement.remove();
+            updateEditRemoveButtons();
+        }
+
+        // 更新编辑删除按钮显示状态
+        function updateEditRemoveButtons() {
+            const items = document.querySelectorAll('#editHomeworkItems .homework-item-input');
+            items.forEach((item, index) => {
+                const removeBtn = item.querySelector('.remove-item-btn');
+                if (items.length > 1) {
+                    removeBtn.style.display = 'flex';
+                } else {
+                    removeBtn.style.display = 'none';
+                }
+            });
+        }
+
+        // 更新自定义截止时间
+        function updateCustomDeadline(input) {
+            const homeworkItem = input.closest('.homework-item');
+            const deadlineElement = homeworkItem.querySelector('.homework-deadline');
+            
+            if (input.value) {
+                const customDate = new Date(input.value);
+                const year = customDate.getFullYear();
+                const month = customDate.getMonth() + 1;
+                const date = customDate.getDate();
+                const hours = customDate.getHours();
+                const minutes = customDate.getMinutes();
+                
+                let timeString;
+                if (minutes === 0) {
+                    // 整点时间显示为上午/下午
+                    if (hours === 0) {
+                        timeString = '凌晨12点';
+                    } else if (hours < 12) {
+                        timeString = `上午${hours}点`;
+                    } else if (hours === 12) {
+                        timeString = '中午12点';
+                    } else {
+                        timeString = `下午${hours - 12}点`;
+                    }
+                } else {
+                    // 非整点时间显示具体时分
+                    timeString = String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0');
+                }
+                
+                const customString = `${year}年${month}月${date}日 ${timeString}`;
+                deadlineElement.textContent = '截止：' + customString;
+                deadlineElement.style.color = '#ff6b6b';
+                toast.success('已设置独立上交时间');
+            }
+        }
+
+        // 单项作业编辑功能
+        let currentEditingItem = null;
+        
+        function editSingleHomework(button) {
+            const homeworkItem = button.closest('.homework-item');
+            currentEditingItem = homeworkItem;
+
+            const subject = homeworkItem.getAttribute('data-subject');
+            const homeworkId = parseInt(homeworkItem.getAttribute('data-id'));
+
+            const homework = homeworkData.find(h => h.id === homeworkId);
+            if (!homework) {
+                toast.error('找不到作业数据');
+                return;
+            }
+
+            const allHomeworkItemsForId = document.querySelectorAll(`.homework-item[data-id="${homeworkId}"]`);
+            const taskIndex = Array.from(allHomeworkItemsForId).indexOf(homeworkItem);
+
+            if (taskIndex === -1) {
+                toast.error('无法确定作业任务');
+                return;
+            }
+
+            const taskContent = homework.tasks[taskIndex];
+            const deadlineText = homeworkItem.querySelector('.homework-deadline').textContent.replace('截止：', '');
+
+            document.getElementById('editHomeworkSubject').value = subject;
+            document.getElementById('editHomeworkSubject').closest('.form-group').style.display = 'none';
+
+            let deadlineDate;
+            if (deadlineText.includes('年') && deadlineText.includes('月') && deadlineText.includes('日')) {
+                const dateMatch = deadlineText.match(/(\d{4})年(\d{1,2})月(\d{1,2})日\s*(.+)/);
+                if (dateMatch) {
+                    const year = parseInt(dateMatch[1]);
+                    const month = parseInt(dateMatch[2]) - 1;
+                    const day = parseInt(dateMatch[3]);
+                    const timeStr = dateMatch[4];
+                    let hour = 0;
+                    if (timeStr.includes('凌晨12点')) {
+                        hour = 0;
+                    } else if (timeStr.includes('上午')) {
+                        const hourMatch = timeStr.match(/上午(\d{1,2})点/);
+                        hour = hourMatch ? parseInt(hourMatch[1]) : 0;
+                    } else if (timeStr.includes('中午12点')) {
+                        hour = 12;
+                    } else if (timeStr.includes('下午')) {
+                        const hourMatch = timeStr.match(/下午(\d{1,2})点/);
+                        hour = hourMatch ? parseInt(hourMatch[1]) + 12 : 12;
+                    } else if (timeStr.includes(':')) {
+                        const timeMatch = timeStr.match(/(\d{1,2}):(\d{2})/);
+                        if (timeMatch) {
+                            hour = parseInt(timeMatch[1]);
+                            const minute = parseInt(timeMatch[2]);
+                            deadlineDate = new Date(year, month, day, hour, minute);
+                        }
+                    }
+                    if (!deadlineDate) {
+                        deadlineDate = new Date(year, month, day, hour, 0);
+                    }
+                }
+            } else {
+                deadlineDate = new Date(deadlineText.replace(' ', 'T'));
+            }
+
+            if (deadlineDate && !isNaN(deadlineDate.getTime())) {
+                const isoString = deadlineDate.toISOString().slice(0, 16);
+                document.getElementById('editHomeworkDeadline').value = isoString;
+            }
+            document.getElementById('editHomeworkDeadline').closest('.form-group').style.display = 'none';
+
+            const editHomeworkItems = document.getElementById('editHomeworkItems');
+            editHomeworkItems.innerHTML = `
+                <div class="homework-item-input">
+                    <input type="text" placeholder="请输入作业内容..." class="homework-input">
+                    <button type="button" class="remove-item-btn" onclick="removeEditHomeworkItem(this)" style="display: none;">-</button>
+                </div>
+            `;
+            
+            if(taskContent !== undefined) {
+                editHomeworkItems.querySelector('.homework-input').value = taskContent;
+            } else {
+                editHomeworkItems.querySelector('.homework-input').value = '';
+                toast.error('无法加载作业内容');
+            }
+
+            document.querySelector('.add-item-btn[onclick="addEditHomeworkItem()"]').style.display = 'none';
+            document.getElementById('editHomeworkModal').style.display = 'block';
+        }
+
+        // 删除单个作业项
+        async function deleteSingleHomework(button) {
+            // 首先进行安全验证
+            const verified = await securitySystem.verifySensitiveOperation('删除作业项目');
+            if (!verified) {
+                return;
+            }
+            
+            const homeworkItem = button.closest('.homework-item');
+            const task = homeworkItem.querySelector('.homework-task').textContent;
+            const homeworkId = parseInt(homeworkItem.getAttribute('data-id'));
+
+            showConfirm({
+                title: '确认删除',
+                message: `确定要删除作业 "${task}" 吗？`,
+                confirmText: '删除',
+                cancelText: '取消'
+            }).then(confirmed => {
+                if (confirmed) {
+                    const homework = homeworkCache.getHomeworkById(homeworkId);
+                    if (homework && homework.tasks.length > 1) {
+                        // 删除单个任务
+                        const taskElements = Array.from(document.querySelectorAll(`[data-id="${homeworkId}"]`));
+                        const taskIndex = taskElements.indexOf(homeworkItem);
+                        if (taskIndex >= 0 && taskIndex < homework.tasks.length) {
+                            homework.tasks.splice(taskIndex, 1);
+                            // 使用缓存系统更新作业
+                            homeworkCache.updateHomework(homeworkId, homework);
+                        }
+                    } else {
+                        // 删除整个作业
+                        homeworkCache.removeHomework(homeworkId);
+                    }
+
+                    // 重新加载数据
+                    homeworkData = homeworkCache.getAllHomework();
+                    renderHomeworkList(); // 重新渲染列表
+                    toast.success('作业删除成功 ✨');
+                }
+            });
+        }
+
+        // 确认编辑作业
+        function confirmEditHomework() {
+            const subject = document.getElementById('editHomeworkSubject').value;
+            const deadline = document.getElementById('editHomeworkDeadline').value;
+            const inputs = document.querySelectorAll('#editHomeworkItems .homework-input');
+            
+            if (!subject) {
+                toast.warning('请选择科目');
+                return;
+            }
+            
+            if (!deadline) {
+                toast.warning('请选择结束时间');
+                return;
+            }
+            
+            const items = [];
+            inputs.forEach(input => {
+                if (input.value.trim()) {
+                    items.push({
+                        content: input.value.trim(),
+                        settings: { isClassroomHomework: false, noHandIn: false }
+                    });
+                }
+            });
+            
+            if (items.length === 0) {
+                toast.warning('请至少添加一项作业内容');
+                return;
+            }
+            
+            // 判断是单项编辑还是整个学科编辑
+            if (currentEditingItem) {
+                // 单项作业编辑
+                const task = items[0].content; // 单项编辑只取第一个的内容
+                updateSingleHomeworkItem(currentEditingItem, subject, deadline, task);
+            } else if (currentEditingId) {
+                // 整个作业编辑
+                const homework = homeworkData.find(h => h.id === currentEditingId);
+                if (homework) {
+                    homework.subject = subject;
+                    homework.deadline = deadline;
+                    homework.tasks = items;
+                    
+                    saveDataToLocalStorage();
+                    renderHomeworkList();
+                    // 重新布局瀑布流
+                    setTimeout(layoutMasonry, 100);
+                }
+            }
+            
+            closeEditHomeworkModal();
+            toast.success('作业编辑成功');
+        }
+
+        // 更新单个作业项
+        function updateSingleHomeworkItem(homeworkItem, subject, deadline, task) {
+            const homeworkId = parseInt(homeworkItem.getAttribute('data-id'));
+            const oldTask = homeworkItem.querySelector('.homework-task').textContent;
+            
+            // 更新作业项内容
+            homeworkItem.setAttribute('data-subject', subject);
+            homeworkItem.querySelector('.homework-task').textContent = task;
+            
+            // 更新截止时间
+             const deadlineDate = new Date(deadline);
+             const formattedDeadline = formatDateTime(deadline);
+             homeworkItem.querySelector('.homework-deadline').textContent = '截止：' + formattedDeadline;
+            
+            // 更新数据
+            const homework = homeworkCache.getHomeworkById(homeworkId);
+            if (homework) {
+                homework.subject = subject;
+                homework.deadline = deadline;
+                // 更新任务列表中的对应任务
+                const taskIndex = homework.tasks.findIndex(t => 
+                    (typeof t === 'string' ? t : t.content) === oldTask
+                );
+                if (taskIndex !== -1) {
+                    // 保持原有的设置，只更新内容
+                    if (typeof homework.tasks[taskIndex] === 'string') {
+                        homework.tasks[taskIndex] = {
+                            content: task,
+                            settings: { isClassroomHomework: false, noHandIn: false }
+                        };
+                    } else {
+                        homework.tasks[taskIndex].content = task;
+                    }
+                }
+                
+                // 使用缓存系统保存
+                homeworkCache.updateHomework(homeworkId, homework);
+                // 重新加载数据
+                homeworkData = homeworkCache.getAllHomework();
+                // 重新渲染以更新科目分组
+                renderHomeworkList();
+            }
+        }
+
+        // 快捷时间设置函数
+        function setQuickTime(timeType, mode = 'add', element = null) {
+            const now = new Date();
+            let targetDate = new Date();
+            
+            // 解析时间类型
+            let days = 0;
+            let hour = 8; // 默认上午8点
+            
+            if (timeType.includes('明天')) {
+                days = 1;
+            } else if (timeType.includes('后天')) {
+                days = 2;
+            } else if (timeType.includes('3天后')) {
+                days = 3;
+            } else {
+                // 兼容旧格式
+                switch(timeType) {
+                    case 'tomorrow-morning':
+                        days = 1; hour = 8;
+                        break;
+                    case 'tomorrow-afternoon':
+                        days = 1; hour = 17;
+                        break;
+                    case 'day-after-morning':
+                        days = 2; hour = 8;
+                        break;
+                    case 'day-after-afternoon':
+                        days = 2; hour = 17;
+                        break;
+                    case '3days-morning':
+                        days = 3; hour = 8;
+                        break;
+                    case '3days-afternoon':
+                        days = 3; hour = 17;
+                        break;
+                }
+            }
+            
+            // 设置时间
+            if (timeType.includes('下午') || timeType.includes('afternoon')) {
+                hour = 17;
+            } else if (timeType.includes('中午')) {
+                hour = 12;
+            }
+            
+            targetDate.setDate(now.getDate() + days);
+            targetDate.setHours(hour, 0, 0, 0);
+            
+            // 格式化为datetime-local格式
+            const year = targetDate.getFullYear();
+            const month = String(targetDate.getMonth() + 1).padStart(2, '0');
+            const day = String(targetDate.getDate()).padStart(2, '0');
+            const hours = String(targetDate.getHours()).padStart(2, '0');
+            const minutes = String(targetDate.getMinutes()).padStart(2, '0');
+            
+            const datetimeString = `${year}-${month}-${day}T${hours}:${minutes}`;
+            
+            // 根据模式设置对应的输入框
+            if (mode === 'individual' && element) {
+                // 独立时间设置
+                const input = element.closest('.custom-deadline').querySelector('.custom-deadline-input');
+                if (input) {
+                    input.value = datetimeString;
+                    // 触发change事件
+                    input.dispatchEvent(new Event('change'));
+                }
+            } else {
+                // 添加或编辑模式
+                const inputId = mode === 'edit' ? 'editHomeworkDeadline' : 'homeworkDeadline';
+                const input = document.getElementById(inputId);
+                if (input) {
+                    input.value = datetimeString;
+                }
+            }
+         }
+
+        // 设置自定义天数时间
+        function setCustomDaysTime(mode = 'individual', element = null) {
+            const daysInput = element.closest('.custom-deadline').querySelector('.days-input');
+            const timePeriodSelect = element.closest('.custom-deadline').querySelector('.time-period-select');
+            
+            const days = parseInt(daysInput.value);
+            const timePeriod = timePeriodSelect.value;
+            
+            if (!days || days < 1 || days > 30) {
+                toast.warning('请输入1-30之间的天数');
+                return;
+            }
+            
+            const now = new Date();
+            let targetDate = new Date();
+            let hour = 8; // 默认上午8点
+            
+            // 设置时间
+            if (timePeriod === '下午') {
+                hour = 17;
+            } else if (timePeriod === '中午') {
+                hour = 12;
+            }
+            
+            targetDate.setDate(now.getDate() + days);
+            targetDate.setHours(hour, 0, 0, 0);
+            
+            // 格式化为datetime-local格式
+            const year = targetDate.getFullYear();
+            const month = String(targetDate.getMonth() + 1).padStart(2, '0');
+            const day = String(targetDate.getDate()).padStart(2, '0');
+            const hours = String(targetDate.getHours()).padStart(2, '0');
+            const minutes = String(targetDate.getMinutes()).padStart(2, '0');
+            
+            const datetimeString = `${year}-${month}-${day}T${hours}:${minutes}`;
+            
+            // 设置独立时间
+            const input = element.closest('.custom-deadline').querySelector('.custom-deadline-input');
+            if (input) {
+                input.value = datetimeString;
+                // 触发change事件
+                input.dispatchEvent(new Event('change'));
+                toast.success(`已设置为${days}天后${timePeriod}`);
+                // 清空输入框
+                daysInput.value = '';
+            }
+        }
+
+        // 为表单设置自定义天数时间
+        function setCustomDaysTimeForForm(mode = 'add') {
+            const daysInputId = mode === 'edit' ? 'editCustomDaysInput' : 'addCustomDaysInput';
+            const timePeriodSelectId = mode === 'edit' ? 'editTimePeriodSelect' : 'addTimePeriodSelect';
+            
+            const daysInput = document.getElementById(daysInputId);
+            const timePeriodSelect = document.getElementById(timePeriodSelectId);
+            
+            const days = parseInt(daysInput.value);
+            const timePeriod = timePeriodSelect.value;
+            
+            if (!days || days < 1 || days > 30) {
+                toast.warning('请输入1-30之间的天数');
+                return;
+            }
+            
+            const now = new Date();
+            let targetDate = new Date();
+            let hour = 8; // 默认上午8点
+            
+            // 设置时间
+            if (timePeriod === '下午') {
+                hour = 17;
+            } else if (timePeriod === '中午') {
+                hour = 12;
+            }
+            
+            targetDate.setDate(now.getDate() + days);
+            targetDate.setHours(hour, 0, 0, 0);
+            
+            // 格式化为datetime-local格式
+            const year = targetDate.getFullYear();
+            const month = String(targetDate.getMonth() + 1).padStart(2, '0');
+            const day = String(targetDate.getDate()).padStart(2, '0');
+            const hours = String(targetDate.getHours()).padStart(2, '0');
+            const minutes = String(targetDate.getMinutes()).padStart(2, '0');
+            
+            const datetimeString = `${year}-${month}-${day}T${hours}:${minutes}`;
+            
+            // 设置对应的输入框
+            const inputId = mode === 'edit' ? 'editHomeworkDeadline' : 'homeworkDeadline';
+            const input = document.getElementById(inputId);
+            if (input) {
+                input.value = datetimeString;
+                toast.success(`已设置为${days}天后${timePeriod}`);
+                // 清空输入框
+                daysInput.value = '';
+            }
+        }
+
+        // 格式化日期时间
+        function formatDateTime(dateTimeString) {
+            const date = new Date(dateTimeString);
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            return `${month}/${day} ${hours}:${minutes}`;
+        }
+
+
+
+        // 保存数据到缓存系统
+        function saveDataToLocalStorage() {
+            // 缓存系统自动保存，这里只是兼容性函数
+            return homeworkCache.save();
+        }
+
+        // 从缓存系统加载数据
+        function loadDataFromLocalStorage() {
+            // 从缓存系统加载数据
+            homeworkData = homeworkCache.getAllHomework();
+        }
+
+        // 点击弹窗外部关闭弹窗
+        window.onclick = function(event) {
+            const addModal = document.getElementById('addHomeworkModal');
+            const editModal = document.getElementById('editHomeworkModal');
+            
+            if (event.target === addModal) {
+                closeAddHomeworkModal();
+            }
+            if (event.target === editModal) {
+                closeEditHomeworkModal();
+            }
+        }
+        
+        // 主题管理函数
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                document.body.classList.add('dark-theme');
+            } else {
+                document.body.classList.remove('dark-theme');
+            }
+        }
+        
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            applyTheme(savedTheme);
+        }
+        
+        // 监听来自父窗口的主题切换消息
+        window.addEventListener('message', function(event) {
+            if (event.data.type === 'themeChange') {
+                applyTheme(event.data.theme);
+            }
+        });
+        
+        // 页面显示时重新加载主题
+        window.addEventListener('pageshow', loadTheme);
+        
+        // 页面加载完成后加载主题
+        document.addEventListener('DOMContentLoaded', loadTheme);
+        
+        // 添加编辑学科按钮的事件委托
+        document.addEventListener('click', function(event) {
+            if (event.target.closest('.edit-subject-btn')) {
+                const button = event.target.closest('.edit-subject-btn');
+                const subject = button.getAttribute('data-subject') || button.onclick?.toString().match(/editSubject\('([^']+)'/)?.[1];
+                if (subject) {
+                    editSubject(subject, button);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

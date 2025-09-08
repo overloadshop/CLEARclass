@@ -1,0 +1,2594 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设置 - 班级管理系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../popup-system/popup-system.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f7;
+            padding: 20px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* 深色主题样式 */
+        body.dark-theme {
+            background-color: #1a1a1a;
+            color: #ffffff;
+        }
+        
+        body.dark-theme .page-title {
+            color: #ffffff;
+        }
+        
+        body.dark-theme .settings-card {
+            background: #2d2d2d;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        body.dark-theme .settings-card-content {
+            background: #2d2d2d;
+        }
+        
+        body.dark-theme .settings-row label {
+            color: #ffffff;
+        }
+        
+        body.dark-theme .settings-row input,
+        body.dark-theme .settings-row select,
+        body.dark-theme .settings-row textarea {
+            background: #3d3d3d;
+            border-color: #555;
+            color: #ffffff;
+        }
+        
+        body.dark-theme .settings-row input:focus,
+        body.dark-theme .settings-row select:focus,
+        body.dark-theme .settings-row textarea:focus {
+            border-color: #667eea;
+        }
+        
+        body.dark-theme .settings-row input::placeholder,
+        body.dark-theme .settings-row textarea::placeholder {
+            color: #aaa;
+        }
+        
+        body.dark-theme .emblem-preview {
+            border-color: #555;
+            background: #3d3d3d;
+        }
+        
+        body.dark-theme .emblem-placeholder {
+            color: #aaa;
+        }
+        
+        body.dark-theme .btn-upload,
+        body.dark-theme .btn-remove {
+            background: #3d3d3d;
+            border-color: #555;
+            color: #ffffff;
+        }
+        
+        body.dark-theme .btn-upload:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+        
+        body.dark-theme .setting-title {
+            color: #ffffff;
+        }
+        
+        body.dark-theme .setting-desc {
+            color: #aaa;
+        }
+        
+        body.dark-theme .data-btn {
+            background: #3d3d3d;
+            border-color: #555;
+        }
+        
+        body.dark-theme .data-btn:hover {
+            border-color: #667eea;
+        }
+        
+        
+        body.dark-theme .data-btn-title {
+            color: #ffffff;
+        }
+        
+        body.dark-theme .data-btn-desc {
+            color: #aaa;
+        }
+        
+        body.dark-theme .settings-actions {
+            border-top-color: #555;
+        }
+        
+        body.dark-theme #themeSelector {
+            background: #3d3d3d;
+            border-color: #555;
+            color: #ffffff;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .page-title {
+            font-size: 32px;
+            font-weight: 600;
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        /* 设置页面样式 */
+        .settings-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .settings-card-header {
+            padding: 20px;
+            background: #667eea;
+            color: white;
+        }
+        
+        .settings-card-header h3 {
+            margin: 0 0 8px 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .settings-card-header p {
+            margin: 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .settings-card-content {
+            padding: 20px;
+        }
+        
+        .settings-row {
+            margin-bottom: 20px;
+        }
+        
+        .settings-row label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .settings-row input,
+        .settings-row select,
+        .settings-row textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+        
+        .settings-row input:focus,
+        .settings-row select:focus,
+        .settings-row textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .settings-row textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        /* 班徽上传样式 */
+        .emblem-upload-area {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .emblem-preview {
+            width: 80px;
+            height: 80px;
+            border: 2px dashed #e9ecef;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .emblem-preview:hover {
+            border-color: #667eea;
+        }
+        
+        .emblem-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #666;
+            font-size: 12px;
+            text-align: center;
+        }
+        
+        .emblem-placeholder svg {
+            margin-bottom: 5px;
+            opacity: 0.5;
+        }
+        
+        .emblem-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .btn-upload, .btn-remove {
+            padding: 8px 16px;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            background: white;
+            color: #333;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-upload:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+        
+        .btn-remove {
+            border-color: #e74c3c;
+            color: #e74c3c;
+        }
+        
+       [data-theme="dark"] .btn-remove:hover {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        [data-theme="dark"] #badgeText,
+        [data-theme="dark"] #badgeColor {
+            background: #2d3748;
+            border-color: #4a5568;
+            color: #e2e8f0;
+        }
+        
+        [data-theme="dark"] #badgeColor option {
+            background: #2d3748;
+            color: #e2e8f0;
+        }
+        
+        .emblem-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .emblem-controls button {
+            white-space: nowrap;
+        }
+        
+        /* 默认班徽样式 */
+        .default-badge {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+
+        
+        /* 必填字段星号样式 */
+        .required::after {
+            content: ' *';
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        /* 班级名单样式 */
+        #studentList {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 120px;
+            line-height: 1.5;
+            transition: border-color 0.3s ease;
+        }
+        
+        #studentList:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        #studentList::placeholder {
+            color: #999;
+            font-style: italic;
+        }
+        
+        .settings-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .settings-actions .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .settings-actions .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .settings-actions .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+        
+        .settings-actions .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .settings-actions .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+        
+        /* 系统设置卡片 */
+        .system-settings {
+            margin-top: 20px;
+        }
+        
+        .system-settings .settings-card-header {
+            background: #e74c3c;
+        }
+        
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+        
+        .setting-info {
+            flex: 1;
+        }
+        
+        .setting-title {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        
+        .setting-desc {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .setting-control {
+            margin-left: 20px;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background: #ccc;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .toggle-switch.active {
+            background: #667eea;
+        }
+        
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+        
+        .toggle-switch.active::after {
+            transform: translateX(26px);
+        }
+        
+        /* 数据管理卡片 */
+        .data-management {
+            margin-top: 20px;
+        }
+        
+        .data-management .settings-card-header {
+            background: #3498db;
+        }
+        
+        .data-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .data-btn {
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .data-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+        
+        .data-btn-title {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .data-btn-desc {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        /* 按钮样式 */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            border: 2px solid #6c757d;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            border: 2px solid #667eea;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        /* 安全对话框样式 */
+        .security-dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .security-dialog {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            animation: slideUp 0.3s ease;
+        }
+        
+        .security-dialog-header {
+            padding: 24px 24px 16px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .security-dialog-header h3 {
+            margin: 0 0 8px;
+            color: #333;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .security-dialog-header p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .security-dialog-content {
+            padding: 20px 24px;
+        }
+        
+        .input-group {
+            margin-bottom: 16px;
+        }
+        
+        .input-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .security-dialog-actions {
+            padding: 16px 24px 24px;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+        
+        .security-dialog-actions .btn {
+            min-width: 80px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* 深色主题下的安全对话框 */
+        .dark-theme .security-dialog {
+            background: #2d3748;
+            color: #e2e8f0;
+        }
+        
+        .dark-theme .security-dialog-header {
+            border-bottom-color: #4a5568;
+        }
+        
+        .dark-theme .security-dialog-header h3 {
+            color: #e2e8f0;
+        }
+        
+        .dark-theme .security-dialog-header p {
+            color: #a0aec0;
+        }
+        
+        .dark-theme .input-group label {
+            color: #e2e8f0;
+        }
+        
+        .dark-theme .input-group input {
+            background: #4a5568;
+            border-color: #718096;
+            color: #e2e8f0;
+        }
+        
+        .dark-theme .input-group input:focus {
+            border-color: #667eea;
+            background: #4a5568;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+            border-color: #5a6268;
+            transform: translateY(-1px);
+        }
+
+        /* 人员配置容器样式 */
+        #staffingContainer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            /* 确保不受父页面transform影响 */
+            transform: scale(1) !important;
+            transform-origin: center center;
+        }
+
+        #staffingContainer.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .staffing-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .staffing-modal {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            background: white;
+        }
+        
+        /* 深色主题下的人员配置模态框 */
+        body.dark-theme .staffing-modal {
+            background: #2d2d2d;
+        }
+        
+        body.dark-theme .staffing-overlay {
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        /* 开发者模式容器样式 */
+        #developerContainer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            /* 确保不受父页面transform影响 */
+            transform: scale(1) !important;
+            transform-origin: center center;
+        }
+
+        #developerContainer.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .developer-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .developer-modal {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            background: white;
+        }
+        
+        /* 深色主题下的开发者模式模态框 */
+        body.dark-theme .developer-modal {
+            background: #2d2d2d;
+        }
+        
+        body.dark-theme .developer-overlay {
+            background: rgba(0, 0, 0, 0.5);
+        }
+        
+        /* 主题选择器样式 */
+        .theme-selector {
+            padding: 8px 12px;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            background: white;
+            font-size: 14px;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+        
+        body.dark-theme .theme-selector {
+            background: #2d2d2d;
+            border-color: #444;
+            color: #ffffff;
+        }
+        
+        body.dark-theme .theme-selector option {
+            background: #2d2d2d;
+            color: #ffffff;
+        }
+
+        #staffingContainer.show .staffing-modal {
+            transform: translateX(0);
+        }
+
+        #staffingIframe {
+            flex: 1;
+            width: 100%;
+            border: none;
+        }
+
+        #developerContainer.show .developer-modal {
+            transform: translateX(0);
+        }
+
+        #developerIframe {
+            flex: 1;
+            width: 100%;
+            border: none;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .page-title {
+                font-size: 1.8rem;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+            
+            .settings-card {
+                margin-bottom: 15px;
+                padding: 15px;
+            }
+            
+            .settings-card-header {
+                padding: 15px;
+                margin: -15px -15px 15px -15px;
+            }
+            
+            .settings-card-header h3 {
+                font-size: 1.1rem;
+            }
+            
+            .settings-card-header p {
+                font-size: 12px;
+                margin-top: 4px;
+            }
+            
+            .settings-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+                margin-bottom: 15px;
+            }
+            
+            .settings-row label {
+                font-size: 14px;
+                margin-bottom: 4px;
+            }
+            
+            .settings-row input,
+            .settings-row textarea,
+            .settings-row select {
+                width: 100%;
+                padding: 10px;
+                font-size: 14px;
+            }
+            
+            .emblem-upload-area {
+                flex-direction: column;
+                align-items: center;
+                gap: 12px;
+            }
+            
+            .emblem-preview {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .emblem-controls {
+                flex-direction: column;
+                gap: 8px;
+                width: 100%;
+            }
+            
+            .emblem-controls button {
+                width: 100%;
+                padding: 10px;
+            }
+            
+            .setting-item {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+                padding: 15px;
+            }
+            
+            .setting-control {
+                margin-left: 0;
+                align-self: flex-start;
+            }
+            
+            .theme-selector {
+                width: 100%;
+                padding: 10px;
+            }
+            
+            .settings-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .settings-actions .btn {
+                width: 100%;
+                padding: 12px;
+                font-size: 16px;
+            }
+            
+            .data-actions {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .data-btn {
+                padding: 12px;
+            }
+            
+            .security-dialog {
+                width: 95%;
+                margin: 5% auto;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+            
+            .security-dialog-header {
+                padding: 15px;
+            }
+            
+            .security-dialog-body {
+                padding: 15px;
+            }
+            
+            .security-dialog-actions {
+                padding: 15px;
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .security-dialog-actions .btn {
+                width: 100%;
+            }
+            
+            #staffingContainer .staffing-modal {
+                width: 100%;
+                height: 100%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 5px;
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
+            }
+            
+            .settings-card {
+                padding: 12px;
+            }
+            
+            .settings-card-header {
+                padding: 12px;
+                margin: -12px -12px 12px -12px;
+            }
+            
+            .emblem-preview {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .setting-item {
+                padding: 12px;
+            }
+            
+            .security-dialog {
+                width: 98%;
+                margin: 2% auto;
+            }
+        }
+        
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="page-title">系统设置</div>
+        
+        <!-- 班级信息配置 -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <h3>班级信息配置</h3>
+                <p>设置班级的基本信息</p>
+            </div>
+            <div class="settings-card-content">
+                <div class="settings-row">
+                    <label for="classEmblem">班徽</label>
+                    <div class="emblem-upload-area">
+                        <div class="emblem-preview" id="emblemPreview">
+                            <div class="emblem-placeholder">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <polyline points="21,15 16,10 5,21"/>
+                                </svg>
+                                <span>点击上传班徽</span>
+                            </div>
+                        </div>
+                        <div class="emblem-controls">
+                            <input type="file" id="classEmblem" accept="image/*" style="display: none;" onchange="handleEmblemUpload(event)">
+                            <button type="button" class="btn-upload" onclick="document.getElementById('classEmblem').click()">选择图片</button>
+                            <button type="button" class="btn-upload" onclick="generateDefaultBadge()">生成默认班徽</button>
+                            <button type="button" class="btn-remove" onclick="removeEmblem()" style="display: none;">移除</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-row" id="badgeConfigRow" style="display: none;">
+                    <label for="badgeText">班徽文字</label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="text" id="badgeText" placeholder="例如：701" maxlength="6" style="flex: 1;">
+                        <select id="badgeColor" style="padding: 8px; border: 1px solid #e9ecef; border-radius: 6px;">
+                            <option value="#667eea">蓝色</option>
+                            <option value="#28a745">绿色</option>
+                            <option value="#e74c3c">红色</option>
+                            <option value="#f39c12">橙色</option>
+                            <option value="#9b59b6">紫色</option>
+                            <option value="#17a2b8">青色</option>
+                        </select>
+                        <button type="button" class="btn-upload" onclick="updateDefaultBadge()">更新班徽</button>
+                    </div>
+                </div>
+                <div class="settings-row">
+                    <label for="classGrade" class="required">年级</label>
+                    <input type="text" id="classGrade" placeholder="例如：七年级">
+                </div>
+                <div class="settings-row">
+                    <label for="className" class="required">班级编号</label>
+                    <input type="text" id="className" placeholder="例如：701（七年级一班）">
+                </div>
+                <div class="settings-row">
+                    <label for="classDisplayName" class="required">班级名称</label>
+                    <input type="text" id="classDisplayName" placeholder="例如：阳光班、梦想班">
+                </div>
+                <div class="settings-row">
+                    <label for="classTeacher" class="required">班主任</label>
+                    <input type="text" id="classTeacher" placeholder="请输入班主任姓名">
+                </div>
+                <div class="settings-row">
+                    <label for="classSlogan">班级口号 <span style="color: #999; font-size: 12px;">(可选)</span></label>
+                    <textarea id="classSlogan" placeholder="请输入班级口号（可选）" rows="3"></textarea>
+                </div>
+                <div class="settings-row">
+                    <label>人员配置管理</label>
+                    <button class="btn btn-secondary" onclick="openStaffingPage()" style="margin-top: 5px;">进入人员配置页面</button>
+                </div>
+                <div class="settings-actions">
+                    <button class="btn btn-primary" onclick="saveClassInfo()">保存班级信息</button>
+                    <button class="btn btn-secondary" onclick="resetClassInfo()">重置</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 系统设置 -->
+        <div class="settings-card system-settings">
+            <div class="settings-card-header">
+                <h3>系统设置</h3>
+                <p>个性化系统行为和显示选项</p>
+            </div>
+            <div class="settings-card-content">
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-title">自动保存</div>
+                        <div class="setting-desc">自动保存编辑的内容，避免数据丢失</div>
+                    </div>
+                    <div class="setting-control">
+                        <div class="toggle-switch active" onclick="toggleSetting(this, 'autoSave')"></div>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-title">消息提醒</div>
+                        <div class="setting-desc">显示操作成功或失败的提示消息</div>
+                    </div>
+                    <div class="setting-control">
+                        <div class="toggle-switch active" onclick="toggleSetting(this, 'notifications')"></div>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-title">确认对话框</div>
+                        <div class="setting-desc">在执行删除等重要操作前显示确认对话框</div>
+                    </div>
+                    <div class="setting-control">
+                        <div class="toggle-switch active" onclick="toggleSetting(this, 'confirmDialogs')"></div>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-title">主题模式</div>
+                        <div class="setting-desc">选择浅色或深色主题模式</div>
+                    </div>
+                    <div class="setting-control">
+                        <select id="themeSelector" onchange="changeTheme(this.value)" class="theme-selector">
+                            <option value="light">浅色模式</option>
+                            <option value="dark">深色模式</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-title">敏感操作验证</div>
+                        <div class="setting-desc">开启后需要密码验证才能执行敏感操作</div>
+                    </div>
+                    <div class="setting-control">
+                        <div class="toggle-switch" id="securityToggle" onclick="toggleSecurityVerification(this)"></div>
+                    </div>
+                </div>
+                <div class="setting-item" id="passwordSection" style="display: none;">
+                    <div class="setting-info">
+                        <div class="setting-title">安全密码管理</div>
+                        <div class="setting-desc">设置或更改用于敏感操作验证的密码</div>
+                    </div>
+                    <div class="setting-control">
+                        <button class="btn btn-secondary" onclick="showPasswordDialog()">更改密码</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 数据管理 -->
+        <div class="settings-card data-management">
+            <div class="settings-card-header">
+                <h3>数据管理</h3>
+                <p>导入、导出和备份您的数据</p>
+            </div>
+            <div class="settings-card-content">
+                <div class="data-actions">
+                    <div class="data-btn" onclick="exportData()">
+                        <div class="data-btn-title">导出数据</div>
+                        <div class="data-btn-desc">将所有数据导出为JSON文件</div>
+                    </div>
+                    <div class="data-btn" onclick="importData()">
+                        <div class="data-btn-title">导入数据</div>
+                        <div class="data-btn-desc">从JSON文件导入数据</div>
+                    </div>
+                    <div class="data-btn" onclick="clearAllData()">
+                        <div class="data-btn-title">清空数据</div>
+                        <div class="data-btn-desc">清除所有本地存储的数据</div>
+                    </div>
+                    <div class="data-btn" onclick="resetToDefault()">
+                        <div class="data-btn-title">恢复默认</div>
+                        <div class="data-btn-desc">重置所有设置为默认值</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 版本信息 -->
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <h3>关于系统</h3>
+                <p>系统版本信息</p>
+            </div>
+            <div class="settings-card-content">
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-title">版本号</div>
+                        <div class="setting-desc">当前系统版本</div>
+                    </div>
+                    <div class="setting-control">
+                        <span id="versionNumber" onclick="handleVersionClick()" style="cursor: pointer; color: #667eea; font-weight: 500;">0.0.1</span>
+                    </div>
+                </div>
+                <div class="setting-item" id="developerModeItem" style="display: none;">
+                    <div class="setting-info">
+                        <div class="setting-title">开发者模式</div>
+                        <div class="setting-desc">开发者工具和测试功能</div>
+                    </div>
+                    <div class="setting-control">
+                        <button class="btn btn-secondary" onclick="openDeveloperMode()">进入开发者模式</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 隐藏的文件输入 -->
+    <input type="file" id="importFileInput" accept=".json" style="display: none;" onchange="handleFileImport(event)">
+    
+    <!-- 引入弹窗系统 -->
+    <script src="../popup-system/toast.js"></script>
+    <script src="../popup-system/modal.js"></script>
+    <script src="../popup-system/confirm.js"></script>
+    
+    <!-- 引入安全系统 -->
+    <script src="../security/security-system.js"></script>
+    
+    <script src="../Cache/ClassInfoCache.js"></script>
+    <script>
+        // 数据存储键名
+        const CLASS_INFO_KEY = 'classInfo';
+        const SETTINGS_KEY = 'systemSettings';
+        
+        // 默认系统设置
+        const defaultSettings = {
+            autoSave: true,
+            notifications: true,
+            confirmDialogs: true,
+            theme: 'light'
+        };
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadClassInfo();
+            loadSystemSettings();
+            loadTheme();
+            
+            // 添加班徽预览点击事件
+            document.getElementById('emblemPreview').addEventListener('click', function() {
+                document.getElementById('classEmblem').click();
+            });
+            
+            // 监听班级信息输入变化
+            const classNameInput = document.getElementById('className');
+            const classGradeInput = document.getElementById('classGrade');
+            
+            function handleClassInfoChange() {
+                // 检查是否已有上传的班徽，如果有则不自动替换
+                const savedEmblem = localStorage.getItem('classEmblem');
+                const defaultConfig = localStorage.getItem('defaultBadgeConfig');
+                
+                if (savedEmblem && !defaultConfig) {
+                    return; // 有上传的班徽，不替换
+                }
+                
+                // 获取当前输入的班级信息
+                const className = classNameInput.value.trim();
+                const classGrade = classGradeInput.value.trim();
+                
+                if (classGrade || className) {
+                    let newText = '';
+                    if (classGrade && className) {
+                        newText = classGrade + className;
+                    } else if (className) {
+                        newText = className;
+                    } else if (classGrade) {
+                        newText = classGrade;
+                    }
+                    
+                    if (newText) {
+                        // 显示配置区域
+                        document.getElementById('badgeConfigRow').style.display = 'block';
+                        document.getElementById('badgeText').value = newText;
+                        
+                        // 自动更新班徽
+                        updateDefaultBadge();
+                    }
+                } else {
+                    // 如果班级信息为空且当前是默认班徽，则移除班徽
+                    if (defaultConfig) {
+                        removeEmblem();
+                    }
+                }
+            }
+            
+            classNameInput.addEventListener('input', handleClassInfoChange);
+            classGradeInput.addEventListener('input', handleClassInfoChange);
+            
+            // 添加自动保存功能
+            const autoSaveInputs = [
+                document.getElementById('className'),
+                document.getElementById('classGrade'),
+                document.getElementById('classDisplayName'),
+                document.getElementById('classTeacher'),
+                document.getElementById('classSlogan')
+            ];
+            
+            autoSaveInputs.forEach(input => {
+                if (input) {
+                    input.addEventListener('input', debounce(autoSaveClassInfo, 1000));
+                    input.addEventListener('blur', autoSaveClassInfo);
+                }
+            });
+        });
+        
+        // ==================== 工具函数 ====================
+        
+        // 防抖函数
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+        
+        // 获取系统设置
+        function getSystemSettings() {
+            try {
+                const settings = localStorage.getItem('systemSettings');
+                return settings ? JSON.parse(settings) : { autoSave: true, notifications: true };
+            } catch (error) {
+                console.error('获取系统设置失败:', error);
+                return { autoSave: true, notifications: true };
+            }
+        }
+        
+        // 自动保存班级信息
+        function autoSaveClassInfo() {
+            const settings = classInfoCache.getSystemSettings();
+            if (!settings.autoSave) {
+                return; // 如果自动保存功能关闭，则不执行
+            }
+            
+            const className = document.getElementById('className').value.trim();
+            const classGrade = document.getElementById('classGrade').value.trim();
+            const classDisplayName = document.getElementById('classDisplayName').value.trim();
+            const classTeacher = document.getElementById('classTeacher').value.trim();
+            const classSlogan = document.getElementById('classSlogan').value.trim();
+            
+            // 只要有任何内容就保存，不强制要求所有字段都填写
+            if (className || classGrade || classDisplayName || classTeacher || classSlogan) {
+                const classInfo = {
+                    className: className,
+                    grade: classGrade,
+                    displayName: classDisplayName,
+                    classTeacher: classTeacher,
+                    classSlogan: classSlogan,
+                    emblem: classInfoCache.getClassEmblem(),
+                    updateTime: new Date().toLocaleString()
+                };
+                
+                classInfoCache.setClassInfo(classInfo);
+                // 不显示保存成功提示，避免频繁打扰用户
+            }
+        }
+        
+        // ==================== 系统设置功能 ====================
+        
+        // 切换设置项
+        function toggleSetting(element, settingType) {
+            const toggle = element.querySelector('.toggle-switch');
+            const isActive = toggle.classList.contains('active');
+            
+            // 获取当前系统设置
+            const settings = getSystemSettings();
+            
+            // 更新设置值
+            settings[settingType] = !isActive;
+            
+            // 先保存到缓存系统，成功后再切换视觉状态
+            if (classInfoCache.setSystemSettings(settings)) {
+                // 保存成功，切换视觉状态
+                toggle.classList.toggle('active');
+                
+                // 显示操作反馈
+                if (settings.notifications) {
+                    const settingName = settingType === 'autoSave' ? '自动保存' : '消息提醒';
+                    const status = settings[settingType] ? '已开启' : '已关闭';
+                    showToast(`${settingName}${status}`);
+                }
+            } else {
+                console.error('保存系统设置失败');
+                showToast('设置保存失败，请重试', 'error');
+                // 保存失败，不改变视觉状态
+            }
+        }
+        
+        // 显示提示消息
+        function showToast(message) {
+            // 创建提示元素
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #333;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 6px;
+                font-size: 14px;
+                z-index: 10000;
+                opacity: 0;
+                transform: translateX(100%);
+                transition: all 0.3s ease;
+            `;
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            // 显示动画
+            setTimeout(() => {
+                toast.style.opacity = '1';
+                toast.style.transform = 'translateX(0)';
+            }, 10);
+            
+            // 自动隐藏
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, 2000);
+        }
+        
+        // 加载系统设置状态
+        function loadSystemSettings() {
+            const settings = getSystemSettings();
+            
+            // 更新开关状态
+            const autoSaveToggle = document.querySelector('[onclick*="autoSave"] .toggle-switch');
+            const notificationsToggle = document.querySelector('[onclick*="notifications"] .toggle-switch');
+            
+            if (autoSaveToggle) {
+                autoSaveToggle.classList.toggle('active', settings.autoSave);
+            }
+            if (notificationsToggle) {
+                notificationsToggle.classList.toggle('active', settings.notifications);
+            }
+        }
+        
+        // ==================== 班级信息功能 ====================
+        
+        // 保存班级信息
+        function saveClassInfo() {
+            const className = document.getElementById('className').value.trim();
+            const classGrade = document.getElementById('classGrade').value.trim();
+            const classDisplayName = document.getElementById('classDisplayName').value.trim();
+            const classTeacher = document.getElementById('classTeacher').value.trim();
+            const classSlogan = document.getElementById('classSlogan').value.trim();
+            
+            if (!className) {
+                toast.warning('请输入班级编号');
+                return;
+            }
+            
+            if (!classGrade) {
+                toast.warning('请输入年级');
+                return;
+            }
+            
+            const classInfo = {
+                className: className,
+                grade: classGrade,
+                displayName: classDisplayName,
+                classTeacher: classTeacher,
+                classSlogan: classSlogan,
+                emblem: classInfoCache.getClassEmblem(),
+                updateTime: new Date().toLocaleString()
+            };
+            
+            try {
+                // 使用缓存系统保存班级信息
+                classInfoCache.setClassInfo(classInfo);
+                
+                // 同步更新systemSettings，确保与激活页面数据一致
+                let systemSettings = {};
+                const existing = localStorage.getItem('systemSettings');
+                if (existing) {
+                    systemSettings = JSON.parse(existing);
+                }
+                
+                systemSettings.classGrade = classGrade;
+                systemSettings.className = className;
+                systemSettings.classDisplayName = classDisplayName;
+                systemSettings.classTeacher = classTeacher;
+                systemSettings.classSlogan = classSlogan;
+                
+                localStorage.setItem('systemSettings', JSON.stringify(systemSettings));
+                
+                toast.success('班级信息保存成功！');
+            } catch (error) {
+                console.error('保存班级信息失败:', error);
+                toast.error('保存失败，请重试');
+            }
+        }
+        
+        // 加载班级信息
+        function loadClassInfo() {
+            try {
+                // 首先尝试从systemSettings加载（激活页面保存的数据）
+                let classInfo = {};
+                const systemSettings = localStorage.getItem('systemSettings');
+                if (systemSettings) {
+                    const settings = JSON.parse(systemSettings);
+                    if (settings.classGrade || settings.className || settings.classDisplayName || settings.classTeacher || settings.classSlogan) {
+                        classInfo = {
+                            className: settings.className || '',
+                            grade: settings.classGrade || '',
+                            displayName: settings.classDisplayName || '',
+                            classTeacher: settings.classTeacher || '',
+                            classSlogan: settings.classSlogan || ''
+                        };
+                        // 将激活页面的数据同步到classInfoCache
+                        classInfoCache.setClassInfo(classInfo);
+                    }
+                }
+                
+                // 如果systemSettings中没有数据，则从classInfoCache加载
+                if (!classInfo.className && !classInfo.grade) {
+                    classInfo = classInfoCache.getClassInfo();
+                }
+                
+                document.getElementById('className').value = classInfo.className || '';
+                document.getElementById('classGrade').value = classInfo.grade || '';
+                document.getElementById('classDisplayName').value = classInfo.displayName || '';
+                document.getElementById('classTeacher').value = classInfo.classTeacher || '';
+                document.getElementById('classSlogan').value = classInfo.classSlogan || '';
+                
+                // 加载班徽
+                loadClassEmblem();
+                
+                // 自动生成默认班徽（如果没有班徽且有班级信息）
+                autoGenerateDefaultBadge();
+            } catch (error) {
+                console.error('加载班级信息失败:', error);
+            }
+        }
+        
+        // 重置班级信息
+        async function resetClassInfo() {
+            // 首先进行安全验证
+            const verified = await securitySystem.verifySensitiveOperation('重置班级信息');
+            if (!verified) {
+                return;
+            }
+            
+            confirm.warning('确定要重置班级信息吗？这将清空所有已填写的内容。').then(result => {
+                if (result) {
+                    document.getElementById('className').value = '';
+                    document.getElementById('classGrade').value = '';
+                    document.getElementById('classDisplayName').value = '';
+                    document.getElementById('classTeacher').value = '';
+                    document.getElementById('classSlogan').value = '';
+                    
+                    // 重置班徽
+                    removeEmblem();
+                    
+                    toast.info('班级信息已重置');
+                }
+            });
+        }
+        
+        // ==================== 班徽管理功能 ====================
+        
+        // 处理班徽上传
+        function handleEmblemUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // 验证文件类型
+            if (!file.type.startsWith('image/')) {
+                toast.error('请选择图片文件');
+                return;
+            }
+            
+            // 验证文件大小（限制为2MB）
+            if (file.size > 2 * 1024 * 1024) {
+                toast.error('图片大小不能超过2MB');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imageData = e.target.result;
+                
+                // 保存到localStorage
+                try {
+                    localStorage.setItem('classEmblem', imageData);
+                    displayEmblem(imageData);
+                    toast.success('班徽上传成功');
+                    
+                    // 通知主页面更新班徽
+                    window.parent.postMessage({ type: 'badgeUpdate' }, '*');
+                } catch (error) {
+                    console.error('保存班徽失败:', error);
+                    toast.error('班徽保存失败，可能是图片过大');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // 显示班徽
+        function displayEmblem(imageData) {
+            const preview = document.getElementById('emblemPreview');
+            preview.innerHTML = `<img src="${imageData}" alt="班徽">`;
+            
+            // 显示移除按钮
+            document.querySelector('.btn-remove').style.display = 'inline-block';
+        }
+        
+        // 加载班徽
+        function loadClassEmblem() {
+            const savedEmblem = localStorage.getItem('classEmblem');
+            if (savedEmblem) {
+                // 检查是否是默认班徽
+                const defaultConfig = localStorage.getItem('defaultBadgeConfig');
+                if (defaultConfig) {
+                    loadDefaultBadgeConfig();
+                } else {
+                    displayEmblem(savedEmblem);
+                }
+            }
+        }
+        
+        // 移除班徽
+        function removeEmblem() {
+            localStorage.removeItem('classEmblem');
+            localStorage.removeItem('defaultBadgeConfig');
+            
+            const preview = document.getElementById('emblemPreview');
+            preview.innerHTML = `
+                <div class="emblem-placeholder">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                        <polyline points="21,15 16,10 5,21"/>
+                    </svg>
+                    <span>点击上传班徽</span>
+                </div>
+            `;
+            
+            // 隐藏移除按钮和配置区域
+            document.querySelector('.btn-remove').style.display = 'none';
+            document.getElementById('badgeConfigRow').style.display = 'none';
+            
+            // 清空文件输入
+            document.getElementById('classEmblem').value = '';
+            
+            // 通知主页面更新班徽
+            window.parent.postMessage({ type: 'badgeUpdate' }, '*');
+        }
+        
+        // 生成默认班徽
+        function generateDefaultBadge() {
+            // 显示配置区域
+            document.getElementById('badgeConfigRow').style.display = 'block';
+            
+            // 获取班级信息作为默认文字
+            const className = document.getElementById('className').value;
+            const classGrade = document.getElementById('classGrade').value;
+            
+            let defaultText = '';
+            if (classGrade && className) {
+                defaultText = classGrade + className;
+            } else if (className) {
+                defaultText = className;
+            }
+            
+            document.getElementById('badgeText').value = defaultText;
+            
+            // 生成默认班徽
+            updateDefaultBadge();
+        }
+        
+        // 更新默认班徽
+        function updateDefaultBadge() {
+            const text = document.getElementById('badgeText').value.trim();
+            const color = document.getElementById('badgeColor').value;
+            
+            // 创建SVG班徽
+            const svg = createDefaultBadgeSVG(text, color);
+            
+            // 显示班徽
+            const preview = document.getElementById('emblemPreview');
+            preview.innerHTML = `<div class="default-badge" style="background: ${color};">${text}</div>`;
+            
+            // 保存配置
+            const badgeConfig = { text, color, type: 'default' };
+            localStorage.setItem('defaultBadgeConfig', JSON.stringify(badgeConfig));
+            localStorage.setItem('classEmblem', svg);
+            
+            // 显示移除按钮
+            document.querySelector('.btn-remove').style.display = 'inline-block';
+            
+            toast.success('默认班徽生成成功');
+             
+             // 通知主页面更新班徽
+             window.parent.postMessage({ type: 'badgeUpdate' }, '*');
+        }
+        
+        // 创建默认班徽SVG
+        function createDefaultBadgeSVG(text, color) {
+            const textElement = text ? `<text x="50" y="50" text-anchor="middle" dominant-baseline="central" 
+                          fill="white" font-family="Arial, sans-serif" font-weight="bold" 
+                          font-size="${text.length > 4 ? '20' : '24'}">${text}</text>` : '';
+            
+            const svg = `
+                <svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="100" height="100" rx="10" fill="${color}"/>
+                    ${textElement}
+                </svg>
+            `;
+            return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
+        }
+        
+        // 加载默认班徽配置
+        function loadDefaultBadgeConfig() {
+            const savedConfig = localStorage.getItem('defaultBadgeConfig');
+            if (savedConfig) {
+                try {
+                    const config = JSON.parse(savedConfig);
+                    if (config.type === 'default') {
+                        document.getElementById('badgeConfigRow').style.display = 'block';
+                        document.getElementById('badgeText').value = config.text;
+                        document.getElementById('badgeColor').value = config.color;
+                        
+                        // 重新生成班徽显示
+                        const preview = document.getElementById('emblemPreview');
+                        if (config.text) {
+                            preview.innerHTML = `<div class="default-badge" style="background: ${config.color};">${config.text}</div>`;
+                        } else {
+                            preview.innerHTML = `<div class="default-badge" style="background: ${config.color};"></div>`;
+                        }
+                        document.querySelector('.btn-remove').style.display = 'inline-block';
+                    }
+                } catch (error) {
+                    console.error('加载默认班徽配置失败:', error);
+                }
+            }
+        }
+        
+        // 自动生成默认班徽
+        function autoGenerateDefaultBadge() {
+            // 检查是否已经有上传的班徽（不包括默认班徽）
+            const savedEmblem = localStorage.getItem('classEmblem');
+            const defaultConfig = localStorage.getItem('defaultBadgeConfig');
+            
+            // 如果有上传的班徽且不是默认班徽，则不自动生成
+            if (savedEmblem && !defaultConfig) {
+                return;
+            }
+            
+            // 获取班级信息
+            const className = document.getElementById('className').value.trim();
+            const classGrade = document.getElementById('classGrade').value.trim();
+            
+            // 生成班徽文字（有班级信息则显示，没有则为空白）
+            let defaultText = '';
+            if (classGrade && className) {
+                defaultText = classGrade + className;
+            } else if (className) {
+                defaultText = className;
+            } else if (classGrade) {
+                defaultText = classGrade;
+            }
+            
+            // 显示配置区域
+            document.getElementById('badgeConfigRow').style.display = 'block';
+            document.getElementById('badgeText').value = defaultText;
+            
+            // 自动生成班徽（即使文字为空也生成纯色班徽）
+            generateEmptyBadge();
+        }
+        
+        // 生成空白或有文字的纯色班徽
+        function generateEmptyBadge() {
+            const text = document.getElementById('badgeText').value.trim();
+            const color = document.getElementById('badgeColor').value;
+            
+            // 创建SVG班徽（文字可以为空）
+            const svg = createDefaultBadgeSVG(text, color);
+            
+            // 显示班徽
+            const preview = document.getElementById('emblemPreview');
+            if (text) {
+                preview.innerHTML = `<div class="default-badge" style="background: ${color};">${text}</div>`;
+            } else {
+                preview.innerHTML = `<div class="default-badge" style="background: ${color};"></div>`;
+            }
+            
+            // 保存配置
+            const badgeConfig = { text, color, type: 'default' };
+            localStorage.setItem('defaultBadgeConfig', JSON.stringify(badgeConfig));
+            localStorage.setItem('classEmblem', svg);
+            
+            // 显示移除按钮
+            document.querySelector('.btn-remove').style.display = 'inline-block';
+            
+            // 通知主页面更新班徽
+            window.parent.postMessage({ type: 'badgeUpdate' }, '*');
+        }
+        
+        // ==================== 系统设置功能 ====================
+        
+        // 切换设置项
+        function toggleSetting(element, settingKey) {
+            element.classList.toggle('active');
+            const isActive = element.classList.contains('active');
+            
+            // 保存设置
+            const settings = getSystemSettings();
+            settings[settingKey] = isActive;
+            saveSystemSettings(settings);
+            
+            toast.info(`${getSettingName(settingKey)}已${isActive ? '开启' : '关闭'}`);
+        }
+        
+        // 获取设置项名称
+        function getSettingName(key) {
+            const names = {
+                autoSave: '自动保存',
+                notifications: '消息提醒',
+                confirmDialogs: '确认对话框'
+            };
+            return names[key] || key;
+        }
+        
+        // 获取系统设置
+        function getSystemSettings() {
+            return classInfoCache.getSystemSettings();
+        }
+        
+        // 保存系统设置
+        function saveSystemSettings(settings) {
+            return classInfoCache.setSystemSettings(settings);
+        }
+        
+        // 加载系统设置
+        function loadSystemSettings() {
+            const settings = getSystemSettings();
+            
+            // 更新UI状态
+            Object.keys(settings).forEach(key => {
+                const toggle = document.querySelector(`[onclick*="${key}"]`);
+                if (toggle) {
+                    toggle.classList.toggle('active', settings[key]);
+                }
+            });
+        }
+        
+        // ==================== 主题管理功能 ====================
+        
+        // 切换主题
+        function changeTheme(theme) {
+            // 应用主题到当前页面
+            applyTheme(theme);
+            
+            // 保存主题设置
+            const settings = getSystemSettings();
+            settings.theme = theme;
+            saveSystemSettings(settings);
+            
+            // 通知父窗口切换主题
+            window.parent.postMessage({ type: 'themeChange', theme: theme }, '*');
+            
+            toast.success(`已切换到${theme === 'dark' ? '深色' : '浅色'}模式`);
+        }
+        
+        // 应用主题
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                document.body.classList.add('dark-theme');
+            } else {
+                document.body.classList.remove('dark-theme');
+            }
+        }
+        
+        // 加载主题
+        function loadTheme() {
+            const settings = getSystemSettings();
+            const theme = settings.theme || 'light';
+            
+            // 更新选择器
+            const themeSelector = document.getElementById('themeSelector');
+            if (themeSelector) {
+                themeSelector.value = theme;
+            }
+            
+            // 应用主题
+            applyTheme(theme);
+        }
+        
+        // ==================== 数据管理功能 ====================
+        
+        // 导出数据
+        function exportData() {
+            try {
+                const data = {
+                    exportTime: new Date().toLocaleString()
+                };
+                
+                // 优先使用缓存系统获取数据
+                if (typeof classInfoCache !== 'undefined') {
+                    data.classInfo = classInfoCache.getClassInfo();
+                    data.systemSettings = classInfoCache.getSystemSettings();
+                } else {
+                    data.classInfo = JSON.parse(localStorage.getItem(CLASS_INFO_KEY) || '{}');
+                    data.systemSettings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+                }
+                
+                if (typeof scheduleCache !== 'undefined') {
+                    data.scheduleData = scheduleCache.getScheduleData();
+                } else {
+                    data.scheduleData = JSON.parse(localStorage.getItem('scheduleData') || '{}');
+                }
+                
+                if (typeof homeworkCache !== 'undefined') {
+                    data.homeworkData = homeworkCache.getHomeworkData();
+                } else {
+                    data.homeworkData = JSON.parse(localStorage.getItem('homeworkData') || '[]');
+                }
+                
+                if (typeof noticeCache !== 'undefined') {
+                    data.noticeData = noticeCache.getClassNotices();
+                } else {
+                    data.noticeData = JSON.parse(localStorage.getItem('noticeData') || '[]');
+                }
+                
+                if (typeof studentListCache !== 'undefined') {
+                    data.students = studentListCache.getAll();
+                } else {
+                    data.students = JSON.parse(localStorage.getItem('studentList') || '[]');
+                }
+                
+                if (typeof dutyDataCache !== 'undefined') {
+                    data.dutyData = dutyDataCache.getAllData();
+                } else {
+                    data.dutyData = JSON.parse(localStorage.getItem('dutyData') || '{}');
+                }
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `班级管理系统数据_${new Date().toISOString().slice(0, 10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                toast.success('数据导出成功！');
+            } catch (error) {
+                console.error('导出数据失败:', error);
+                toast.error('导出失败，请重试');
+            }
+        }
+        
+        // 导入数据
+        function importData() {
+            document.getElementById('importFileInput').click();
+        }
+        
+        // 处理文件导入
+        function handleFileImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    confirm.warning('导入数据将覆盖现有数据，确定继续吗？').then(result => {
+                        if (result) {
+                            // 使用缓存系统导入数据，确保数据持久化
+                            if (data.classInfo && typeof classInfoCache !== 'undefined') {
+                                classInfoCache.setClassInfo(data.classInfo);
+                            } else if (data.classInfo) {
+                                localStorage.setItem(CLASS_INFO_KEY, JSON.stringify(data.classInfo));
+                            }
+                            
+                            if (data.systemSettings) {
+                                localStorage.setItem(SETTINGS_KEY, JSON.stringify(data.systemSettings));
+                            }
+                            
+                            if (data.scheduleData && typeof scheduleCache !== 'undefined') {
+                                scheduleCache.import(JSON.stringify(data.scheduleData), 'json');
+                            } else if (data.scheduleData) {
+                                localStorage.setItem('scheduleData', JSON.stringify(data.scheduleData));
+                            }
+                            
+                            if (data.students && typeof studentListCache !== 'undefined') {
+                                studentListCache.setAll(data.students);
+                            } else if (data.students) {
+                                localStorage.setItem('studentList', JSON.stringify(data.students));
+                            }
+                            
+                            if (data.dutyData && typeof dutyDataCache !== 'undefined') {
+                                dutyDataCache.import(JSON.stringify(data.dutyData), 'json');
+                            } else if (data.dutyData) {
+                                localStorage.setItem('dutyData', JSON.stringify(data.dutyData));
+                            }
+                            
+                            if (data.homeworkData && typeof homeworkCache !== 'undefined') {
+                                homeworkCache.import(JSON.stringify({homeworkData: data.homeworkData}), 'json');
+                            } else if (data.homeworkData) {
+                                localStorage.setItem('homeworkData', JSON.stringify(data.homeworkData));
+                            }
+                            
+                            if (data.noticeData) {
+                                localStorage.setItem('noticeData', JSON.stringify(data.noticeData));
+                            }
+                            
+                            // 重新加载页面数据
+                            loadClassInfo();
+                            loadSystemSettings();
+                            
+                            toast.success('数据导入成功！');
+                        }
+                    });
+                } catch (error) {
+                    console.error('导入数据失败:', error);
+                    toast.error('文件格式错误，导入失败');
+                }
+            };
+            reader.readAsText(file);
+            
+            // 清空文件输入
+            event.target.value = '';
+        }
+        
+        // 清空所有数据
+        async function clearAllData() {
+            // 检查 securitySystem 是否已加载
+            if (typeof securitySystem === 'undefined') {
+                toast.error('安全系统未加载，请刷新页面后重试');
+                return;
+            }
+            
+            // 首先进行安全验证
+            const verified = await securitySystem.verifySensitiveOperation('清空所有数据');
+            if (!verified) {
+                return;
+            }
+            
+            confirm.warning('确定要清空所有数据吗？此操作不可恢复！').then(result => {
+                if (result) {
+                    startClearDataProcess();
+                }
+            });
+        }
+        
+        // 开始清空数据过程
+        function startClearDataProcess() {
+            // 通知父页面进行清空数据操作
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({ action: 'clearData' }, '*');
+            } else {
+                // 如果不在iframe中，直接跳转
+                window.location.href = '../index.html?action=clearData';
+            }
+        }
+
+        
+        // 恢复默认设置
+        function resetToDefault() {
+            confirm.warning('确定要恢复所有默认设置吗？').then(result => {
+                if (result) {
+                    try {
+                        // 恢复默认系统设置
+                        saveSystemSettings(defaultSettings);
+                        loadSystemSettings();
+                        
+                        toast.success('已恢复默认设置');
+                    } catch (error) {
+                        console.error('恢复默认设置失败:', error);
+                        toast.error('恢复失败，请重试');
+                    }
+                }
+            });
+        }
+        
+        // 兼容原有的showToast函数
+        function showToast(message, type, title, duration) {
+            if (title) {
+                toast.show({ message, type, title, duration });
+            } else {
+                toast[type] ? toast[type](message, duration) : toast.info(message, duration);
+            }
+        }
+
+        // 打开人员配置页面
+        function openStaffingPage() {
+            const container = document.getElementById('staffingContainer');
+            const iframe = document.getElementById('staffingIframe');
+            
+            iframe.src = 'Staffing.html';
+            // 通知父窗口开始下沉动画
+            window.parent.postMessage('openStaffing', '*');
+            container.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // 关闭人员配置页面
+        function closeStaffingPage() {
+            const container = document.getElementById('staffingContainer');
+            const iframe = document.getElementById('staffingIframe');
+            
+            // 通知父窗口结束下沉动画
+            window.parent.postMessage('closeStaffing', '*');
+            container.classList.remove('show');
+            document.body.style.overflow = 'auto';
+            
+            // 延迟清空iframe src，等动画完成
+            setTimeout(() => {
+                if (!container.classList.contains('show')) {
+                    iframe.src = '';
+                }
+            }, 400);
+        }
+
+        // 关闭开发者页面
+        function closeDeveloperPage() {
+            const container = document.getElementById('developerContainer');
+            const iframe = document.getElementById('developerIframe');
+            
+            // 通知父窗口结束下沉动画
+            window.parent.postMessage('closeDeveloper', '*');
+            container.classList.remove('show');
+            document.body.style.overflow = 'auto';
+            
+            // 延迟清空iframe src，等动画完成
+            setTimeout(() => {
+                if (!container.classList.contains('show')) {
+                    iframe.src = '';
+                }
+            }, 400);
+        }
+
+        // 监听来自iframe的消息
+        window.addEventListener('message', function(event) {
+            if (event.data === 'closeStaffing') {
+                closeStaffingPage();
+            } else if (event.data === 'closeDeveloper') {
+                closeDeveloperPage();
+            }
+        });
+
+        // ===== 安全系统相关函数 =====
+        const SECURITY_KEY = 'securitySettings';
+        const PASSWORD_FILE_KEY = 'securityPasswordHash';
+
+        // 专属哈希算法（单向）
+        function customHash(password) {
+            let hash = 0;
+            const salt = 'ClassManagementSystem2025';
+            const input = password + salt;
+            
+            for (let i = 0; i < input.length; i++) {
+                const char = input.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // 转换为32位整数
+            }
+            
+            // 进行多轮变换
+            for (let round = 0; round < 3; round++) {
+                hash = Math.abs(hash);
+                hash = hash * 1103515245 + 12345;
+                hash = hash & 0x7fffffff;
+            }
+            
+            return hash.toString(16);
+        }
+
+        // 检查是否已设置密码
+        function hasPassword() {
+            return localStorage.getItem(PASSWORD_FILE_KEY) !== null;
+        }
+
+        // 验证密码
+        function verifyPassword(inputPassword) {
+            const storedHash = localStorage.getItem(PASSWORD_FILE_KEY);
+            if (!storedHash) return false;
+            return customHash(inputPassword) === storedHash;
+        }
+
+        // 设置密码
+        function setPassword(password) {
+            const hash = customHash(password);
+            localStorage.setItem(PASSWORD_FILE_KEY, hash);
+        }
+
+        // 获取安全设置
+        function getSecuritySettings() {
+            const settings = localStorage.getItem(SECURITY_KEY);
+            return settings ? JSON.parse(settings) : { enabled: false };
+        }
+
+        // 保存安全设置
+        function saveSecuritySettings(settings) {
+            localStorage.setItem(SECURITY_KEY, JSON.stringify(settings));
+        }
+
+        // 切换安全验证
+        function toggleSecurityVerification(toggleElement) {
+            const settings = getSecuritySettings();
+            
+            if (!settings.enabled) {
+                // 开启安全验证
+                if (!hasPassword()) {
+                    // 首次设置密码
+                    showSetPasswordDialog();
+                } else {
+                    // 已有密码，直接开启
+                    enableSecurity(toggleElement);
+                }
+            } else {
+                // 关闭安全验证，需要验证密码
+                showPasswordVerificationDialog('关闭安全验证', (success) => {
+                    if (success) {
+                        disableSecurity(toggleElement);
+                    } else {
+                        // 验证失败，恢复开关状态
+                        toggleElement.classList.add('active');
+                    }
+                });
+            }
+        }
+
+        // 开启安全验证
+        function enableSecurity(toggleElement) {
+            const settings = getSecuritySettings();
+            settings.enabled = true;
+            saveSecuritySettings(settings);
+            
+            toggleElement.classList.add('active');
+            document.getElementById('passwordSection').style.display = 'block';
+            
+            toast.success('安全验证已开启');
+        }
+
+        // 关闭安全验证
+        function disableSecurity(toggleElement) {
+            // 显示密码清除警告
+            confirm.warning('关闭安全验证后，密码将被清除且操作不可逆，确定要继续吗？').then(result => {
+                if (result) {
+                    const settings = getSecuritySettings();
+                    settings.enabled = false;
+                    saveSecuritySettings(settings);
+                    
+                    // 清除密码
+                    localStorage.removeItem(PASSWORD_FILE_KEY);
+                    
+                    toggleElement.classList.remove('active');
+                    document.getElementById('passwordSection').style.display = 'none';
+                    
+                    toast.success('安全验证已关闭，密码已清除');
+                } else {
+                    // 用户取消，恢复开关状态
+                    toggleElement.classList.add('active');
+                }
+            });
+        }
+
+        // 显示设置密码对话框
+        function showSetPasswordDialog() {
+            const dialog = document.createElement('div');
+            dialog.className = 'security-dialog-overlay';
+            dialog.innerHTML = `
+                <div class="security-dialog">
+                    <div class="security-dialog-header">
+                        <h3>设置安全密码</h3>
+                        <p>请设置用于敏感操作验证的密码</p>
+                    </div>
+                    <div class="security-dialog-content">
+                        <div class="input-group">
+                            <label>新密码</label>
+                            <input type="password" id="newPassword" placeholder="请输入密码" maxlength="20">
+                        </div>
+                        <div class="input-group">
+                            <label>确认密码</label>
+                            <input type="password" id="confirmPassword" placeholder="请再次输入密码" maxlength="20">
+                        </div>
+                    </div>
+                    <div class="security-dialog-actions">
+                        <button class="btn btn-secondary" onclick="closeSecurityDialog()">取消</button>
+                        <button class="btn btn-primary" onclick="confirmSetPassword()">确定</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(dialog);
+            document.getElementById('newPassword').focus();
+        }
+
+        // 显示更改密码对话框
+        function showPasswordDialog() {
+            const dialog = document.createElement('div');
+            dialog.className = 'security-dialog-overlay';
+            dialog.innerHTML = `
+                <div class="security-dialog">
+                    <div class="security-dialog-header">
+                        <h3>更改密码</h3>
+                        <p>请输入当前密码和新密码</p>
+                    </div>
+                    <div class="security-dialog-content">
+                        <div class="input-group">
+                            <label>当前密码</label>
+                            <input type="password" id="currentPassword" placeholder="请输入当前密码" maxlength="20">
+                        </div>
+                        <div class="input-group">
+                            <label>新密码</label>
+                            <input type="password" id="newPassword" placeholder="请输入新密码" maxlength="20">
+                        </div>
+                        <div class="input-group">
+                            <label>确认新密码</label>
+                            <input type="password" id="confirmPassword" placeholder="请再次输入新密码" maxlength="20">
+                        </div>
+                    </div>
+                    <div class="security-dialog-actions">
+                        <button class="btn btn-secondary" onclick="closeSecurityDialog()">取消</button>
+                        <button class="btn btn-primary" onclick="confirmChangePassword()">确定</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(dialog);
+            document.getElementById('currentPassword').focus();
+        }
+
+        // 显示密码验证对话框
+        function showPasswordVerificationDialog(title, callback) {
+            // 存储回调函数到全局变量
+            window.currentPasswordCallback = callback;
+            
+            const dialog = document.createElement('div');
+            dialog.className = 'security-dialog-overlay';
+            dialog.innerHTML = `
+                <div class="security-dialog">
+                    <div class="security-dialog-header">
+                        <h3>${title}</h3>
+                        <p>请输入密码以验证身份</p>
+                    </div>
+                    <div class="security-dialog-content">
+                        <div class="input-group">
+                            <label>密码</label>
+                            <input type="password" id="verifyPassword" placeholder="请输入密码" maxlength="20">
+                        </div>
+                    </div>
+                    <div class="security-dialog-actions">
+                        <button class="btn btn-secondary" onclick="closeSecurityDialog(); if(window.currentPasswordCallback) window.currentPasswordCallback(false);">取消</button>
+                        <button class="btn btn-primary" onclick="confirmPasswordVerification()">确定</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(dialog);
+            document.getElementById('verifyPassword').focus();
+        }
+
+        // 确认设置密码
+        function confirmSetPassword() {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (!newPassword) {
+                toast.error('请输入密码');
+                return;
+            }
+            
+            if (newPassword.length < 4) {
+                toast.error('密码长度至少4位');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                toast.error('两次输入的密码不一致');
+                return;
+            }
+            
+            setPassword(newPassword);
+            enableSecurity(document.getElementById('securityToggle'));
+            closeSecurityDialog();
+            
+            toast.success('密码设置成功，安全验证已开启');
+        }
+
+        // 确认更改密码
+        function confirmChangePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (!currentPassword) {
+                toast.error('请输入当前密码');
+                return;
+            }
+            
+            if (!verifyPassword(currentPassword)) {
+                toast.error('当前密码错误');
+                return;
+            }
+            
+            if (!newPassword) {
+                toast.error('请输入新密码');
+                return;
+            }
+            
+            if (newPassword.length < 4) {
+                toast.error('密码长度至少4位');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                toast.error('两次输入的新密码不一致');
+                return;
+            }
+            
+            setPassword(newPassword);
+            closeSecurityDialog();
+            
+            toast.success('密码更改成功');
+        }
+
+        // 确认密码验证
+        function confirmPasswordVerification() {
+            const password = document.getElementById('verifyPassword').value;
+            
+            if (!password) {
+                toast.error('请输入密码');
+                return;
+            }
+            
+            if (verifyPassword(password)) {
+                closeSecurityDialog();
+                if (window.currentPasswordCallback) {
+                    window.currentPasswordCallback(true);
+                }
+            } else {
+                toast.error('密码错误');
+                if (window.currentPasswordCallback) {
+                    window.currentPasswordCallback(false);
+                }
+            }
+        }
+
+        // 关闭安全对话框
+        function closeSecurityDialog() {
+            const dialog = document.querySelector('.security-dialog-overlay');
+            if (dialog) {
+                dialog.remove();
+            }
+        }
+
+        // 初始化安全设置
+        function initSecuritySettings() {
+            const settings = getSecuritySettings();
+            const toggle = document.getElementById('securityToggle');
+            const passwordSection = document.getElementById('passwordSection');
+            
+            if (settings.enabled) {
+                toggle.classList.add('active');
+                passwordSection.style.display = 'block';
+            } else {
+                toggle.classList.remove('active');
+                passwordSection.style.display = 'none';
+            }
+        }
+
+        // 版本号点击计数器
+        let versionClickCount = 0;
+        let versionClickTimer = null;
+        
+        // 处理版本号点击事件
+        function handleVersionClick() {
+            versionClickCount++;
+            
+            // 清除之前的计时器
+            if (versionClickTimer) {
+                clearTimeout(versionClickTimer);
+            }
+            
+            // 设置5秒后重置计数器
+            versionClickTimer = setTimeout(() => {
+                versionClickCount = 0;
+            }, 5000);
+            
+            // 如果点击5次，显示开发者模式
+            if (versionClickCount >= 5) {
+                document.getElementById('developerModeItem').style.display = 'block';
+                toast.success('开发者模式已激活！');
+                versionClickCount = 0; // 重置计数器
+                if (versionClickTimer) {
+                    clearTimeout(versionClickTimer);
+                }
+            }
+        }
+        
+        // 打开开发者模式
+        function openDeveloperMode() {
+            const container = document.getElementById('developerContainer');
+            const iframe = document.getElementById('developerIframe');
+            
+            iframe.src = 'Developer.html';
+            // 通知父窗口开始下沉动画
+            window.parent.postMessage('openDeveloper', '*');
+            container.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // 打开测试页面
+        function openTestPage(pageName) {
+            window.open(`${pageName}.html`, '_blank');
+        }
+        
+        // 切换Hello激活状态
+        function toggleHelloActivation() {
+            const currentStatus = localStorage.getItem('helloActivationEnabled') === 'true';
+            const newStatus = !currentStatus;
+            
+            localStorage.setItem('helloActivationEnabled', newStatus.toString());
+            
+            if (newStatus) {
+                toast.success('Hello激活已开启！进入桌面时将显示Hello页');
+            } else {
+                toast.info('Hello激活已关闭');
+            }
+            
+            updateHelloActivationStatus();
+        }
+        
+        // 更新Hello激活状态显示
+        function updateHelloActivationStatus() {
+            const isEnabled = localStorage.getItem('helloActivationEnabled') === 'true';
+            const titleElement = document.getElementById('helloActivationTitle');
+            const descElement = document.getElementById('helloActivationDesc');
+            
+            if (titleElement && descElement) {
+                if (isEnabled) {
+                    titleElement.textContent = 'Hello激活 (已开启)';
+                    descElement.textContent = '点击关闭Hello页显示';
+                } else {
+                    titleElement.textContent = 'Hello激活 (已关闭)';
+                    descElement.textContent = '点击开启Hello页显示';
+                }
+            }
+        }
+        
+        // 清除开发者数据
+        function clearDeveloperData() {
+            confirm.warning('确定要清除开发者模式数据吗？', '这将重置开发者模式的所有设置', () => {
+                localStorage.removeItem('helloActivationEnabled');
+                document.getElementById('developerModeItem').style.display = 'none';
+                toast.success('开发者数据已清除');
+                closeDeveloperMode();
+            });
+        }
+        
+        // 关闭开发者模式弹窗
+        function closeDeveloperMode() {
+            const modal = document.querySelector('.security-dialog-overlay');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // 页面加载完成后添加容器
+        document.addEventListener('DOMContentLoaded', function() {
+            // 创建人员配置容器
+            const staffingContainer = document.createElement('div');
+            staffingContainer.id = 'staffingContainer';
+            staffingContainer.innerHTML = `
+                <div class="staffing-overlay">
+                    <div class="staffing-modal">
+                        <iframe id="staffingIframe" src="" frameborder="0"></iframe>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(staffingContainer);
+            
+            // 创建开发者模式容器
+            const developerContainer = document.createElement('div');
+            developerContainer.id = 'developerContainer';
+            developerContainer.innerHTML = `
+                <div class="developer-overlay">
+                    <div class="developer-modal">
+                        <iframe id="developerIframe" src="" frameborder="0"></iframe>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(developerContainer);
+            
+            // 初始化安全设置
+            initSecuritySettings();
+            
+            // 检查是否应该显示开发者模式
+            const developerModeEnabled = localStorage.getItem('developerModeEnabled') === 'true';
+            if (developerModeEnabled) {
+                document.getElementById('developerModeItem').style.display = 'block';
+            }
+        });
+    </script>
+    <script src="../Cache/HomeworkCache.js"></script>
+    
+
+
+</body>
+</html>

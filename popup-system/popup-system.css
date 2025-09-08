@@ -1,0 +1,143 @@
+/* 弹窗系统测试页面样式 */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+    background: #F2F2F7;
+    padding: 20px;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.header {
+    background: #007AFF;
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+
+.header h1 {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.header p {
+    opacity: 0.9;
+    font-size: 16px;
+}
+
+.content {
+    padding: 30px;
+}
+
+.section {
+    margin-bottom: 40px;
+}
+
+.section h2 {
+    color: #1D1D1F;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #E5E5EA;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.button-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.test-btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    background: #007AFF;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.test-btn:hover {
+    background: #0056CC;
+    transform: translateY(-1px);
+}
+
+.test-btn.success {
+    background: #34C759;
+}
+
+.test-btn.success:hover {
+    background: #28A745;
+}
+
+.test-btn.warning {
+    background: #FF9500;
+}
+
+.test-btn.warning:hover {
+    background: #E6850E;
+}
+
+.test-btn.danger {
+    background: #FF3B30;
+}
+
+.test-btn.danger:hover {
+    background: #D70015;
+}
+
+.description {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 15px;
+    padding: 15px;
+    background: #F2F2F7;
+    border-radius: 8px;
+    border-left: 4px solid #007AFF;
+}
+
+.code-example {
+    background: #F8F8F8;
+    border: 1px solid #E5E5EA;
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 10px;
+    font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+    font-size: 13px;
+    color: #1D1D1F;
+    overflow-x: auto;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .container {
+        margin: 10px;
+        border-radius: 0;
+    }
+    
+    .content {
+        padding: 20px;
+    }
+    
+    .button-grid {
+        grid-template-columns: 1fr;
+    }
+}

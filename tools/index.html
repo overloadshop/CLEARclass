@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统工具 - 班级管理系统</title>
+    <link rel="stylesheet" href="../styles/common.css">
+    <style>
+        .tools-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .tool-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .tool-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .tool-icon {
+            width: 48px;
+            height: 48px;
+            margin-right: 15px;
+            color: #007bff;
+        }
+        
+        .tool-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin: 0;
+        }
+        
+        .tool-description {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .tool-features {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .tool-features li {
+            padding: 5px 0;
+            color: #555;
+        }
+        
+        .tool-features li:before {
+            content: "✓";
+            color: #28a745;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            transition: background 0.3s ease;
+        }
+        
+        .back-button:hover {
+            background: #5a6268;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .back-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-left: 10px;
+        }
+        
+        .status-good {
+            background: #28a745;
+        }
+        
+        .status-warning {
+            background: #ffc107;
+        }
+        
+        .status-error {
+            background: #dc3545;
+        }
+        
+        .dark-theme {
+            background: #1a1a1a;
+            color: #fff;
+        }
+        
+        .dark-theme .tool-card {
+            background: #2d2d2d;
+            color: #fff;
+        }
+        
+        .dark-theme .tool-title {
+            color: #fff;
+        }
+        
+        .dark-theme .tool-description {
+            color: #ccc;
+        }
+        
+        .dark-theme .tool-features li {
+            color: #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="tools-container">
+        <a href="../index.html" class="back-button">
+            <svg class="back-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+            </svg>
+            返回主页
+        </a>
+        
+        <h1>系统工具</h1>
+        <p>班级管理系统的维护和诊断工具</p>
+        
+        <!-- 数据持久化检查工具 -->
+        <div class="tool-card" onclick="openTool('DataPersistenceChecker.html')">
+            <div class="tool-header">
+                <svg class="tool-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+                <h2 class="tool-title">数据持久化检查工具</h2>
+                <span class="status-indicator status-good" id="dataToolStatus"></span>
+            </div>
+            <p class="tool-description">
+                检查和修复班级管理系统的数据存储问题，确保数据在电脑重启后能够正常保存和加载。
+            </p>
+            <ul class="tool-features">
+                <li>检查 localStorage 存储状态和使用情况</li>
+                <li>验证所有缓存模块的数据完整性</li>
+                <li>强制保存所有数据到本地存储</li>
+                <li>修复损坏或丢失的数据结构</li>
+                <li>导出和导入数据备份</li>
+                <li>彻底清空所有数据（慎用）</li>
+                <li>实时操作日志和状态监控</li>
+            </ul>
+        </div>
+        
+        <!-- 系统诊断工具 -->
+        <div class="tool-card" onclick="openTool('SystemDiagnostics.html')" style="opacity: 0.6; cursor: not-allowed;">
+            <div class="tool-header">
+                <svg class="tool-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+                </svg>
+                <h2 class="tool-title">系统诊断工具</h2>
+                <span class="status-indicator status-warning" id="diagToolStatus"></span>
+            </div>
+            <p class="tool-description">
+                全面诊断系统性能、兼容性和功能状态（开发中）。
+            </p>
+            <ul class="tool-features">
+                <li>浏览器兼容性检查</li>
+                <li>系统性能测试</li>
+                <li>功能模块状态检查</li>
+                <li>网络连接诊断</li>
+            </ul>
+        </div>
+        
+        <!-- 数据迁移工具 -->
+        <div class="tool-card" onclick="openTool('DataMigration.html')" style="opacity: 0.6; cursor: not-allowed;">
+            <div class="tool-header">
+                <svg class="tool-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z" />
+                </svg>
+                <h2 class="tool-title">数据迁移工具</h2>
+                <span class="status-indicator status-warning" id="migrationToolStatus"></span>
+            </div>
+            <p class="tool-description">
+                在不同版本间迁移数据，升级数据格式（开发中）。
+            </p>
+            <ul class="tool-features">
+                <li>版本兼容性检查</li>
+                <li>数据格式升级</li>
+                <li>批量数据转换</li>
+                <li>迁移进度跟踪</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTheme();
+            checkToolsStatus();
+        });
+        
+        function loadTheme() {
+            const isDark = localStorage.getItem('darkMode') === 'true';
+            if (isDark) {
+                document.body.classList.add('dark-theme');
+            }
+        }
+        
+        function checkToolsStatus() {
+            // 检查数据持久化工具状态
+            try {
+                if (typeof(Storage) !== "undefined") {
+                    document.getElementById('dataToolStatus').className = 'status-indicator status-good';
+                } else {
+                    document.getElementById('dataToolStatus').className = 'status-indicator status-error';
+                }
+            } catch (error) {
+                document.getElementById('dataToolStatus').className = 'status-indicator status-error';
+            }
+        }
+        
+        function openTool(toolFile) {
+            // 检查工具是否可用
+            if (toolFile === 'DataPersistenceChecker.html') {
+                window.location.href = toolFile;
+            } else {
+                alert('该工具正在开发中，敬请期待！');
+            }
+        }
+    </script>
+</body>
+</html>

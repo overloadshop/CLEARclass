@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课堂点名 - 班级管理系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../popup-system/popup-system.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+            line-height: 1.6;
+            padding: 20px 0 0 0;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* 深色主题样式 */
+        body.dark-theme {
+            background-color: #1c1c1e;
+            color: #ffffff;
+        }
+        
+        body.dark-theme .page-title {
+            color: #ffffff;
+        }
+        
+        body.dark-theme .page-subtitle {
+            color: #98989d;
+        }
+        
+        body.dark-theme .feature-card {
+            background: #2c2c2e;
+            border-color: #38383a;
+        }
+        
+        body.dark-theme .feature-card:hover {
+            border-color: #007aff;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        body.dark-theme .feature-text {
+            background: rgba(28, 28, 30, 0.95);
+        }
+        
+        body.dark-theme .feature-title {
+            color: #ffffff;
+        }
+        
+        body.dark-theme .feature-description {
+            color: #98989d;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 10px;
+        }
+        
+        .page-subtitle {
+            font-size: 1.1rem;
+            color: #86868b;
+            font-weight: 400;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            justify-items: start;
+            margin: 0 20px;
+            padding-bottom: 40px;
+        }
+        
+        .feature-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 32px 24px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid #e5e5e7;
+            width: 200px;
+            height: 240px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            border-color: #007aff;
+        }
+        
+        .feature-icon {
+            font-size: 3.5rem;
+            color: #007aff;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1);
+        }
+        
+        .feature-text {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(245, 245, 247, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 0 0 16px 16px;
+            padding: 12px 16px 16px 16px;
+            height: 44px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .feature-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 2px;
+            line-height: 1.2;
+        }
+        
+        .feature-description {
+            font-size: 0.7rem;
+            color: #86868b;
+            line-height: 1.2;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+            }
+            
+            .page-title {
+                font-size: 2rem;
+                margin-bottom: 8px;
+            }
+            
+            .page-subtitle {
+                font-size: 1rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+                gap: 16px;
+                margin: 0 10px;
+            }
+            
+            .feature-card {
+                width: 160px;
+                height: 200px;
+                padding: 24px 16px;
+            }
+            
+            .feature-icon {
+                font-size: 2.8rem;
+                margin-bottom: 16px;
+            }
+            
+            .feature-title {
+                font-size: 0.9rem;
+            }
+            
+            .feature-description {
+                font-size: 0.65rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 10px;
+            }
+            
+            .page-title {
+                font-size: 1.8rem;
+                margin-bottom: 6px;
+            }
+            
+            .page-subtitle {
+                font-size: 0.95rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                margin: 0 5px;
+                justify-items: center;
+            }
+            
+            .feature-card {
+                width: 140px;
+                height: 180px;
+                padding: 20px 12px;
+            }
+            
+            .feature-icon {
+                font-size: 2.5rem;
+                margin-bottom: 12px;
+            }
+            
+            .feature-title {
+                font-size: 0.85rem;
+            }
+            
+            .feature-description {
+                font-size: 0.6rem;
+            }
+            
+            .feature-text {
+                height: 40px;
+                padding: 10px 12px 12px 12px;
+            }
+        }
+        
+        /* 卡片展开动画 */
+        .feature-card.expanding {
+            position: fixed;
+            z-index: 1000;
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .feature-card.animating {
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .feature-card.expanded {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            border-radius: 0;
+            z-index: 1000;
+            background: #ffffff;
+            display: block;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.3);
+            border: 1px solid #e5e5e7;
+        }
+        
+        .feature-card.expanded .feature-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4rem;
+            color: #007aff;
+            opacity: 0;
+            transition: opacity 0.5s ease 0.3s;
+        }
+        
+        .feature-card.expanded .feature-text {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        /* 点名页面容器样式 */
+        #rollCallContainer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        #rollCallContainer.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .rollcall-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        .rollcall-modal {
+             width: 100%;
+             height: 100%;
+             display: flex;
+             flex-direction: column;
+             background: white;
+             border-radius: 0;
+             overflow: hidden;
+         }
+        
+        #rollCallIframe {
+            flex: 1;
+            width: 100%;
+            border: none;
+            background: #f5f5f7;
+        }
+        
+        .page-content.hidden {
+            opacity: 0;
+            transition: opacity 0.6s ease;
+        }
+        
+        /* 深色主题支持 */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #1c1c1e;
+                color: #ffffff;
+            }
+            
+            .page-title {
+                color: #ffffff;
+            }
+            
+            .page-subtitle {
+                color: #98989d;
+            }
+            
+            .feature-card {
+                background: #2c2c2e;
+                border-color: #38383a;
+            }
+            
+            .feature-card:hover {
+                border-color: #007aff;
+                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            }
+            
+            .feature-text {
+                background: rgba(28, 28, 30, 0.95);
+            }
+            
+            .feature-title {
+                color: #ffffff;
+            }
+            
+            .feature-description {
+                color: #98989d;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-content">
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">课堂点名</h1>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card" id="rollCallCard" onmouseup="handleClassRollCall()">
+                    <div class="feature-icon">
+                        <i class="fas fa-hand-paper"></i>
+                    </div>
+                    <div class="feature-text">
+                        <div class="feature-title">课堂点名</div>
+                        <div class="feature-description">随机选择学生回答问题</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 点名页面容器 -->
+    <div id="rollCallContainer">
+        <div class="rollcall-overlay">
+            <div class="rollcall-modal">
+                <iframe id="rollCallIframe" src="" frameborder="0"></iframe>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../popup-system/toast.js"></script>
+    <script>
+        // 课堂点名功能
+        function handleClassRollCall() {
+            const card = document.getElementById('rollCallCard');
+            const pageContent = document.querySelector('.page-content');
+            
+            // 获取卡片当前位置
+            const rect = card.getBoundingClientRect();
+            
+            // 设置卡片的初始位置（固定定位）
+             card.style.position = 'fixed';
+             card.style.top = rect.top + 'px';
+             card.style.left = rect.left + 'px';
+             card.style.width = rect.width + 'px';
+             card.style.height = rect.height + 'px';
+             card.style.zIndex = '1000';
+             
+             // 添加动画类
+             card.classList.add('expanding', 'animating');
+             
+             // 强制重绘，确保初始状态生效
+             card.offsetHeight;
+             
+             // 开始展开动画
+              setTimeout(() => {
+                  // 设置最终尺寸和位置
+                  card.style.top = '0px';
+                  card.style.left = '0px';
+                  card.style.width = '100vw';
+                  card.style.height = '100vh';
+                  // 保持圆角不变
+                  card.style.boxShadow = '0 0 50px rgba(0, 0, 0, 0.3)';
+                  card.style.border = '1px solid #e5e5e7';
+                  
+                  // 卡片文字淡出
+                  const featureText = card.querySelector('.feature-text');
+                  featureText.style.opacity = '0';
+                  
+                  // 页面内容在卡片展开时淡出
+                  setTimeout(() => {
+                      pageContent.classList.add('hidden');
+                  }, 200);
+              }, 50);
+            
+            // 动画完成后的处理
+                 setTimeout(() => {
+                     console.log('课堂点名动画完成');
+                     // 创建iframe加载点名页面
+                     loadRollCallPage();
+                 }, 600);
+         }
+         
+         // 打开点名页面
+         function loadRollCallPage() {
+             const container = document.getElementById('rollCallContainer');
+             const iframe = document.getElementById('rollCallIframe');
+             
+             console.log('开始加载点名页面');
+             
+             iframe.src = 'RandomPicker.html';
+             container.classList.add('show');
+             document.body.style.overflow = 'hidden';
+         }
+         
+         // 关闭点名页面
+          function closeRollCallPage() {
+              const container = document.getElementById('rollCallContainer');
+              const iframe = document.getElementById('rollCallIframe');
+              const card = document.getElementById('rollCallCard');
+              const pageContent = document.querySelector('.page-content');
+              
+              // 先关闭iframe容器
+              container.classList.remove('show');
+              document.body.style.overflow = 'auto';
+              
+              // 同时开始卡片收缩动画
+              setTimeout(() => {
+                  // 显示页面内容
+                  pageContent.classList.remove('hidden');
+                  
+                  // 卡片收缩动画
+                     card.style.transition = 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                   card.style.width = '200px';
+                   card.style.height = '240px';
+                   card.style.top = '';
+                   card.style.left = '';
+                   card.style.transform = '';
+                   card.style.position = '';
+                   card.style.zIndex = '';
+                   card.style.borderRadius = '16px';
+                   card.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.08)';
+                   card.style.border = '1px solid #e5e5e7';
+                  
+                  // 恢复卡片点击事件
+                  card.onmouseup = handleClassRollCall;
+                  card.style.cursor = 'pointer';
+                  
+                  // 显示图标和文字
+                  const icon = card.querySelector('.feature-icon');
+                  const text = card.querySelector('.feature-text');
+                  if (icon) icon.style.opacity = '1';
+                  if (text) text.style.opacity = '1';
+                  
+                  // 清理卡片类
+                  card.classList.remove('expanding', 'animating');
+              }, 100);
+              
+              // 延迟清空iframe src，等动画完成
+               setTimeout(() => {
+                   if (!container.classList.contains('show')) {
+                       iframe.src = '';
+                   }
+               }, 500);
+          }
+         
+         // 页面加载完成后初始化
+         document.addEventListener('DOMContentLoaded', function() {
+             loadTheme(); // 加载主题设置
+         });
+         
+         // 加载主题函数
+         function loadTheme() {
+             try {
+                 const settings = JSON.parse(localStorage.getItem('classSystemSettings') || '{}');
+                 const theme = settings.theme || 'light';
+                 if (theme === 'dark') {
+                     document.body.classList.add('dark-theme');
+                 } else {
+                     document.body.classList.remove('dark-theme');
+                 }
+             } catch (e) {
+                 console.warn('加载主题设置失败:', e);
+                 document.body.classList.remove('dark-theme');
+             }
+         }
+         
+         // 监听来自iframe的消息
+         window.addEventListener('message', function(event) {
+             if (event.data === 'closeRollCall') {
+                 closeRollCallPage();
+             }
+         });
+         
+         // 点击遮罩层关闭
+         document.addEventListener('click', function(event) {
+             if (event.target.classList.contains('rollcall-overlay')) {
+                 closeRollCallPage();
+             }
+         });
+     </script>
+</body>
+</html>

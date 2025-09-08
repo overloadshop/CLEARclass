@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人员配置 - 班级管理系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../popup-system/popup-system.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            padding: 20px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* 深色主题样式 */
+        body.dark-theme {
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+        
+        body.dark-theme .header,
+        body.dark-theme .card {
+            background: #2d2d2d;
+            border-color: #555;
+        }
+        
+        body.dark-theme .header h1 {
+            color: #ffffff;
+        }
+        
+        body.dark-theme .header p {
+            color: #aaa;
+        }
+        
+        body.dark-theme .card-header {
+            background: #667eea;
+        }
+        
+        body.dark-theme .form-group label {
+            color: #ffffff;
+        }
+        
+        body.dark-theme .form-group input,
+        body.dark-theme .form-group textarea {
+            background: #3d3d3d;
+            border-color: #555;
+            color: #ffffff;
+        }
+        
+        body.dark-theme .btn-info {
+            background: #2b6cb0;
+        }
+        
+        body.dark-theme .btn-info:hover {
+            background: #2c5282;
+        }
+        
+        body.dark-theme .btn-success {
+            background: #38a169;
+        }
+        
+        body.dark-theme .btn-success:hover {
+            background: #2f855a;
+        }
+        
+        body.dark-theme .form-group input:focus,
+        body.dark-theme .form-group textarea:focus {
+            border-color: #667eea;
+        }
+        
+        body.dark-theme .form-group input::placeholder,
+        body.dark-theme .form-group textarea::placeholder {
+            color: #aaa;
+        }
+        
+        /* 深色主题下的卡片组件 */
+        body.dark-theme .header,
+        body.dark-theme .card {
+            background: #2d2d2d;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        body.dark-theme .header h1 {
+            color: #ffffff;
+        }
+        
+        body.dark-theme .header p {
+            color: #aaa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            background: #667eea;
+            color: white;
+            padding: 15px 20px;
+            margin: -20px -20px 20px -20px;
+            border-radius: 12px 12px 0 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+            line-height: 1.5;
+        }
+
+        .personnel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+        
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .btn-info:hover {
+            background: #138496;
+            transform: translateY(-1px);
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .student-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            padding: 10px;
+        }
+
+        .student-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            margin-bottom: 5px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .student-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .student-name {
+            font-weight: 500;
+        }
+
+        .student-role {
+            font-size: 12px;
+            color: #666;
+            background: #e9ecef;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+
+        .btn-back {
+            position: fixed !important;
+            top: 20px !important;
+            left: 20px !important;
+            background: rgba(255, 255, 255, 0.9) !important;
+            color: #333 !important;
+            border: 1px solid rgba(0, 0, 0, 0.1) !important;
+            width: 40px !important;
+            height: 40px !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border-radius: 50% !important;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-back i {
+            font-size: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .personnel-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="btn-back" onclick="goBack()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 12H5"/>
+                        <path d="M12 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+            <h1>人员配置管理</h1>
+            <p>管理班级人员信息、职务分配和学生名单</p>
+        </div>
+
+        <div class="content-grid">
+            <!-- 基本人员配置 -->
+            <div class="card">
+                <div class="card-header">学生统计信息</div>
+                
+                <div class="personnel-grid">
+                    <div class="form-group">
+                        <label for="totalStudents">学生总数 <span style="color: #999; font-size: 12px;">(自动计算)</span></label>
+                        <input type="number" id="totalStudents" min="1" max="100" placeholder="总人数" readonly style="background-color: #f5f5f5; cursor: not-allowed;">
+                    </div>
+                    <div class="form-group">
+                        <label for="maleStudents">男生人数</label>
+                        <input type="number" id="maleStudents" min="0" placeholder="男生人数">
+                    </div>
+                    <div class="form-group">
+                        <label for="femaleStudents">女生人数</label>
+                        <input type="number" id="femaleStudents" min="0" placeholder="女生人数">
+                    </div>
+                </div>
+
+
+
+                <div class="actions">
+                    <button class="btn btn-primary" onclick="savePersonnelConfig()">保存配置</button>
+                    <button class="btn btn-secondary" onclick="resetPersonnelConfig()">重置</button>
+                </div>
+            </div>
+
+            <!-- 学生名单管理 -->
+            <div class="card">
+                <div class="card-header">学生名单管理</div>
+                
+                <div class="form-group">
+                    <label for="studentName">添加学生</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="studentName" placeholder="学生姓名" style="flex: 1;">
+                        <button class="btn btn-primary" onclick="addStudent()">添加</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="batchStudents">批量添加</label>
+                    <textarea id="batchStudents" placeholder="每行一个学生姓名" rows="4"></textarea>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button class="btn btn-secondary" onclick="batchAddStudents()">批量添加</button>
+                        <input type="file" id="importFile" accept=".txt,.csv" style="display: none;" onchange="importStudentList()">
+                        <button class="btn btn-info" onclick="document.getElementById('importFile').click()">导入文件</button>
+                        <button class="btn btn-success" onclick="downloadSample()">下载示例</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>学生名单 (<span id="studentCount">0</span>人)</label>
+                    <div class="student-list" id="studentList">
+                        <div style="text-align: center; color: #999; padding: 20px;">暂无学生</div>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-primary" onclick="saveStudentList()">保存名单</button>
+                    <button class="btn btn-danger" onclick="clearStudentList()">清空名单</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../popup-system/toast.js"></script>
+    <script src="../popup-system/confirm.js"></script>
+    <script src="../Cache/StudentListCache.js"></script>
+    <script>
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPersonnelConfig();
+            loadStudentList();
+            updateTotalStudents();
+        });
+        
+        // 监听学生名单变更
+        studentListCache.onChange(function(event) {
+            console.log('学生名单变更:', event.detail);
+            updateStudentList();
+            updateTotalStudents();
+        });
+        
+        // 页面卸载时清理监听器
+        window.addEventListener('beforeunload', function() {
+            // 清理事件监听器在这里不是必需的，因为页面会被销毁
+        });
+
+        // 保存人员配置
+        function savePersonnelConfig() {
+            const totalStudents = document.getElementById('totalStudents').value;
+            const maleStudents = document.getElementById('maleStudents').value;
+            const femaleStudents = document.getElementById('femaleStudents').value;
+            
+            // 可选验证：如果填写了男女生人数，检查是否合理
+            if (maleStudents && femaleStudents) {
+                const total = parseInt(totalStudents);
+                const male = parseInt(maleStudents);
+                const female = parseInt(femaleStudents);
+                
+                if (male + female > total) {
+                    toast.warning('男生人数和女生人数之和不能超过学生总数');
+                    return;
+                }
+            }
+
+            const personnelConfig = {
+                totalStudents: totalStudents || '',
+                maleStudents: maleStudents || '',
+                femaleStudents: femaleStudents || '',
+                updateTime: new Date().toLocaleString()
+            };
+
+            localStorage.setItem('personnelConfig', JSON.stringify(personnelConfig));
+            toast.success('人员配置保存成功');
+        }
+
+        // 加载人员配置
+        function loadPersonnelConfig() {
+            const saved = localStorage.getItem('personnelConfig');
+            if (saved) {
+                try {
+                    const config = JSON.parse(saved);
+                    // 总人数由学生名单自动计算，不从配置中加载
+                    document.getElementById('maleStudents').value = config.maleStudents || '';
+                    document.getElementById('femaleStudents').value = config.femaleStudents || '';
+                } catch (e) {
+                    console.error('加载人员配置失败:', e);
+                }
+            }
+            // 自动更新总人数
+            updateTotalStudents();
+        }
+
+        // 重置人员配置
+        function resetPersonnelConfig() {
+            confirm.show('确认重置', '确定要重置所有人员配置吗？', function() {
+                // 总人数由学生名单自动计算，不需要重置
+                document.getElementById('maleStudents').value = '';
+                document.getElementById('femaleStudents').value = '';
+                // 自动更新总人数
+                updateTotalStudents();
+                toast.success('人员配置已重置');
+            });
+        }
+
+        // 添加学生
+        function addStudent() {
+            const name = document.getElementById('studentName').value.trim();
+            if (!name) {
+                toast.warning('请输入学生姓名');
+                return;
+            }
+            
+            if (studentListCache.add(name)) {
+                document.getElementById('studentName').value = '';
+                updateStudentList();
+                updateTotalStudents();
+                toast.success('学生添加成功');
+            } else {
+                toast.warning('该学生已存在');
+            }
+        }
+
+        // 批量添加学生
+        function batchAddStudents() {
+            const text = document.getElementById('batchStudents').value.trim();
+            if (!text) {
+                toast.warning('请输入学生名单');
+                return;
+            }
+            
+            const names = text.split('\n').map(name => name.trim()).filter(name => name);
+            const result = studentListCache.addBatch(names);
+            
+            document.getElementById('batchStudents').value = '';
+            updateStudentList();
+            updateTotalStudents();
+            
+            if (result.success > 0) {
+                let message = `成功添加 ${result.success} 名学生`;
+                if (result.duplicates > 0) {
+                    message += `，${result.duplicates} 名学生已存在`;
+                }
+                toast.success(message);
+            } else {
+                toast.warning('没有新学生被添加');
+            }
+        }
+
+        // 导入学生名单文件
+        function importStudentList() {
+            const fileInput = document.getElementById('importFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const content = e.target.result;
+                    const names = content.split('\n')
+                        .map(name => name.trim())
+                        .filter(name => name.length > 0);
+                    
+                    if (names.length === 0) {
+                        toast.warning('文件中没有找到有效的学生姓名');
+                        return;
+                    }
+                    
+                    // 使用缓存系统批量添加学生
+                    const result = studentListCache.addBatch(names);
+                    
+                    if (result.success > 0) {
+                        updateStudentList();
+                        updateTotalStudents();
+                        let message = `成功导入 ${result.success} 名学生`;
+                        if (result.duplicates > 0) {
+                            message += `，${result.duplicates} 名学生已存在`;
+                        }
+                        toast.success(message);
+                    } else {
+                        toast.warning('所有学生都已存在');
+                    }
+                } catch (error) {
+                    toast.error('文件读取失败，请检查文件格式');
+                }
+            };
+            
+            reader.readAsText(file, 'UTF-8');
+            fileInput.value = ''; // 清空文件选择
+        }
+        
+        // 下载示例文件
+        function downloadSample() {
+            const sampleContent = '张三\n李四\n王五\n赵六\n钱七\n孙八\n周九\n吴十\n郑十一\n王十二\n冯十三\n陈十四\n褚十五\n卫十六\n蒋十七\n沈十八\n韩十九\n杨二十\n朱二十一\n秦二十二\n尤二十三\n许二十四\n何二十五\n吕二十六\n施二十七\n张二十八\n孔二十九\n曹三十';
+            
+            const blob = new Blob([sampleContent], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '示例人员名单.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            toast.success('示例文件下载成功');
+        }
+
+        // 删除学生
+        function removeStudent(name) {
+            confirm.show('确认删除', `确定要删除学生 "${name}" 吗？`, function() {
+                if (studentListCache.remove(name)) {
+                    updateStudentList();
+                    updateTotalStudents();
+                    toast.success('学生删除成功');
+                } else {
+                    toast.error('删除失败');
+                }
+            });
+        }
+
+        // 更新学生列表显示
+        function updateStudentList() {
+            const students = studentListCache.getAll();
+            const listElement = document.getElementById('studentList');
+            const countElement = document.getElementById('studentCount');
+            
+            countElement.textContent = students.length;
+            
+            if (students.length === 0) {
+                listElement.innerHTML = '<div style="text-align: center; color: #999; padding: 20px;">暂无学生</div>';
+                return;
+            }
+            
+            listElement.innerHTML = students.map(name => `
+                <div class="student-item">
+                    <span class="student-name">${name}</span>
+                    <button class="btn btn-danger btn-small" onclick="removeStudent('${name}')">删除</button>
+                </div>
+            `).join('');
+        }
+
+        // 自动更新总人数
+        function updateTotalStudents() {
+            const totalStudentsInput = document.getElementById('totalStudents');
+            totalStudentsInput.value = studentListCache.getCount();
+        }
+
+        // 保存学生名单
+        function saveStudentList() {
+            // 缓存系统自动保存，这里只需要显示提示
+            toast.success('学生名单保存成功');
+        }
+
+        // 加载学生名单
+        function loadStudentList() {
+            // 缓存系统自动加载，这里只需要更新显示
+            updateStudentList();
+        }
+
+        // 清空学生名单
+        function clearStudentList() {
+            confirm.show('确认清空', '确定要清空所有学生名单吗？此操作不可恢复！', function() {
+                if (studentListCache.clear()) {
+                    updateStudentList();
+                    updateTotalStudents();
+                    toast.success('学生名单已清空');
+                } else {
+                    toast.error('清空失败');
+                }
+            });
+        }
+
+        // 主题管理函数
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                document.body.classList.add('dark-theme');
+            } else {
+                document.body.classList.remove('dark-theme');
+            }
+        }
+        
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            applyTheme(savedTheme);
+        }
+        
+        // 监听来自父窗口的主题切换消息
+        window.addEventListener('message', function(event) {
+            if (event.data.type === 'themeChange') {
+                applyTheme(event.data.theme);
+            }
+        });
+        
+        // 页面显示时重新加载主题
+        window.addEventListener('pageshow', loadTheme);
+        
+        // 页面加载完成后加载主题
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPersonnelConfig();
+            loadStudentList();
+            updateTotalStudents();
+            loadTheme();
+        });
+        
+        // 返回设置页面
+        function goBack() {
+            if (window.parent && window.parent !== window) {
+                // 如果在iframe中，通知父页面关闭
+                window.parent.postMessage('closeStaffing', '*');
+            } else {
+                // 直接跳转到设置页面
+                window.location.href = 'Settings.html';
+            }
+        }
+    </script>
+</body>
+</html>
