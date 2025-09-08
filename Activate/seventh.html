@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>班级管理系统 - 值日生表配置</title>
+    <link rel="stylesheet" href="buttons.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #111;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        /* 星空背景 */
+        .starfield {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at bottom, #2a3a4a 0%, #1a1a1f 100%);
+        }
+        
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle 3s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+        
+        /* 主容器 */
+        .main-container {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 800px;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        /* 标题 */
+        .page-title {
+            color: white;
+            font-size: 32px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
+            opacity: 0;
+            animation: fadeInTitle 1s ease-out 0.5s forwards;
+        }
+        
+        @keyframes fadeInTitle {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        /* 内容滚动框 */
+        .content-container {
+            width: 100%;
+            height: calc(100% - 100px);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 30px;
+            overflow-y: auto;
+            opacity: 0;
+            animation: fadeInContent 1s ease-out 1s forwards;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+        
+        @keyframes fadeInContent {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        /* 滚动条样式 */
+        .content-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .content-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        
+        .content-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+        
+        .content-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* 文本内容样式 */
+        .content-text {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.8;
+            font-size: 16px;
+            white-space: pre-line;
+        }
+        
+        .content-text h1 {
+            color: #00d4ff;
+            font-size: 28px;
+            font-weight: 300;
+            margin-bottom: 12px;
+            text-align: center;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+        
+        .content-text h2 {
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 400;
+            margin: 18px 0 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 8px;
+        }
+        
+        .content-text p {
+            margin-bottom: 8px;
+        }
+        
+        .content-text ul {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+        
+        .content-text li {
+            margin-bottom: 5px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* 按钮样式已移至 buttons.css 文件 */
+        
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .main-container {
+                width: 95%;
+                height: 85vh;
+            }
+            
+            .page-title {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+            
+            .content-container {
+                padding: 20px;
+            }
+            
+            .content-text {
+                font-size: 14px;
+            }
+            
+            .content-text h1 {
+                font-size: 22px;
+            }
+            
+            .content-text h2 {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body class="seventh-page">
+    <!-- 星空背景 -->
+    <div class="starfield" id="starfield"></div>
+    
+    <!-- 返回按钮 -->
+    <div class="back-button" onclick="animatedBack()">
+        <svg viewBox="0 0 24 24">
+            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+    </div>
+    
+    <!-- 主容器 -->
+    <div class="main-container">
+        <h1 class="page-title">值日生表配置</h1>
+        
+        <div class="content-container">
+            <div class="content-text" id="contentText">
+                <!-- 内容将通过JavaScript加载 -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- 底部灵动岛按钮 -->
+    <div class="dynamic-button" id="dynamicButton">
+        <div class="button-content">下一步</div>
+    </div>
+    
+    <script>
+        // 创建星空背景
+        function createStarfield() {
+            const starfield = document.getElementById('starfield');
+            const numStars = 200; // 与第一页保持一致
+            
+            // 使用固定种子的伪随机算法，确保所有页面星星位置一致
+            function seededRandom(seed) {
+                const x = Math.sin(seed) * 10000;
+                return x - Math.floor(x);
+            }
+            
+            for (let i = 0; i < numStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                // 使用与第一页相同的固定随机位置算法
+                const x = seededRandom(i * 12345) * 100; // 固定种子随机X位置
+                const y = seededRandom(i * 67890) * 100; // 固定种子随机Y位置
+                star.style.left = x + '%';
+                star.style.top = y + '%';
+                // 移除动画，直接显示星星
+                star.style.animation = 'none';
+                star.style.opacity = '0.8'; // 直接设置透明度
+                starfield.appendChild(star);
+            }
+        }
+        
+        // 加载值日生表配置内容
+        function loadContent() {
+            const content = `值日生表配置说明
+====================
+
+系统激活即将完成，值日生表是班级日常管理的重要工具。您可以在激活完成后随时进入值日生表页面进行详细配置。
+
+值日生表功能介绍
+--------
+
+时间段管理
+- 自定义值日时间段
+- 支持添加、编辑、删除时间段
+- 可与课程表时间段同步
+
+值日项目设置
+- 预设常用值日项目
+- 支持自定义值日内容
+- 灵活的项目分配
+
+人员安排
+- 直观的表格式值日表
+- 支持拖拽编辑安排
+- 批量分配功能
+
+数据管理
+- 自动保存值日安排
+- 支持导入导出功能
+- 数据备份与恢复
+
+编辑模式
+- 一键切换编辑/查看模式
+- 实时保存修改内容
+- 撤销和重做功能
+
+如何配置值日生表
+--------
+
+进入值日生表页面
+1. 完成系统激活
+2. 从主页点击"值日生表"进入
+3. 首次使用会显示空白表格
+
+基础设置
+1. 点击"时间管理"设置值日时间段
+2. 添加所需的时间段（如早读、课间、放学等）
+3. 设置每个时间段的具体时间
+
+配置值日项目
+1. 点击"值日项目设置"管理项目
+2. 从预设项目中选择或自定义
+3. 常见项目：扫地、擦黑板、倒垃圾等
+
+安排值日人员
+1. 点击"编辑模式"开始编辑
+2. 在对应时间格子中分配人员
+3. 可以输入学生姓名和具体任务
+4. 支持批量分配相同任务
+
+保存数据
+1. 系统会自动保存您的修改
+2. 也可以手动点击"保存"按钮
+3. 建议定期导出备份数据
+
+使用技巧
+--------
+
+快速编辑
+- 双击单元格快速编辑
+- 使用Tab键在单元格间切换
+- 右键菜单提供更多操作选项
+
+批量操作
+- 使用批量分配功能快速填充
+- 支持复制粘贴操作
+- 可以清空整行或整列
+
+数据同步
+- 支持与课程表时间段同步
+- 可以从Excel文件导入安排
+- 提供标准格式模板下载
+
+移动端使用
+- 值日生表支持手机和平板查看
+- 触摸操作友好
+- 响应式布局自动适配
+
+下一步操作
+--------
+
+完成激活后，您可以：
+
+1. 从主页进入"值日生表"页面
+2. 根据班级需要配置时间段
+3. 设置值日项目和人员安排
+4. 体验其他系统功能
+
+温馨提示
+--------
+
+- 值日生表数据会保存在本地浏览器中
+- 建议定期备份重要数据
+- 如需在多设备间同步，请使用导出导入功能
+- 遇到问题可以使用"重置"功能恢复默认设置
+- 可以与课程表配合使用，提高班级管理效率`;
+            
+            // 格式化内容
+            const formattedContent = content
+                .replace(/^([^\n=\-]+)\n=+$/gm, '<h1>$1</h1>')
+                .replace(/^([^\n\-]+)\n-+$/gm, '<h2>$1</h2>')
+                .replace(/^- (.+)$/gm, '<li>$1</li>')
+                .replace(/((<li>.*<\/li>\s*)+)/g, '<ul>$1</ul>')
+                .replace(/\n\n/g, '</p><p>')
+                .replace(/^(.)/gm, '<p>$1')
+                .replace(/(.+)$/gm, '$1</p>')
+                .replace(/<p><h/g, '<h')
+                .replace(/<\/h([12])><\/p>/g, '</h$1>')
+                .replace(/<p><ul>/g, '<ul>')
+                .replace(/<\/ul><\/p>/g, '</ul>')
+                .replace(/<p><\/p>/g, '');
+            
+            document.getElementById('contentText').innerHTML = formattedContent;
+        }
+        
+        // 返回上一页
+        function goBack() {
+            window.history.back();
+        }
+        
+        // 返回功能
+          function animatedBack() {
+              const backButton = document.querySelector('.back-button');
+              
+              // 添加返回按钮缩回动画
+              if (backButton) {
+                  backButton.classList.add('shrinking');
+              }
+              
+              // 触发页面内容渐隐
+              document.body.classList.add('page-fading');
+              
+              // 等待渐隐动画完成后返回
+              setTimeout(() => {
+                  window.history.back();
+              }, 1200);
+          }
+        
+        // 初始化底部按钮
+        function initBottomButton() {
+            const button = document.getElementById('dynamicButton');
+            
+            // 显示按钮并启动展开动画
+            button.classList.add('show');
+            
+            // 延迟启动展开动画
+            setTimeout(() => {
+                button.classList.add('expanding');
+                
+                // 动画完成后设置为展开状态
+                setTimeout(() => {
+                    button.classList.remove('expanding');
+                    button.classList.add('expanded');
+                }, 2000);
+            }, 500);
+            
+            button.addEventListener('click', () => {
+                // 检查是否已展开完成
+                if (button.classList.contains('expanded')) {
+                    // 移除展开状态，添加收缩状态
+                    button.classList.remove('expanded');
+                    button.classList.add('shrinking');
+                    
+                    // 同时触发页面内容渐隐
+                    document.body.classList.add('page-fading');
+                    
+                    // 等待页面渐隐动画完成后跳转到第八页
+                    setTimeout(() => {
+                        window.location.href = './eighth.html';
+                    }, 1200);
+                }
+            });
+        }
+        
+        // 初始化返回按钮
+        function initBackButton() {
+            const backButton = document.querySelector('.back-button');
+            if (backButton) {
+                // 延迟显示返回按钮
+                setTimeout(() => {
+                    backButton.classList.add('show');
+                }, 800);
+            }
+        }
+        
+        // 页面加载完成后初始化
+        window.addEventListener('load', function() {
+            createStarfield();
+            loadContent();
+            initBackButton();
+            initBottomButton();
+        });
+    </script>
+</body>
+</html>

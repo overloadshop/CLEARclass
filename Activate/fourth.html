@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>班级管理系统 - 基础信息配置</title>
+    <link rel="stylesheet" href="buttons.css">
+    <link rel="stylesheet" href="../popup-system/popup-system.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #111;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        /* 星空背景 */
+        .starfield {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at bottom, #2a3a4a 0%, #1a1a1f 100%);
+        }
+        
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle 3s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+        
+        /* 主容器 */
+        .main-container {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 800px;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        /* 标题 */
+        .page-title {
+            color: white;
+            font-size: 32px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
+            opacity: 0;
+            animation: fadeInTitle 1s ease-out 0.5s forwards;
+        }
+        
+        @keyframes fadeInTitle {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        /* 内容滚动框 */
+        .content-container {
+            width: 100%;
+            height: calc(100% - 100px);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 30px;
+            overflow-y: auto;
+            opacity: 0;
+            animation: fadeInContent 1s ease-out 1s forwards;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+        
+        @keyframes fadeInContent {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        /* 滚动条样式 */
+        .content-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .content-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        
+        .content-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+        
+        .content-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* 表单样式 */
+        .config-form {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.8;
+        }
+        
+        .config-form h1 {
+            color: #00d4ff;
+            font-size: 28px;
+            font-weight: 300;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+        
+        .config-form h2 {
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 400;
+            margin: 30px 0 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 8px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        
+        /* 必填字段星号样式 */
+        .required::after {
+            content: ' *';
+            color: #ff4444;
+            font-weight: bold;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        /* 按钮样式已移至 buttons.css 文件 */
+        
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .main-container {
+                width: 95%;
+                height: 85vh;
+            }
+            
+            .page-title {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+            
+            .content-container {
+                padding: 20px;
+            }
+            
+            .config-form h1 {
+                font-size: 24px;
+            }
+            
+            .config-form h2 {
+                font-size: 18px;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .back-button {
+                top: 20px;
+                left: 20px;
+                width: 45px;
+                height: 45px;
+            }
+            
+            #dynamicIsland {
+                bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body class="third-page">
+    <div class="starfield"></div>
+    
+    <div class="main-container">
+        <h1 class="page-title">基础信息配置</h1>
+        
+        <div class="content-container">
+            <form class="config-form" id="configForm">
+                <h1>班级基础信息设置</h1>
+                
+                <h2>班级信息</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="classGrade" class="required">年级</label>
+                        <input type="text" id="classGrade" placeholder="例如：七年级">
+                    </div>
+                    <div class="form-group">
+                        <label for="className" class="required">班级编号</label>
+                        <input type="text" id="className" placeholder="例如：701（七年级一班）">
+                    </div>
+                </div>
+                <div class="form-row">
+                     <div class="form-group">
+                         <label for="classDisplayName">班级名称</label>
+                         <input type="text" id="classDisplayName" name="classDisplayName" placeholder="例如：阳光班、梦想班">
+                     </div>
+                     <div class="form-group">
+                         <label for="classTeacher" class="required">班主任</label>
+                         <input type="text" id="classTeacher" name="classTeacher" placeholder="请输入班主任姓名">
+                     </div>
+                 </div>
+                 
+                 <div class="form-group">
+                    <label for="classSlogan">班级口号</label>
+                     <textarea id="classSlogan" name="classSlogan" placeholder="请输入班级口号" rows="3"></textarea>
+                 </div>
+                
+                <div class="form-group">
+                    <label for="classDescription">班级简介</label>
+                    <textarea id="classDescription" name="classDescription" rows="4" placeholder="请输入班级简介或特色描述（可选）"></textarea>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="back-button" onclick="animatedBack()">
+        <svg viewBox="0 0 24 24">
+            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+    </div>
+    
+    <div class="dynamic-button" id="dynamicButton">
+        <div class="button-content">完成配置</div>
+    </div>
+    
+    <script>
+        // 创建星空背景
+        function createStarfield() {
+            const starfield = document.querySelector('.starfield');
+            const starCount = 200; // 与第一页保持一致
+            
+            // 使用固定种子的伪随机算法，确保所有页面星星位置一致
+            function seededRandom(seed) {
+                const x = Math.sin(seed) * 10000;
+                return x - Math.floor(x);
+            }
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                // 使用与第一页相同的固定随机位置算法
+                const x = seededRandom(i * 12345) * 100; // 固定种子随机X位置
+                const y = seededRandom(i * 67890) * 100; // 固定种子随机Y位置
+                star.style.left = x + '%';
+                star.style.top = y + '%';
+                // 移除动画，直接显示星星
+                star.style.animation = 'none';
+                star.style.opacity = '0.8'; // 直接设置透明度
+                starfield.appendChild(star);
+            }
+        }
+        
+        // 验证必填字段
+        function validateRequiredFields() {
+            const requiredFields = [
+                { id: 'classGrade', name: '年级' },
+                { id: 'className', name: '班级编号' },
+                { id: 'classTeacher', name: '班主任' }
+            ];
+            
+            const emptyFields = [];
+            
+            requiredFields.forEach(field => {
+                const element = document.getElementById(field.id);
+                if (!element || !element.value.trim()) {
+                    emptyFields.push(field.name);
+                    // 添加错误样式
+                    if (element) {
+                        element.style.borderColor = '#ff4444';
+                        element.style.boxShadow = '0 0 10px rgba(255, 68, 68, 0.3)';
+                    }
+                } else {
+                    // 移除错误样式
+                    if (element) {
+                        element.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                        element.style.boxShadow = 'none';
+                    }
+                }
+            });
+            
+            if (emptyFields.length > 0) {
+                showToast(`请填写以下必填字段：${emptyFields.join('、')}`, 'error');
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // 返回功能
+        function animatedBack() {
+              const backButton = document.querySelector('.back-button');
+              
+              // 添加返回按钮缩回动画
+              if (backButton) {
+                  backButton.classList.add('shrinking');
+              }
+              
+              // 触发页面内容渐隐
+              document.body.classList.add('page-fading');
+              
+              // 等待渐隐动画完成后返回
+              setTimeout(() => {
+                  window.history.back();
+              }, 1200);
+          }
+        
+        // 初始化底部按钮
+        function initBottomButton() {
+            const button = document.getElementById('dynamicButton');
+            
+            // 显示按钮并启动展开动画
+            button.classList.add('show');
+            
+            // 延迟启动展开动画
+            setTimeout(() => {
+                button.classList.add('expanding');
+                
+                // 动画完成后设置为展开状态
+                setTimeout(() => {
+                    button.classList.remove('expanding');
+                    button.classList.add('expanded');
+                }, 2000);
+            }, 500);
+            
+            button.addEventListener('click', () => {
+                // 检查是否已展开完成
+                if (button.classList.contains('expanded')) {
+                    // 验证必填字段
+                    if (!validateRequiredFields()) {
+                        return; // 验证失败，不执行后续操作
+                    }
+                    
+                    // 保存配置
+                    saveConfiguration();
+                    
+                    // 显示完成提示
+                    console.log('配置完成！');
+                    
+                    // 移除展开状态，添加收缩状态
+                    button.classList.remove('expanded');
+                    button.classList.add('shrinking');
+                    
+                    // 同时触发页面内容渐隐
+                    document.body.classList.add('page-fading');
+                    
+                    // 等待页面渐隐动画完成后跳转到第五页
+                    setTimeout(() => {
+                        window.location.href = 'fifth.html';
+                    }, 1200);
+                }
+            });
+        }
+        
+        // 保存配置到本地存储
+         function saveConfiguration() {
+             const form = document.getElementById('configForm');
+             const inputs = form.querySelectorAll('input, select, textarea');
+             const config = {};
+             
+             inputs.forEach(input => {
+                 if (input.name || input.id) {
+                     const key = input.name || input.id;
+                     config[key] = input.value;
+                 }
+             });
+             
+             // 添加配置时间戳
+             config.configuredAt = new Date().toISOString();
+             
+             // 保存到本地存储
+             localStorage.setItem('classConfiguration', JSON.stringify(config));
+             
+             // 同步到系统设置
+             syncToSystemSettings(config);
+             
+             console.log('配置已保存并同步到系统设置:', config);
+         }
+         
+         // 同步数据到系统设置
+         function syncToSystemSettings(config) {
+             // 获取现有的系统设置
+             let systemSettings = {};
+             try {
+                 const existing = localStorage.getItem('systemSettings');
+                 if (existing) {
+                     systemSettings = JSON.parse(existing);
+                 }
+             } catch (e) {
+                 console.warn('读取系统设置失败:', e);
+             }
+             
+             // 更新班级信息相关设置
+             systemSettings.classGrade = config.classGrade || '';
+             systemSettings.className = config.className || '';
+             systemSettings.classDisplayName = config.classDisplayName || '';
+             systemSettings.classTeacher = config.classTeacher || '';
+             systemSettings.classSlogan = config.classSlogan || '';
+             
+             // 保存更新后的系统设置
+             localStorage.setItem('systemSettings', JSON.stringify(systemSettings));
+             
+             console.log('数据已同步到系统设置');
+         }
+        
+        // 加载已保存的配置
+        function loadConfiguration() {
+            const savedConfig = localStorage.getItem('classConfiguration');
+            if (savedConfig) {
+                const config = JSON.parse(savedConfig);
+                
+                // 填充表单
+                Object.keys(config).forEach(key => {
+                    const element = document.getElementById(key);
+                    if (element && key !== 'configuredAt') {
+                        element.value = config[key];
+                    }
+                });
+            }
+        }
+        
+        // 设置实时验证
+        function setupRealTimeValidation() {
+            const requiredFieldIds = ['classGrade', 'className', 'classTeacher'];
+            
+            requiredFieldIds.forEach(fieldId => {
+                const element = document.getElementById(fieldId);
+                if (element) {
+                    element.addEventListener('input', () => {
+                        // 如果字段有内容，移除错误样式
+                        if (element.value.trim()) {
+                            element.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                            element.style.boxShadow = 'none';
+                        }
+                    });
+                }
+            });
+        }
+        
+        // 自动保存功能
+        function setupAutoSave() {
+            const form = document.getElementById('configForm');
+            const inputs = form.querySelectorAll('input, select, textarea');
+            
+            inputs.forEach(input => {
+                input.addEventListener('change', () => {
+                    // 延迟保存，避免频繁操作
+                    clearTimeout(window.autoSaveTimer);
+                    window.autoSaveTimer = setTimeout(() => {
+                        saveConfiguration();
+                    }, 1000);
+                });
+            });
+        }
+        
+        // 初始化返回按钮
+        function initBackButton() {
+            const backButton = document.querySelector('.back-button');
+            if (backButton) {
+                // 延迟显示返回按钮
+                setTimeout(() => {
+                    backButton.classList.add('show');
+                }, 800);
+            }
+        }
+        
+        // 页面加载完成后初始化
+        window.addEventListener('load', function() {
+            createStarfield();
+            loadConfiguration();
+            setupRealTimeValidation();
+            setupAutoSave();
+            initBackButton();
+            initBottomButton();
+        });
+    </script>
+    <script src="../popup-system/toast.js"></script>
+</body>
+</html>

@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>班级管理系统 - 隐私协议</title>
+    <link rel="stylesheet" href="buttons.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #111;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        /* 星空背景 */
+        .starfield {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at bottom, #2a3a4a 0%, #1a1a1f 100%);
+        }
+        
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle 3s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+        
+        /* 主容器 */
+        .main-container {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 800px;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        /* 标题 */
+        .page-title {
+            color: white;
+            font-size: 32px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
+            opacity: 0;
+            animation: fadeInTitle 1s ease-out 0.5s forwards;
+        }
+        
+        @keyframes fadeInTitle {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        /* 内容滚动框 */
+        .content-container {
+            width: 100%;
+            height: calc(100% - 100px);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 30px;
+            overflow-y: auto;
+            opacity: 0;
+            animation: fadeInContent 1s ease-out 1s forwards;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+        
+        @keyframes fadeInContent {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        /* 滚动条样式 */
+        .content-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .content-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        
+        .content-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+        
+        .content-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* 文本内容样式 - 纯文本文章排版 */
+        .content-text {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.2; /* 五分之一行高 */
+            font-size: 16px;
+            text-align: justify;
+            text-justify: inter-ideograph;
+        }
+        
+        .content-text h1 {
+            color: #00d4ff;
+            font-size: 28px;
+            font-weight: 300;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+            line-height: 1.2;
+        }
+        
+        .content-text h2 {
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 400;
+            margin: 24px 0 12px 0;
+            line-height: 1.2;
+        }
+        
+        .content-text p {
+            margin-bottom: 12px;
+            line-height: 1.2;
+            text-indent: 2em; /* 首行缩进 */
+        }
+        
+        .content-text .no-indent {
+            text-indent: 0; /* 某些段落不缩进 */
+        }
+        
+        /* 按钮样式已移至 buttons.css 文件 */
+        
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .main-container {
+                width: 95%;
+                height: 85vh;
+            }
+            
+            .page-title {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+            
+            .content-container {
+                padding: 20px;
+            }
+            
+            .content-text {
+                font-size: 14px;
+            }
+            
+            .content-text h1 {
+                font-size: 22px;
+            }
+            
+            .content-text h2 {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body class="eighth-page">
+    <!-- 星空背景 -->
+    <div class="starfield" id="starfield"></div>
+    
+    <!-- 返回按钮 -->
+    <div class="back-button" onclick="animatedBack()">
+        <svg viewBox="0 0 24 24">
+            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+    </div>
+    
+    <!-- 主容器 -->
+    <div class="main-container">
+        <h1 class="page-title">隐私协议</h1>
+        
+        <div class="content-container" id="contentContainer">
+            <div class="content-text" id="contentText">
+                <!-- 内容将通过JavaScript加载 -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- 底部灵动岛按钮 -->
+    <div class="dynamic-button disabled" id="dynamicButton">
+        <div class="button-content">下一步</div>
+    </div>
+    
+    <script>
+        // 创建星空背景
+        function createStarfield() {
+            const starfield = document.getElementById('starfield');
+            const numStars = 200; // 与第一页保持一致
+            
+            // 使用固定种子的伪随机算法，确保所有页面星星位置一致
+            function seededRandom(seed) {
+                const x = Math.sin(seed) * 10000;
+                return x - Math.floor(x);
+            }
+            
+            for (let i = 0; i < numStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                // 使用与第一页相同的固定随机位置算法
+                const x = seededRandom(i * 12345) * 100; // 固定种子随机X位置
+                const y = seededRandom(i * 67890) * 100; // 固定种子随机Y位置
+                star.style.left = x + '%';
+                star.style.top = y + '%';
+                // 移除动画，直接显示星星
+                star.style.animation = 'none';
+                star.style.opacity = '0.8'; // 直接设置透明度
+                starfield.appendChild(star);
+            }
+        }
+        
+        // 加载隐私协议内容
+        function loadContent() {
+            const content = `班级管理系统隐私说明
+
+感谢您选择使用班级管理系统。本系统是一个纯本地运行的班级管理工具，所有数据均存储在您的本地设备中，不会上传到任何服务器或第三方平台。我们致力于保护您的数据安全和隐私权益。
+
+请在使用本系统前，仔细阅读并了解本《隐私说明》。
+
+一、数据存储和处理方式
+
+本班级管理系统采用纯本地存储方式，所有数据均保存在您的浏览器本地存储中，包括但不限于：
+
+（一）班级基础信息
+
+包括班级名称、班级人数、班级设置等基本信息，这些信息仅用于系统功能的正常运行。
+
+（二）学生信息管理
+
+包括学生姓名、学号、座位安排等信息，这些信息仅用于班级日常管理，如随机点名、座位管理等功能。
+
+（三）课程和时间安排
+
+包括课程表、作息时间、值日安排等信息，用于帮助您更好地管理班级日常事务。
+
+（四）作业和通知信息
+
+包括作业布置、班级通知等信息，用于班级信息的统一管理和发布。
+
+二、数据安全保护
+
+本系统采用以下措施保护您的数据安全：
+
+（一）本地存储安全
+
+所有数据均存储在您的浏览器本地存储中，不会传输到任何外部服务器，确保数据的完全本地化管理。
+
+（二）数据访问控制
+
+只有您本人可以访问和修改存储在您设备中的班级管理数据，其他人无法通过网络获取您的数据。
+
+（三）数据备份建议
+
+建议您定期导出重要数据进行备份，以防止因设备故障、浏览器数据清理等原因导致的数据丢失。
+
+三、数据的使用范围
+
+本系统收集和使用的数据仅限于以下用途：
+
+（一）班级日常管理
+
+包括学生信息管理、座位安排、随机点名、值日安排等班级管理功能。
+
+（二）教学辅助
+
+包括课程表管理、作业布置、成绩记录等教学相关功能。
+
+（三）数据统计分析
+
+对班级数据进行统计和分析，帮助您更好地了解班级情况，所有分析均在本地进行。
+
+四、您的权利
+
+作为本系统的使用者，您拥有以下权利：
+
+（一）数据查看权
+
+您可以随时查看系统中存储的所有数据，包括班级信息、学生信息、课程安排等。
+
+（二）数据修改权
+
+您可以随时修改、更新或删除系统中的任何数据，所有操作均在您的完全控制之下。
+
+（三）数据导出权
+
+您可以将系统中的数据导出为文件格式，便于备份或迁移到其他设备。
+
+（四）数据删除权
+
+您可以随时清除浏览器中的所有班级管理数据，彻底删除所有信息。
+
+五、技术说明
+
+（一）本地存储技术
+
+本系统使用浏览器的localStorage技术在您的设备上本地存储数据，这是一种标准的Web技术，确保数据仅存储在您的设备上。
+
+（二）数据格式
+
+所有数据均以JSON格式存储，便于读取、修改和备份。您可以通过浏览器的开发者工具查看这些数据。
+
+（三）兼容性
+
+本系统兼容现代主流浏览器，包括Chrome、Firefox、Safari、Edge等，确保在不同设备上的正常使用。
+
+六、免责声明
+
+（一）数据丢失风险
+
+由于数据存储在本地浏览器中，可能因浏览器数据清理、设备故障等原因导致数据丢失，建议您定期备份重要数据。
+
+（二）设备安全
+
+请确保您的设备安全，避免他人未经授权访问您的设备和浏览器，以保护您的班级管理数据。
+
+七、数据管理操作
+
+（一）数据查看
+
+您可以随时通过系统界面查看所有存储的班级管理数据，包括学生信息、课程安排、作业记录等。
+
+（二）数据修改
+
+您拥有对所有数据的完全修改权限，可以随时添加、编辑或删除任何信息。
+
+（三）数据导出
+
+系统提供数据导出功能，您可以将班级数据导出为JSON或其他格式的文件，便于备份和迁移。
+
+（四）数据清除
+
+您可以通过浏览器设置清除所有本地存储的班级管理数据，或使用系统提供的数据清除功能。
+
+八、使用建议
+
+（一）定期备份
+
+建议您定期导出班级数据进行备份，以防止意外数据丢失。
+
+（二）设备安全
+
+请确保您的设备和浏览器安全，设置适当的访问权限，避免他人未经授权使用您的班级管理系统。
+
+（三）数据准确性
+
+请确保输入的学生信息和班级数据准确无误，以保证系统功能的正常使用。
+
+九、系统更新
+
+（一）功能更新
+
+我们可能会不定期更新系统功能，以提供更好的用户体验。更新不会影响您已存储的数据。
+
+（二）兼容性维护
+
+我们会持续维护系统与主流浏览器的兼容性，确保系统的稳定运行。
+
+十、隐私说明更新
+
+本隐私说明可能会根据系统功能更新或法律法规要求进行修订。
+
+任何更新都会在系统中显著提示，确保您及时了解相关变更。
+
+我们承诺不会在未经提示的情况下改变数据处理方式或降低隐私保护标准。
+
+十一、技术支持
+
+本系统为纯本地运行的班级管理工具，所有功能均在您的设备上独立运行。
+
+如需了解系统使用方法，请参考系统内置的帮助文档和操作指南。
+
+本隐私说明最后更新日期：2025年8月23日
+
+本隐私说明生效日期：2025年8月23日`;
+            
+            // 将内容按段落分割并格式化
+            const paragraphs = content.split('\n\n');
+            let formattedContent = '';
+            
+            paragraphs.forEach(paragraph => {
+                if (paragraph.trim()) {
+                    if (paragraph.includes('班级管理系统隐私协议')) {
+                        formattedContent += `<h1>${paragraph.trim()}</h1>`;
+                    } else if (paragraph.match(/^[一二三四五六七八九十]+、/)) {
+                        formattedContent += `<h2>${paragraph.trim()}</h2>`;
+                    } else {
+                        // 检查是否需要首行缩进
+                        if (paragraph.match(/^\d+\.|^（[一二三四五六七八九十]+）/)) {
+                            formattedContent += `<p class="no-indent">${paragraph.trim()}</p>`;
+                        } else {
+                            formattedContent += `<p>${paragraph.trim()}</p>`;
+                        }
+                    }
+                }
+            });
+            
+            document.getElementById('contentText').innerHTML = formattedContent;
+        }
+        
+        // 检查是否滚动到底部
+        function checkScrollToBottom() {
+            const container = document.getElementById('contentContainer');
+            const button = document.getElementById('dynamicButton');
+            
+            const scrollTop = container.scrollTop;
+            const scrollHeight = container.scrollHeight;
+            const clientHeight = container.clientHeight;
+            
+            // 允许5px的误差
+            if (scrollTop + clientHeight >= scrollHeight - 5) {
+                button.classList.remove('disabled');
+                button.classList.add('enabled');
+            } else {
+                button.classList.add('disabled');
+                button.classList.remove('enabled');
+            }
+        }
+        
+        // 返回上一页
+        function goBack() {
+            window.history.back();
+        }
+        
+        // 保存激活状态数据
+        function saveActivationData() {
+            try {
+                // 从之前的激活页面获取保存的数据
+                const personnelConfig = localStorage.getItem('personnelConfig');
+                const systemSettings = localStorage.getItem('systemSettings');
+                
+                // 创建基本的激活状态数据
+                let classInfo = {
+                    className: '已激活班级',
+                    teacher: '班主任',
+                    grade: '高一',
+                    totalStudents: 0,
+                    activatedAt: new Date().toISOString()
+                };
+                
+                let studentList = [];
+                let scheduleData = {
+                    '1-1': '语文',
+                    '1-2': '数学',
+                    '1-3': '英语'
+                };
+                
+                // 如果有人员配置数据，使用它
+                if (personnelConfig) {
+                    const config = JSON.parse(personnelConfig);
+                    classInfo.totalStudents = config.totalStudents || 0;
+                    studentList = config.students || [];
+                }
+                
+                // 如果有系统设置数据，使用它
+                if (systemSettings) {
+                    const settings = JSON.parse(systemSettings);
+                    if (settings.className) classInfo.className = settings.className;
+                    if (settings.classTeacher) classInfo.teacher = settings.classTeacher;
+                    if (settings.classGrade) classInfo.grade = settings.classGrade;
+                }
+                
+                // 保存激活状态数据
+                localStorage.setItem('classInfo', JSON.stringify(classInfo));
+                localStorage.setItem('studentList', JSON.stringify(studentList));
+                localStorage.setItem('scheduleData', JSON.stringify(scheduleData));
+                
+                // 设置系统设置，默认开启Hello激活功能
+                const classSystemSettings = {
+                    helloActivation: true,
+                    theme: 'light',
+                    notifications: true
+                };
+                localStorage.setItem('classSystemSettings', JSON.stringify(classSystemSettings));
+                
+                console.log('激活状态数据已保存:', {
+                    classInfo,
+                    studentList: studentList.length + ' 个学生',
+                    scheduleData: Object.keys(scheduleData).length + ' 个时间段',
+                    helloActivation: '已开启'
+                });
+            } catch (error) {
+                console.error('保存激活状态数据失败:', error);
+            }
+        }
+        
+        // 返回功能
+        function animatedBack() {
+            const backButton = document.querySelector('.back-button');
+            
+            // 添加返回按钮缩回动画
+            if (backButton) {
+                backButton.classList.add('shrinking');
+            }
+            
+            // 触发页面内容渐隐
+            document.body.classList.add('page-fading');
+            
+            // 等待渐隐动画完成后返回
+            setTimeout(() => {
+                window.history.back();
+            }, 1200);
+        }
+        
+        // 初始化底部按钮
+        function initBottomButton() {
+            const button = document.getElementById('dynamicButton');
+            
+            // 显示按钮并启动展开动画
+            button.classList.add('show');
+            
+            // 延迟启动展开动画
+            setTimeout(() => {
+                button.classList.add('expanding');
+                
+                // 动画完成后设置为展开状态
+                setTimeout(() => {
+                    button.classList.remove('expanding');
+                    button.classList.add('expanded');
+                }, 2000);
+            }, 500);
+            
+            button.addEventListener('click', () => {
+                // 检查是否已展开完成且已启用
+                if (button.classList.contains('expanded') && button.classList.contains('enabled')) {
+                    // 移除展开状态，添加收缩状态
+                    button.classList.remove('expanded');
+                    button.classList.add('shrinking');
+                    
+                    // 同时触发页面内容渐隐
+                    document.body.classList.add('page-fading');
+                    
+                    // 等待页面渐隐动画完成后跳转到下一页
+                    setTimeout(() => {
+                        // 保存激活状态数据
+                        saveActivationData();
+                        
+                        // 跳转到主页并标记来自激活页面
+                        window.location.href = '../index.html?from=activate';
+                    }, 1200);
+                }
+            });
+        }
+        
+        // 初始化返回按钮
+        function initBackButton() {
+            const backButton = document.querySelector('.back-button');
+            if (backButton) {
+                // 延迟显示返回按钮
+                setTimeout(() => {
+                    backButton.classList.add('show');
+                }, 800);
+            }
+        }
+        
+        // 页面加载完成后初始化
+        window.addEventListener('load', function() {
+            createStarfield();
+            loadContent();
+            initBackButton();
+            initBottomButton();
+            
+            // 添加滚动监听
+            const container = document.getElementById('contentContainer');
+            container.addEventListener('scroll', checkScrollToBottom);
+        });
+    </script>
+</body>
+</html>

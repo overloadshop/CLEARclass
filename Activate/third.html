@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>班级管理系统 - 安全设置</title>
+    <link rel="stylesheet" href="buttons.css">
+    <link rel="stylesheet" href="../popup-system/popup-system.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #111;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        /* 星空背景 */
+        .starfield {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at bottom, #2a3a4a 0%, #1a1a1f 100%);
+        }
+        
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle 3s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+        
+        /* 页面渐隐动画由 buttons.css 统一定义 */
+        
+        /* 主容器 */
+        .main-container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            animation: fadeInContent 1s ease-out 1s both;
+        }
+        
+        @keyframes fadeInContent {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        .title {
+            font-size: 2.5rem;
+            font-weight: 300;
+            color: #fff;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            opacity: 0;
+            animation: fadeInTitle 1s ease-out 0.5s forwards;
+        }
+        
+        @keyframes fadeInTitle {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+        
+        /* 安全设置卡片 */
+        .security-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: left;
+        }
+        
+        /* 密码设置对话框 */
+        .password-dialog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        
+        .password-dialog.show {
+            display: flex;
+        }
+        
+        .password-content {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 400px;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(20px);
+            text-align: center;
+        }
+        
+        .password-title {
+            font-size: 1.5rem;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+        
+        .password-input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            outline: none;
+        }
+        
+        .password-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .password-input:focus {
+            border-color: #4CAF50;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+        }
+        
+        .password-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .password-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .password-btn.cancel {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+        
+        .password-btn.cancel:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .password-btn.confirm {
+            background: #4CAF50;
+            color: #fff;
+        }
+        
+        .password-btn.confirm:hover {
+            background: #45a049;
+        }
+        
+        .security-title {
+            font-size: 1.3rem;
+            color: #fff;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .security-icon {
+            width: 24px;
+            height: 24px;
+            fill: #4CAF50;
+        }
+        
+        /* 注意事项 */
+        .notice-section {
+            margin-bottom: 20px;
+        }
+        
+        .notice-title {
+            font-size: 1.1rem;
+            color: #FFB74D;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .notice-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .notice-item {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 12px;
+            padding-left: 20px;
+            position: relative;
+            line-height: 1.5;
+        }
+        
+        .notice-item::before {
+            content: '•';
+            color: #FFB74D;
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+        
+        /* 开关设置 */
+        .switch-section {
+            margin-bottom: 20px;
+        }
+        
+        .switch-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .switch-item:last-child {
+            border-bottom: none;
+        }
+        
+        .switch-info {
+            flex: 1;
+        }
+        
+        .switch-label {
+            font-size: 1.1rem;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+        
+        .switch-desc {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.4;
+        }
+        
+        /* 自定义开关 */
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .toggle-switch::before {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 22px;
+            height: 22px;
+            background: #fff;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .toggle-switch.active {
+            background: #4CAF50;
+            border-color: #4CAF50;
+        }
+        
+        .toggle-switch.active::before {
+            transform: translateX(30px);
+        }
+        
+        /* 警告信息 */
+        .warning-box {
+            background: rgba(255, 152, 0, 0.1);
+            border: 1px solid rgba(255, 152, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .warning-title {
+            color: #FF9800;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .warning-text {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        /* 返回按钮 */
+        .back-button {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 1;
+            z-index: 20;
+        }
+        
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: scale(1.1);
+        }
+        
+        .back-button svg {
+            width: 24px;
+            height: 24px;
+            fill: #fff;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1024px) {
+            .container {
+                max-width: 500px;
+                padding: 30px 25px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                max-width: 90%;
+                padding: 25px 20px;
+                margin: 15px;
+            }
+            
+            .title {
+                font-size: 2rem;
+                margin-bottom: 15px;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+                margin-bottom: 30px;
+            }
+            
+            .security-card {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            
+            .security-title {
+                font-size: 1.2rem;
+                margin-bottom: 15px;
+            }
+            
+            .switch-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+                padding: 15px 0;
+            }
+            
+            .toggle-switch {
+                align-self: flex-end;
+            }
+            
+            .notice-item {
+                font-size: 0.9rem;
+                margin-bottom: 10px;
+            }
+            
+            .back-button {
+                top: 20px;
+                left: 20px;
+                width: 45px;
+                height: 45px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px 15px;
+                margin: 10px;
+            }
+            
+            .title {
+                font-size: 1.8rem;
+            }
+            
+            .security-card {
+                padding: 12px;
+            }
+            
+            .password-content {
+                padding: 30px 20px;
+            }
+            
+            .back-button {
+                top: 15px;
+                left: 15px;
+                width: 40px;
+                height: 40px;
+            }
+            
+            .back-button svg {
+                width: 20px;
+                height: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="starfield"></div>
+    
+    <!-- 返回按钮 -->
+    <div class="back-button" onclick="goBack()">
+        <svg viewBox="0 0 24 24">
+            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+    </div>
+    
+    <div class="main-container">
+        <h1 class="title">安全设置</h1>
+        <p class="subtitle">配置系统安全选项，保护您的班级数据</p>
+        
+        <div class="security-card">
+            <div class="security-title">
+                <svg class="security-icon" viewBox="0 0 24 24">
+                    <path d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,7C13.4,7 14.8,8.6 14.8,10V11.5C15.4,11.5 16,12.4 16,13V16C16,17.4 15.4,18 14.8,18H9.2C8.6,18 8,17.4 8,16V13C8,12.4 8.6,11.5 9.2,11.5V10C9.2,8.6 10.6,7 12,7M12,8.2C11.2,8.2 10.5,8.7 10.5,10V11.5H13.5V10C13.5,8.7 12.8,8.2 12,8.2Z"/>
+                </svg>
+                敏感操作验证
+            </div>
+            
+            <div class="notice-section">
+                <div class="notice-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="#FFB74D">
+                        <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+                    </svg>
+                    重要注意事项
+                </div>
+                <ul class="notice-list">
+                    <li class="notice-item">启用后删除、清空等操作需密码验证</li>
+                    <li class="notice-item">密码遗忘只能通过关闭功能重置</li>
+                    <li class="notice-item">关闭验证会永久清除密码设置</li>
+                    <li class="notice-item">请设置易记但安全的密码</li>
+                </ul>
+            </div>
+            
+            <div class="switch-section">
+                <div class="switch-item">
+                    <div class="switch-info">
+                        <div class="switch-label">启用敏感操作验证</div>
+                        <div class="switch-desc">开启后，删除、清空等操作需要密码验证</div>
+                    </div>
+                    <div class="toggle-switch" id="securityToggle" onclick="toggleSecurity()"></div>
+                </div>
+            </div>
+            
+            <div class="warning-box">
+                <div class="warning-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="#FF9800">
+                        <path d="M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
+                    </svg>
+                    自愿原则
+                </div>
+                <div class="warning-text">
+                    此功能为可选项，可随时开启或关闭。
+                    请根据班级管理需要自行决定是否启用。
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 密码设置对话框 -->
+    <div class="password-dialog" id="passwordDialog">
+        <div class="password-content">
+            <h3 class="password-title">设置安全密码</h3>
+            <input type="password" class="password-input" id="passwordInput" placeholder="请输入密码（至少4位）">
+            <input type="password" class="password-input" id="confirmInput" placeholder="请确认密码">
+            <div class="password-buttons">
+                <button class="password-btn cancel" onclick="hidePasswordDialog()">取消</button>
+                <button class="password-btn confirm" onclick="confirmPassword()">确定</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 动态按钮 -->
+    <div class="dynamic-button" id="dynamicButton">
+        <div class="button-content">
+            <span class="button-text">完成设置</span>
+        </div>
+    </div>
+    
+    <script>
+        // 创建星空背景
+        function createStarfield() {
+            const starfield = document.querySelector('.starfield');
+            const numStars = 100;
+            
+            for (let i = 0; i < numStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starfield.appendChild(star);
+            }
+        }
+        
+        // 安全设置状态
+        let securityEnabled = false;
+        
+        // 切换安全验证
+        function toggleSecurity() {
+            const toggle = document.getElementById('securityToggle');
+            
+            if (!securityEnabled) {
+                // 开启安全验证，显示设置密码对话框
+                showPasswordDialog();
+            } else {
+                // 关闭安全验证，显示确认对话框
+                if (confirm('关闭安全验证后，密码将被清除且操作不可逆，确定要继续吗？')) {
+                    securityEnabled = false;
+                    toggle.classList.remove('active');
+                    localStorage.removeItem('securityPassword');
+                    // 使用与Settings页面相同的存储格式
+                    const settings = { enabled: false };
+                    localStorage.setItem('securitySettings', JSON.stringify(settings));
+                    showToast('安全验证已关闭', 'success');
+                }
+                // 如果用户取消，开关状态保持不变
+            }
+        }
+        
+        // 显示密码设置对话框
+        function showPasswordDialog() {
+            const dialog = document.getElementById('passwordDialog');
+            const passwordInput = document.getElementById('passwordInput');
+            const confirmInput = document.getElementById('confirmInput');
+            
+            passwordInput.value = '';
+            confirmInput.value = '';
+            dialog.classList.add('show');
+            passwordInput.focus();
+        }
+        
+        // 隐藏密码设置对话框
+        function hidePasswordDialog() {
+            const dialog = document.getElementById('passwordDialog');
+            dialog.classList.remove('show');
+        }
+        
+        // 确认设置密码
+        function confirmPassword() {
+            const password = document.getElementById('passwordInput').value;
+            const confirmPassword = document.getElementById('confirmInput').value;
+            
+            if (!password) {
+                showToast('请输入密码', 'error');
+                return;
+            }
+            
+            if (password.length < 4) {
+                showToast('密码长度至少4位', 'error');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showToast('两次输入的密码不一致', 'error');
+                return;
+            }
+            
+            // 使用简单的哈希函数存储密码
+            const hashedPassword = btoa(password + 'salt_key_2024');
+            localStorage.setItem('securityPassword', hashedPassword);
+            // 使用与Settings页面相同的存储格式
+            const settings = { enabled: true };
+            localStorage.setItem('securitySettings', JSON.stringify(settings));
+            
+            securityEnabled = true;
+            const toggle = document.getElementById('securityToggle');
+            toggle.classList.add('active');
+            
+            hidePasswordDialog();
+            showToast('安全验证已启用', 'success');
+        }
+        
+        // 简单的Toast提示函数
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 8px;
+                color: white;
+                font-size: 14px;
+                z-index: 10000;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            `;
+            
+            if (type === 'success') {
+                toast.style.background = '#4CAF50';
+            } else if (type === 'error') {
+                toast.style.background = '#f44336';
+            } else {
+                toast.style.background = '#2196F3';
+            }
+            
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '1';
+            }, 100);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+        
+        // 加载安全设置
+        function loadSecuritySettings() {
+            // 使用与Settings页面相同的存储格式
+            const saved = localStorage.getItem('securitySettings');
+            if (saved !== null) {
+                const settings = JSON.parse(saved);
+                securityEnabled = settings.enabled || false;
+                const toggle = document.getElementById('securityToggle');
+                if (securityEnabled) {
+                    toggle.classList.add('active');
+                }
+            }
+        }
+        
+        // 返回上一页
+        function goBack() {
+            const backButton = document.querySelector('.back-button');
+            
+            // 添加返回按钮缩回动画
+            if (backButton) {
+                backButton.classList.add('shrinking');
+            }
+            
+            // 添加页面渐隐效果
+            document.body.classList.add('page-fading');
+            
+            // 等待渐隐动画完成后返回
+            setTimeout(() => {
+                window.history.back();
+            }, 1200);
+        }
+        
+        // 初始化底部按钮
+        function initBottomButton() {
+            const button = document.getElementById('dynamicButton');
+            
+            // 显示按钮并启动展开动画
+            button.classList.add('show');
+            
+            // 延迟启动展开动画
+            setTimeout(() => {
+                button.classList.add('expanding');
+                
+                // 动画完成后设置为展开状态
+                setTimeout(() => {
+                    button.classList.remove('expanding');
+                    button.classList.add('expanded');
+                }, 2000);
+            }, 500);
+            
+            button.addEventListener('click', () => {
+                // 检查是否已展开完成
+                if (button.classList.contains('expanded')) {
+                    // 保存安全设置
+                    console.log('安全设置完成！');
+                    
+                    // 移除展开状态，添加收缩状态
+                    button.classList.remove('expanded');
+                    button.classList.add('shrinking');
+                    
+                    // 同时触发页面内容渐隐
+                    document.body.classList.add('page-fading');
+                    
+                    // 等待页面渐隐动画完成后跳转到第四页
+                    setTimeout(() => {
+                        window.location.href = './fourth.html';
+                    }, 1200);
+                }
+            });
+        }
+        
+        // 初始化返回按钮
+        function initBackButton() {
+            const backButton = document.querySelector('.back-button');
+            if (backButton) {
+                // 延迟显示返回按钮
+                setTimeout(() => {
+                    backButton.classList.add('show');
+                }, 800);
+            }
+        }
+        
+        // 页面加载完成后初始化
+        window.addEventListener('load', function() {
+            createStarfield();
+            loadSecuritySettings();
+            initBackButton();
+            initBottomButton();
+        });
+    </script>
+    <script src="../popup-system/toast.js"></script>
+</body>
+</html>

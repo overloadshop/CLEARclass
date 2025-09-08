@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>班级管理系统 - 启动</title>
+    <link rel="stylesheet" href="buttons.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #111;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        /* 星空背景 */
+        .starfield {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at bottom, #2a3a4a 0%, #1a1a1f 100%);
+        }
+        
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle 3s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+        
+        /* 主容器 */
+        .main-container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+        }
+        
+        /* 圆环容器 */
+        .ring-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto 60px;
+        }
+        
+        /* 星光粒子 */
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(255, 255, 255, 1);
+            border-radius: 50%;
+            opacity: 0;
+            box-shadow: 
+                0 0 12px rgba(255, 255, 255, 1),
+                0 0 24px rgba(255, 255, 255, 0.9),
+                0 0 36px rgba(0, 212, 255, 0.9),
+                0 0 48px rgba(0, 212, 255, 0.7),
+                0 0 60px rgba(0, 212, 255, 0.4);
+        }
+        
+        @keyframes particleTwinkle {
+            0% { 
+                opacity: 0.6;
+                transform: scale(1);
+            }
+            100% { 
+                opacity: 1;
+                transform: scale(1.5);
+            }
+        }
+        
+        @keyframes particleFloat {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+            }
+            25% {
+                transform: translate(-6px, -12px) scale(1.1);
+            }
+            50% {
+                transform: translate(8px, -15px) scale(0.9);
+            }
+            75% {
+                transform: translate(-4px, -10px) scale(1.05);
+            }
+        }
+        
+        /* 星星圆环 */
+        .star-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+        }
+        
+        .ring-star {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #00d4ff;
+            border-radius: 50%;
+            opacity: 0;
+            box-shadow: 0 0 15px #00d4ff, 0 0 30px #0099cc;
+            animation: starTwinkle 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes starTwinkle {
+            0% { 
+                opacity: 0.6;
+                transform: scale(1);
+                box-shadow: 0 0 15px #00d4ff, 0 0 30px #0099cc;
+            }
+            100% { 
+                opacity: 1;
+                transform: scale(1.2);
+                box-shadow: 0 0 25px #00d4ff, 0 0 50px #0099cc;
+            }
+        }
+        
+        /* 中心文字 */
+        .center-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 24px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            opacity: 0;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
+            white-space: nowrap;
+        }
+        
+        /* 按钮样式已移至 buttons.css 文件 */
+        
+        /* 动画类 */
+        .animate-particles {
+            animation: gatherParticles 3s ease-out forwards;
+        }
+        
+        .particle-ring {
+            animation: none !important;
+            opacity: 1 !important;
+        }
+        
+        .animate-text {
+            animation: showText 1s ease-out 3.5s forwards;
+        }
+        
+
+        
+        @keyframes gatherParticles {
+            0% {
+                opacity: 0;
+                transform: translate(var(--start-x), var(--start-y)) scale(1);
+            }
+            10% {
+                opacity: 1;
+                transform: translate(var(--start-x), var(--start-y)) scale(1);
+            }
+            90% {
+                opacity: 1;
+                transform: translate(var(--target-x), var(--target-y)) scale(1.2);
+            }
+            100% {
+                opacity: 1;
+                transform: translate(var(--target-x), var(--target-y)) scale(1);
+            }
+        }
+        
+        @keyframes showText {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+        
+        @keyframes showIsland {
+            0% {
+                opacity: 0;
+                transform: translateX(-50%) scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(-50%) scale(1);
+            }
+        }
+    </style>
+</head>
+<body class="first-page">
+    <!-- 星空背景 -->
+    <div class="starfield" id="starfield"></div>
+    
+    <!-- 主容器 -->
+    <div class="main-container">
+        <!-- 圆环容器 -->
+        <div class="ring-container" id="ringContainer">
+            <!-- 星星圆环 -->
+            <div class="star-ring" id="starRing"></div>
+            <!-- 中心文字 -->
+            <div class="center-text" id="centerText">班级管理系统</div>
+        </div>
+        
+        <!-- 灵动岛按钮 -->
+        <div class="dynamic-button" id="dynamicButton">
+            <div class="button-content">下一步</div>
+        </div>
+    </div>
+    
+    <script>
+        // 创建星空背景
+        function createStarfield() {
+            const starfield = document.getElementById('starfield');
+            const numStars = 200;
+            
+            // 使用固定种子的伪随机算法，确保所有页面星星位置一致
+            function seededRandom(seed) {
+                const x = Math.sin(seed) * 10000;
+                return x - Math.floor(x);
+            }
+            
+            for (let i = 0; i < numStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                // 使用基于索引的固定随机位置，确保所有页面位置一致
+                const x = seededRandom(i * 12345) * 100; // 固定种子随机X位置
+                const y = seededRandom(i * 67890) * 100; // 固定种子随机Y位置
+                star.style.left = x + '%';
+                star.style.top = y + '%';
+                star.style.animationDelay = (i % 30) * 0.1 + 's'; // 固定的动画延迟
+                starfield.appendChild(star);
+            }
+        }
+        
+        // 创建星光粒子
+        function createParticles() {
+            const container = document.getElementById('ringContainer');
+            const totalParticles = 400;
+            const rings = 5;
+            // 内层密集，外层分散的分布：内层多，外层少
+            const particlesDistribution = [100, 90, 80, 70, 60]; // 从内到外的粒子数量
+            const baseRadius = 90; // 增加基础半径
+            const ringCount = 5; // 创建5层圆环
+            
+            for (let ring = 0; ring < ringCount; ring++) {
+                const radius = baseRadius + ring * 15; // 每层间距15px，更加紧密
+                const particlesInThisRing = particlesDistribution[ring]; // 使用分布数组
+                
+                for (let i = 0; i < particlesInThisRing; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    
+                    // 随机起始位置（屏幕四周更远的距离）
+                    const side = Math.floor(Math.random() * 4);
+                    let startX, startY;
+                    
+                    switch (side) {
+                        case 0: // 上
+                            startX = Math.random() * 2000 - 1000;
+                            startY = -800;
+                            break;
+                        case 1: // 右
+                            startX = 800;
+                            startY = Math.random() * 2000 - 1000;
+                            break;
+                        case 2: // 下
+                            startX = Math.random() * 2000 - 1000;
+                            startY = 800;
+                            break;
+                        case 3: // 左
+                            startX = -800;
+                            startY = Math.random() * 2000 - 1000;
+                            break;
+                    }
+                    
+                    // 计算目标位置（圆环上的点），添加随机偏移
+                    const baseAngle = (i / particlesInThisRing) * 2 * Math.PI;
+                    const randomAngleOffset = (Math.random() - 0.5) * 0.5; // 适度随机角度偏移
+                    const targetAngle = baseAngle + randomAngleOffset;
+                    const radiusOffset = (Math.random() - 0.5) * 18; // 适度随机半径偏移，保持密集
+                    const finalRadius = radius + radiusOffset;
+                    
+                    const targetX = Math.cos(targetAngle) * finalRadius;
+                    const targetY = Math.sin(targetAngle) * finalRadius;
+                    
+                    particle.style.setProperty('--start-x', startX + 'px');
+                    particle.style.setProperty('--start-y', startY + 'px');
+                    particle.style.setProperty('--target-x', targetX + 'px');
+                    particle.style.setProperty('--target-y', targetY + 'px');
+                    particle.style.left = '50%';
+                    particle.style.top = '50%';
+                    particle.style.transform = `translate(${startX}px, ${startY}px)`;
+                    
+                    // 存储漂浮动画参数和随机延迟
+                    particle.dataset.floatDelay = Math.random() * 3;
+                    particle.dataset.floatDuration = 3 + Math.random() * 2;
+                    particle.dataset.animationDelay = Math.random() * 2000 + (ring * 200); // 随机延迟0-2秒，加上层级延迟
+                    
+                    container.appendChild(particle);
+                }
+            }
+        }
+        
+        // 创建星星圆环
+        function createStarRing() {
+            const starRing = document.getElementById('starRing');
+            const numStars = 30;
+            const radius = 90; // 圆环半径
+            
+            for (let i = 0; i < numStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'ring-star';
+                
+                // 计算星星在圆环上的位置
+                const angle = (i / numStars) * 2 * Math.PI;
+                const x = Math.cos(angle) * radius;
+                const y = Math.sin(angle) * radius;
+                
+                star.style.left = `calc(50% + ${x}px)`;
+                star.style.top = `calc(50% + ${y}px)`;
+                star.style.transform = 'translate(-50%, -50%)';
+                star.style.animationDelay = (i * 0.1) + 's';
+                
+                starRing.appendChild(star);
+            }
+        }
+        
+        // 启动动画序列
+        function startAnimation() {
+            // 创建粒子
+            createParticles();
+            
+            // 延迟启动粒子动画，使用随机延迟
+            setTimeout(() => {
+                const particles = document.querySelectorAll('.particle');
+                particles.forEach(particle => {
+                    const delay = parseFloat(particle.dataset.animationDelay);
+                    setTimeout(() => {
+                        particle.classList.add('animate-particles');
+                    }, delay);
+                });
+            }, 500);
+            
+            // 粒子汇聚完成后，固定位置并添加闪烁效果
+            setTimeout(() => {
+                const particles = document.querySelectorAll('.particle');
+                particles.forEach((particle) => {
+                    const animationDelay = parseFloat(particle.dataset.animationDelay);
+                    
+                    // 根据粒子的启动延迟来设置结束处理的延迟
+                    setTimeout(() => {
+                        // 移除汇聚动画类，添加圆环类
+                        particle.classList.remove('animate-particles');
+                        particle.classList.add('particle-ring');
+                        
+                        // 获取粒子的目标位置（从CSS变量中读取）
+                        const targetX = particle.style.getPropertyValue('--target-x');
+                        const targetY = particle.style.getPropertyValue('--target-y');
+                        
+                        // 清除所有动画和变换
+                        particle.style.animation = 'none';
+                        particle.style.transition = 'none';
+                        
+                        // 设置最终位置和样式（保持在多层圆环位置）
+                        particle.style.transform = `translate(${targetX}, ${targetY})`;
+                        particle.style.opacity = '1';
+                        particle.style.visibility = 'visible';
+                        
+                        // 延迟添加漂浮和闪烁动画
+                        setTimeout(() => {
+                            const floatDelay = particle.dataset.floatDelay;
+                            const floatDuration = particle.dataset.floatDuration;
+                            particle.style.animation = `particleFloat ${floatDuration}s ease-in-out infinite ${floatDelay}s, particleTwinkle 2s ease-in-out infinite alternate ${floatDelay * 0.5}s`;
+                        }, 100);
+                    }, animationDelay + 3000); // 基于粒子的启动延迟来设置结束时间
+                });
+            }, 500);
+            
+            // 显示文字
+            const text = document.getElementById('centerText');
+            text.classList.add('animate-text');
+            
+            // 显示按钮并启动展开动画
+            const button = document.getElementById('dynamicButton');
+            button.classList.add('show');
+            
+            // 延迟启动展开动画
+            setTimeout(() => {
+                button.classList.add('expanding');
+                
+                // 动画完成后设置为展开状态
+                setTimeout(() => {
+                    button.classList.remove('expanding');
+                    button.classList.add('expanded');
+                }, 2000);
+            }, 500);
+            
+            button.addEventListener('click', () => {
+                // 检查是否已展开完成
+                if (button.classList.contains('expanded')) {
+                    // 移除展开状态，添加收缩状态
+                    button.classList.remove('expanded');
+                    button.classList.add('shrinking');
+                    
+                    // 同时触发页面内容渐隐
+                    document.body.classList.add('page-fading');
+                    
+                    // 等待页面渐隐动画完成后跳转
+                    setTimeout(() => {
+                        window.location.href = './second.html';
+                    }, 1200);
+                }
+            });
+        }
+        
+
+        
+        // 页面加载完成后启动
+        document.addEventListener('DOMContentLoaded', function() {
+            createStarfield();
+            startAnimation();
+        });
+    </script>
+</body>
+</html>

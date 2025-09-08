@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>班级管理系统 - 项目介绍</title>
+    <link rel="stylesheet" href="buttons.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #111;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        /* 星空背景 */
+        .starfield {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at bottom, #2a3a4a 0%, #1a1a1f 100%);
+        }
+        
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle 3s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+        
+        /* 主容器 */
+        .main-container {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 800px;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        /* 标题 */
+        .page-title {
+            color: white;
+            font-size: 32px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
+            opacity: 0;
+            animation: fadeInTitle 1s ease-out 0.5s forwards;
+        }
+        
+        @keyframes fadeInTitle {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        /* 内容滚动框 */
+        .content-container {
+            width: 100%;
+            height: calc(100% - 100px);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 30px;
+            overflow-y: auto;
+            opacity: 0;
+            animation: fadeInContent 1s ease-out 1s forwards;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+        
+        @keyframes fadeInContent {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        /* 滚动条样式 */
+        .content-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .content-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        
+        .content-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+        
+        .content-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* 文本内容样式 */
+        .content-text {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.8;
+            font-size: 16px;
+            white-space: pre-line;
+        }
+        
+        .content-text h1 {
+            color: #00d4ff;
+            font-size: 28px;
+            font-weight: 300;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+        
+        .content-text h2 {
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 400;
+            margin: 30px 0 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 8px;
+        }
+        
+        .content-text p {
+            margin-bottom: 15px;
+        }
+        
+        .content-text ul {
+            margin: 15px 0;
+            padding-left: 20px;
+        }
+        
+        .content-text li {
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* 按钮样式已移至 buttons.css 文件 */
+        
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .main-container {
+                width: 95%;
+                height: 85vh;
+            }
+            
+            .page-title {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+            
+            .content-container {
+                padding: 20px;
+            }
+            
+            .content-text {
+                font-size: 14px;
+            }
+            
+            .content-text h1 {
+                font-size: 22px;
+            }
+            
+            .content-text h2 {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body class="second-page">
+    <!-- 星空背景 -->
+    <div class="starfield" id="starfield"></div>
+    
+    <!-- 返回按钮 -->
+    <div class="back-button" onclick="animatedBack()">
+        <svg viewBox="0 0 24 24">
+            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+    </div>
+    
+    <!-- 主容器 -->
+    <div class="main-container">
+        <h1 class="page-title">项目介绍</h1>
+        
+        <div class="content-container">
+            <div class="content-text" id="contentText">
+                <!-- 内容将通过JavaScript加载 -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- 底部灵动岛按钮 -->
+    <div class="dynamic-button" id="dynamicButton">
+        <div class="button-content">下一步</div>
+    </div>
+    
+    <script>
+        // 创建星空背景
+        function createStarfield() {
+            const starfield = document.getElementById('starfield');
+            const numStars = 200; // 与第一页保持一致
+            
+            // 使用固定种子的伪随机算法，确保所有页面星星位置一致
+            function seededRandom(seed) {
+                const x = Math.sin(seed) * 10000;
+                return x - Math.floor(x);
+            }
+            
+            for (let i = 0; i < numStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                // 使用与第一页相同的固定随机位置算法
+                const x = seededRandom(i * 12345) * 100; // 固定种子随机X位置
+                const y = seededRandom(i * 67890) * 100; // 固定种子随机Y位置
+                star.style.left = x + '%';
+                star.style.top = y + '%';
+                // 移除动画，直接显示星星
+                star.style.animation = 'none';
+                star.style.opacity = '0.8'; // 直接设置透明度
+                starfield.appendChild(star);
+            }
+        }
+        
+        // 加载项目介绍内容
+        function loadContent() {
+            const content = `班级管理系统使用指南
+====================
+
+系统简介
+--------
+
+班级管理系统是一个专为班级日常管理设计的综合性工具。系统采用现代化的网页界面，支持电脑和手机等多种设备使用，帮助班主任和班级管理人员高效处理各种班级事务。
+
+主要功能
+--------
+
+- 学生信息管理：完整的学生档案管理系统
+- 课程表管理：支持课程安排的查看和编辑
+- 值日安排：自动化的值日轮班管理
+- 作业管理：作业布置、提交和批改跟踪
+- 通知公告：班级重要信息发布平台
+- 随机点名：公平的课堂互动工具
+- 数据统计：各类班级数据的统计分析
+- 系统设置：个性化系统配置
+
+快速上手
+--------
+
+开始使用
+1. 打开系统主页
+2. 首次使用时，先进入"系统设置"配置班级基本信息
+3. 从主页选择需要的功能模块开始使用
+
+数据导入
+- 课程表：支持Excel表格导入，可参考提供的示例格式
+- 学生名单：支持批量导入，提高录入效率
+- 所有数据都会自动保存，无需手动保存
+
+使用技巧
+- 定期使用"数据备份"功能保护重要信息
+- 手机和电脑数据可以通过导出导入功能同步
+- 建议每学期开始时更新班级信息和学生名单
+
+使用建议
+--------
+
+数据安全
+- 重要数据请及时备份，避免意外丢失
+- 建议不要在公共电脑上使用，保护隐私信息
+- 学期结束后可以导出数据作为存档
+
+设备兼容
+- 推荐使用Chrome、Firefox、Safari等主流浏览器
+- 支持手机、平板、电脑等各种设备
+- 界面会自动适配不同屏幕尺寸
+
+使用提示
+- 数据量较大时，建议分批处理
+- 定期清理不需要的历史数据
+- 遇到问题可以尝试刷新页面
+
+常见问题
+--------
+
+数据丢失了怎么办？
+- 检查是否有备份文件可以恢复
+- 确认是否在正确的浏览器中使用
+
+如何在多个设备间同步数据？
+- 使用"导出数据"功能备份到文件
+- 在新设备上使用"导入数据"功能恢复
+
+系统运行缓慢怎么办？
+- 关闭其他不必要的网页标签
+- 清理浏览器缓存
+- 检查网络连接是否正常
+
+版权声明
+--------
+
+本系统及相关文档版权所有，未经许可不得复制或传播。使用本系统即表示您同意遵守相关使用条款和隐私政策。
+
+重要声明
+--------
+
+本激活流程中的所有文案内容均由人工智能(AI)编写生成，旨在为用户提供清晰的系统介绍和使用指导。`;
+            
+            // 格式化内容
+            const formattedContent = content
+                .replace(/^([^\n=\-]+)\n=+$/gm, '<h1>$1</h1>')
+                .replace(/^([^\n\-]+)\n-+$/gm, '<h2>$1</h2>')
+                .replace(/^- (.+)$/gm, '<li>$1</li>')
+                .replace(/((<li>.*<\/li>\s*)+)/g, '<ul>$1</ul>')
+                .replace(/\n\n/g, '</p><p>')
+                .replace(/^(.)/gm, '<p>$1')
+                .replace(/(.+)$/gm, '$1</p>')
+                .replace(/<p><h/g, '<h')
+                .replace(/<\/h([12])><\/p>/g, '</h$1>')
+                .replace(/<p><ul>/g, '<ul>')
+                .replace(/<\/ul><\/p>/g, '</ul>')
+                .replace(/<p><\/p>/g, '');
+            
+            document.getElementById('contentText').innerHTML = formattedContent;
+        }
+        
+        // 返回上一页
+        function goBack() {
+            window.history.back();
+        }
+        
+        // 返回功能
+          function animatedBack() {
+              const backButton = document.querySelector('.back-button');
+              
+              // 添加返回按钮缩回动画
+              if (backButton) {
+                  backButton.classList.add('shrinking');
+              }
+              
+              // 触发页面内容渐隐
+              document.body.classList.add('page-fading');
+              
+              // 等待渐隐动画完成后返回
+              setTimeout(() => {
+                  window.history.back();
+              }, 1200);
+          }
+        
+        // 初始化底部按钮
+        function initBottomButton() {
+            const button = document.getElementById('dynamicButton');
+            
+            // 显示按钮并启动展开动画
+            button.classList.add('show');
+            
+            // 延迟启动展开动画
+            setTimeout(() => {
+                button.classList.add('expanding');
+                
+                // 动画完成后设置为展开状态
+                setTimeout(() => {
+                    button.classList.remove('expanding');
+                    button.classList.add('expanded');
+                }, 2000);
+            }, 500);
+            
+            button.addEventListener('click', () => {
+                // 检查是否已展开完成
+                if (button.classList.contains('expanded')) {
+                    // 移除展开状态，添加收缩状态
+                    button.classList.remove('expanded');
+                    button.classList.add('shrinking');
+                    
+                    // 同时触发页面内容渐隐
+                    document.body.classList.add('page-fading');
+                    
+                    // 等待页面渐隐动画完成后跳转
+                    setTimeout(() => {
+                        window.location.href = './third.html';
+                    }, 1200);
+                }
+            });
+        }
+        
+
+        
+        // 初始化返回按钮
+        function initBackButton() {
+            const backButton = document.querySelector('.back-button');
+            if (backButton) {
+                // 延迟显示返回按钮
+                setTimeout(() => {
+                    backButton.classList.add('show');
+                }, 800);
+            }
+        }
+        
+        // 页面加载完成后初始化
+        window.addEventListener('load', function() {
+            createStarfield();
+            loadContent();
+            initBackButton();
+            initBottomButton();
+        });
+    </script>
+</body>
+</html>

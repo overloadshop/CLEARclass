@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>班级管理系统 - 班级人员配置</title>
+    <link rel="stylesheet" href="buttons.css">
+    <link rel="stylesheet" href="../popup-system/popup-system.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #111;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        /* 星空背景 */
+        .starfield {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at bottom, #2a3a4a 0%, #1a1a1f 100%);
+        }
+        
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle 3s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+        
+        /* 主容器 */
+        .main-container {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 800px;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        /* 标题 */
+        .page-title {
+            color: white;
+            font-size: 32px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
+            opacity: 0;
+            animation: fadeInTitle 1s ease-out 0.5s forwards;
+        }
+        
+        @keyframes fadeInTitle {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        /* 内容滚动框 */
+        .content-container {
+            width: 100%;
+            height: calc(100% - 100px);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 30px;
+            overflow-y: auto;
+            opacity: 0;
+            animation: fadeInContent 1s ease-out 1s forwards;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+        
+        @keyframes fadeInContent {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        /* 滚动条样式 */
+        .content-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .content-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        
+        .content-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+        
+        .content-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* 表单样式 */
+        .config-form {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.8;
+        }
+        
+        .config-form h1 {
+            color: #00d4ff;
+            font-size: 28px;
+            font-weight: 300;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+        
+        .config-form h2 {
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 400;
+            margin: 30px 0 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 8px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        
+        /* 必填字段星号样式 */
+        .required::after {
+            content: ' *';
+            color: #ff4444;
+            font-weight: bold;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        /* 学生列表样式 */
+        .student-list {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .student-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            margin-bottom: 8px;
+            color: white;
+        }
+        
+        .student-name {
+            font-weight: 500;
+        }
+        
+        .remove-btn {
+            background: rgba(244, 67, 54, 0.8);
+            border: none;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .remove-btn:hover {
+            background: rgba(244, 67, 54, 1);
+            transform: scale(1.05);
+        }
+        
+        /* 操作按钮 */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 8px 16px;
+            background: rgba(0, 212, 255, 0.2);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 6px;
+            color: #00d4ff;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            background: rgba(0, 212, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        /* 统计信息 */
+        .stats-info {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            color: white;
+        }
+        
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #00d4ff;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        /* 隐藏文件输入 */
+        .hidden-input {
+            display: none;
+        }
+        
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .main-container {
+                width: 95%;
+                height: 85vh;
+            }
+            
+            .page-title {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+            
+            .content-container {
+                padding: 20px;
+            }
+            
+            .config-form h1 {
+                font-size: 24px;
+            }
+            
+            .config-form h2 {
+                font-size: 18px;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .back-button {
+                top: 20px;
+                left: 20px;
+                width: 45px;
+                height: 45px;
+            }
+            
+            #dynamicIsland {
+                bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body class="third-page">
+    <div class="starfield"></div>
+    
+    <div class="main-container">
+        <h1 class="page-title">班级人员配置</h1>
+        
+        <div class="content-container">
+            <form class="config-form" id="configForm">
+                <h1>班级人员信息设置</h1>
+                
+                <h2>学生统计信息</h2>
+                <div class="stats-info">
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalCount">0</div>
+                        <div class="stat-label">总人数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="maleCount">0</div>
+                        <div class="stat-label">男生</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="femaleCount">0</div>
+                        <div class="stat-label">女生</div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="maleStudents">男生人数</label>
+                        <input type="number" id="maleStudents" min="0" placeholder="输入男生人数">
+                    </div>
+                    <div class="form-group">
+                        <label for="femaleStudents">女生人数</label>
+                        <input type="number" id="femaleStudents" min="0" placeholder="输入女生人数">
+                    </div>
+                </div>
+                
+                <h2>学生名单管理</h2>
+                <div class="form-group">
+                    <label for="studentName">添加学生</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="studentName" placeholder="输入学生姓名" style="flex: 1;">
+                        <button type="button" class="action-btn" onclick="addStudent()">添加</button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="batchStudents">批量添加</label>
+                    <textarea id="batchStudents" placeholder="每行输入一个学生姓名，支持批量添加" rows="4"></textarea>
+                    <div class="action-buttons">
+                        <button type="button" class="action-btn" onclick="batchAddStudents()">批量添加</button>
+                        <button type="button" class="action-btn" onclick="document.getElementById('importFile').click()">导入文件</button>
+                        <button type="button" class="action-btn" onclick="downloadSample()">下载示例</button>
+                    </div>
+                    <input type="file" id="importFile" class="hidden-input" accept=".txt,.csv" onchange="importStudentList()">
+                </div>
+                
+                <div class="form-group">
+                    <label>当前学生名单 (<span id="studentCount">0</span>人)</label>
+                    <div class="student-list" id="studentList">
+                        <div style="text-align: center; color: rgba(255,255,255,0.6); padding: 20px;">暂无学生信息</div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="back-button" onclick="animatedBack()">
+        <svg viewBox="0 0 24 24">
+            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+    </div>
+    
+    <div class="dynamic-button" id="dynamicButton">
+        <div class="button-content">完成配置</div>
+    </div>
+    
+    <script>
+        // 学生列表数据
+        let students = [];
+        
+        // 创建星空背景
+        function createStarfield() {
+            const starfield = document.querySelector('.starfield');
+            const starCount = 200; // 与第一页保持一致
+            
+            // 使用固定种子的伪随机算法，确保所有页面星星位置一致
+            function seededRandom(seed) {
+                const x = Math.sin(seed) * 10000;
+                return x - Math.floor(x);
+            }
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                // 使用与第一页相同的固定随机位置算法
+                const x = seededRandom(i * 12345) * 100; // 固定种子随机X位置
+                const y = seededRandom(i * 67890) * 100; // 固定种子随机Y位置
+                star.style.left = x + '%';
+                star.style.top = y + '%';
+                // 移除动画，直接显示星星
+                star.style.animation = 'none';
+                star.style.opacity = '0.8'; // 直接设置透明度
+                starfield.appendChild(star);
+            }
+        }
+        
+        // 更新统计信息
+        function updateStats() {
+            const total = students.length;
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('studentCount').textContent = total;
+            
+            // 这里可以根据实际需求计算男女生人数
+            // 暂时显示输入的数值
+            const maleInput = document.getElementById('maleStudents').value || 0;
+            const femaleInput = document.getElementById('femaleStudents').value || 0;
+            document.getElementById('maleCount').textContent = maleInput;
+            document.getElementById('femaleCount').textContent = femaleInput;
+        }
+        
+        // 更新学生列表显示
+        function updateStudentList() {
+            const listContainer = document.getElementById('studentList');
+            
+            if (students.length === 0) {
+                listContainer.innerHTML = '<div style="text-align: center; color: rgba(255,255,255,0.6); padding: 20px;">暂无学生信息</div>';
+                return;
+            }
+            
+            listContainer.innerHTML = students.map(student => `
+                <div class="student-item">
+                    <span class="student-name">${student}</span>
+                    <button class="remove-btn" onclick="removeStudent('${student}')">删除</button>
+                </div>
+            `).join('');
+        }
+        
+        // 添加单个学生
+        function addStudent() {
+            const nameInput = document.getElementById('studentName');
+            const name = nameInput.value.trim();
+            
+            if (!name) {
+                showToast('请输入学生姓名', 'warning');
+                return;
+            }
+            
+            if (students.includes(name)) {
+                showToast('该学生已存在', 'warning');
+                return;
+            }
+            
+            students.push(name);
+            
+            // 同步到StudentListCache
+            if (typeof studentListCache !== 'undefined') {
+                studentListCache.add(name);
+            }
+            
+            nameInput.value = '';
+            updateStudentList();
+            updateStats();
+            showToast('学生添加成功', 'success');
+        }
+        
+        // 批量添加学生
+        function batchAddStudents() {
+            const textarea = document.getElementById('batchStudents');
+            const text = textarea.value.trim();
+            
+            if (!text) {
+                showToast('请输入学生名单', 'warning');
+                return;
+            }
+            
+            const names = text.split('\n').map(name => name.trim()).filter(name => name);
+            let addedCount = 0;
+            let duplicateCount = 0;
+            
+            names.forEach(name => {
+                if (!students.includes(name)) {
+                    students.push(name);
+                    
+                    // 同步到StudentListCache
+                    if (typeof studentListCache !== 'undefined') {
+                        studentListCache.add(name);
+                    }
+                    
+                    addedCount++;
+                } else {
+                    duplicateCount++;
+                }
+            });
+            
+            textarea.value = '';
+            updateStudentList();
+            updateStats();
+            
+            if (addedCount > 0) {
+                let message = `成功添加 ${addedCount} 名学生`;
+                if (duplicateCount > 0) {
+                    message += `，${duplicateCount} 名学生已存在`;
+                }
+                showToast(message, 'success');
+            } else {
+                showToast('没有新学生被添加', 'warning');
+            }
+        }
+        
+        // 导入学生名单文件
+        function importStudentList() {
+            const fileInput = document.getElementById('importFile');
+            const file = fileInput.files[0];
+            
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const content = e.target.result;
+                    const names = content.split('\n')
+                        .map(name => name.trim())
+                        .filter(name => name.length > 0);
+                    
+                    if (names.length === 0) {
+                        showToast('文件中没有找到有效的学生姓名', 'warning');
+                        return;
+                    }
+                    
+                    let addedCount = 0;
+                    let duplicateCount = 0;
+                    
+                    names.forEach(name => {
+                        if (!students.includes(name)) {
+                            students.push(name);
+                            
+                            // 同步到StudentListCache
+                            if (typeof studentListCache !== 'undefined') {
+                                studentListCache.add(name);
+                            }
+                            
+                            addedCount++;
+                        } else {
+                            duplicateCount++;
+                        }
+                    });
+                    
+                    updateStudentList();
+                    updateStats();
+                    
+                    if (addedCount > 0) {
+                        let message = `成功导入 ${addedCount} 名学生`;
+                        if (duplicateCount > 0) {
+                            message += `，${duplicateCount} 名学生已存在`;
+                        }
+                        showToast(message, 'success');
+                    } else {
+                        showToast('所有学生都已存在', 'warning');
+                    }
+                } catch (error) {
+                    showToast('文件读取失败，请检查文件格式', 'error');
+                }
+            };
+            
+            reader.readAsText(file, 'UTF-8');
+            fileInput.value = '';
+        }
+        
+        // 下载示例文件
+        function downloadSample() {
+            const sampleContent = '张三\n李四\n王五\n赵六\n钱七\n孙八\n周九\n吴十\n郑十一\n王十二\n冯十三\n陈十四\n褚十五\n卫十六\n蒋十七\n沈十八\n韩十九\n杨二十\n朱二十一\n秦二十二\n尤二十三\n许二十四\n何二十五\n吕二十六\n施二十七\n张二十八\n孔二十九\n曹三十';
+            
+            const blob = new Blob([sampleContent], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '示例人员名单.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast('示例文件下载成功', 'success');
+        }
+        
+        // 删除学生
+        function removeStudent(name) {
+            if (confirm(`确定要删除学生 "${name}" 吗？`)) {
+                const index = students.indexOf(name);
+                if (index > -1) {
+                    students.splice(index, 1);
+                    
+                    // 同步到StudentListCache
+                    if (typeof studentListCache !== 'undefined') {
+                        studentListCache.remove(name);
+                    }
+                    
+                    updateStudentList();
+                    updateStats();
+                    showToast('学生删除成功', 'success');
+                }
+            }
+        }
+        
+        // 验证必填字段
+        function validateRequiredFields() {
+            if (students.length === 0) {
+                showToast('请至少添加一名学生', 'error');
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // 返回功能
+        function animatedBack() {
+              const backButton = document.querySelector('.back-button');
+              
+              // 添加返回按钮缩回动画
+              if (backButton) {
+                  backButton.classList.add('shrinking');
+              }
+              
+              // 触发页面内容渐隐
+              document.body.classList.add('page-fading');
+              
+              // 等待渐隐动画完成后返回
+              setTimeout(() => {
+                  window.history.back();
+              }, 1200);
+          }
+        
+        // 初始化底部按钮
+        function initBottomButton() {
+            const button = document.getElementById('dynamicButton');
+            
+            // 显示按钮并启动展开动画
+            button.classList.add('show');
+            
+            // 延迟启动展开动画
+            setTimeout(() => {
+                button.classList.add('expanding');
+                
+                // 动画完成后设置为展开状态
+                setTimeout(() => {
+                    button.classList.remove('expanding');
+                    button.classList.add('expanded');
+                }, 2000);
+            }, 500);
+            
+            button.addEventListener('click', () => {
+                // 检查是否已展开完成
+                if (button.classList.contains('expanded')) {
+                    // 验证必填字段
+                    if (!validateRequiredFields()) {
+                        return; // 验证失败，不执行后续操作
+                    }
+                    
+                    // 保存配置
+                    saveConfiguration();
+                    
+                    // 显示完成提示
+                    console.log('配置完成！');
+                    
+                    // 移除展开状态，添加收缩状态
+                    button.classList.remove('expanded');
+                    button.classList.add('shrinking');
+                    
+                    // 同时触发页面内容渐隐
+                    document.body.classList.add('page-fading');
+                    
+                    // 等待页面渐隐动画完成后跳转到第六页
+                    setTimeout(() => {
+                        window.location.href = './sixth.html';
+                    }, 1200);
+                }
+            });
+        }
+        
+        // 保存配置到本地存储
+         function saveConfiguration() {
+             const maleStudents = document.getElementById('maleStudents').value;
+             const femaleStudents = document.getElementById('femaleStudents').value;
+             
+             const config = {
+                 totalStudents: students.length,
+                 maleStudents: parseInt(maleStudents) || 0,
+                 femaleStudents: parseInt(femaleStudents) || 0,
+                 students: students,
+                 timestamp: new Date().toISOString()
+             };
+             
+             // 保存到本地存储（使用与班级设置页面相同的键名）
+             localStorage.setItem('personnelConfig', JSON.stringify(config));
+             
+             // 同时保存学生名单到StudentListCache
+             if (typeof studentListCache !== 'undefined') {
+                 studentListCache.clear();
+                 students.forEach(name => studentListCache.add(name));
+             }
+             
+             console.log('班级人员配置已保存:', config);
+             showToast('班级人员配置保存成功', 'success');
+         }
+        
+        // 加载已保存的配置
+        function loadConfiguration() {
+            try {
+                // 加载人员统计配置
+                const saved = localStorage.getItem('personnelConfig');
+                if (saved) {
+                    const config = JSON.parse(saved);
+                    document.getElementById('totalStudents').value = config.totalStudents || '';
+                    document.getElementById('maleStudents').value = config.maleStudents || '';
+                    document.getElementById('femaleStudents').value = config.femaleStudents || '';
+                }
+                
+                // 从StudentListCache加载学生名单
+                if (typeof studentListCache !== 'undefined') {
+                    students = studentListCache.getAll();
+                } else {
+                    // 如果StudentListCache不可用，从配置中加载
+                    students = saved ? (JSON.parse(saved).students || []) : [];
+                }
+                
+                updateStudentList();
+                updateStats();
+            } catch (error) {
+                console.log('加载配置失败:', error);
+            }
+        }
+        
+        // 初始化返回按钮
+        function initBackButton() {
+            const backButton = document.querySelector('.back-button');
+            if (backButton) {
+                // 延迟显示返回按钮
+                setTimeout(() => {
+                    backButton.classList.add('show');
+                }, 800);
+            }
+        }
+        
+        // 监听输入变化
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('maleStudents').addEventListener('input', updateStats);
+            document.getElementById('femaleStudents').addEventListener('input', updateStats);
+            
+            // 回车键添加学生
+            document.getElementById('studentName').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addStudent();
+                }
+            });
+        });
+        
+        // 页面加载完成后初始化
+        window.addEventListener('load', function() {
+            createStarfield();
+            loadConfiguration();
+            initBackButton();
+            initBottomButton();
+        });
+    </script>
+    <script src="../popup-system/toast.js"></script>
+    <script src="../Cache/StudentListCache.js"></script>
+</body>
+</html>
